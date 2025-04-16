@@ -1,0 +1,1 @@
+Contiene los @Entity para relacionar a la tabla en la bases de datos

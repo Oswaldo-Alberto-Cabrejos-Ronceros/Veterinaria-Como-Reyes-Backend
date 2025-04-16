@@ -1,0 +1,1 @@
+Configuracion de los errores personalizados como los errores globales

@@ -1,0 +1,1 @@
+Dto para transferir datos entre capas
