@@ -1,0 +1,41 @@
+package com.veterinaria.veterinaria_comoreyes.controller;
+
+import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterDTO;
+import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/headquarters")
+public class HeadquarterController {
+
+    @Autowired
+    private IHeadquarterService headquarterService;
+
+    @GetMapping
+    public List<HeadquarterDTO> getAllHeadquarters() {
+        return headquarterService.getAllHeadquarters();
+    }
+
+    @GetMapping("/{id}")
+    public HeadquarterDTO getHeadquarterById(@PathVariable Long id) {
+        return headquarterService.getHeadquarterById(id);
+    }
+
+    @PostMapping
+    public HeadquarterDTO createHeadquarter(@RequestBody HeadquarterDTO dto) {
+        return headquarterService.createHeadquarter(dto);
+    }
+
+    @PutMapping("/{id}")
+    public HeadquarterDTO updateHeadquarter(@PathVariable Long id, @RequestBody HeadquarterDTO dto) {
+        return headquarterService.updateHeadquarter(id, dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteHeadquarter(@PathVariable Long id) {
+        headquarterService.deleteHeadquarter(id);
+    }
+}
