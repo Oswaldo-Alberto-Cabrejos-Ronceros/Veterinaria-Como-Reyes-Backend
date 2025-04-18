@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +26,12 @@ public class HeadquarterController {
     }
 
     @PostMapping
-    public HeadquarterDTO createHeadquarter(@RequestBody HeadquarterDTO dto) {
+    public HeadquarterDTO createHeadquarter(@Valid @RequestBody HeadquarterDTO dto) {
         return headquarterService.createHeadquarter(dto);
     }
 
     @PutMapping("/{id}")
-    public HeadquarterDTO updateHeadquarter(@PathVariable Long id, @RequestBody HeadquarterDTO dto) {
+    public HeadquarterDTO updateHeadquarter(@PathVariable Long id, @Valid @RequestBody HeadquarterDTO dto) {
         return headquarterService.updateHeadquarter(id, dto);
     }
 
