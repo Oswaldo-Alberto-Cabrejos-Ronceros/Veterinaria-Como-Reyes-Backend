@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.PermissionDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPermissionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +26,12 @@ public class PermissionController {
     }
 
     @PostMapping
-    public PermissionDTO createPermission(@RequestBody PermissionDTO permissionDTO) {
+    public PermissionDTO createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {
         return permissionService.createPermission(permissionDTO);
     }
 
     @PutMapping("/{id}")
-    public PermissionDTO updatePermission(@PathVariable Long id, @RequestBody PermissionDTO permissionDTO) {
+    public PermissionDTO updatePermission(@PathVariable Long id, @Valid @RequestBody PermissionDTO permissionDTO) {
         return permissionService.updatePermission(id, permissionDTO);
     }
 

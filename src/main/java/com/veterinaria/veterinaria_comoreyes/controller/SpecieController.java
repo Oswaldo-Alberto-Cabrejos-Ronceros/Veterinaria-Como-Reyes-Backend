@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,12 +26,12 @@ public class SpecieController {
     }
 
     @PostMapping
-    public SpecieDTO createSpecie(@RequestBody SpecieDTO specieDTO) {
+    public SpecieDTO createSpecie(@Valid @RequestBody SpecieDTO specieDTO) {
         return specieService.createSpecie(specieDTO);
     }
 
     @PutMapping("/{id}")
-    public SpecieDTO updateSpecie(@PathVariable Long id, @RequestBody SpecieDTO specieDTO) {
+    public SpecieDTO updateSpecie(@PathVariable Long id, @Valid @RequestBody SpecieDTO specieDTO) {
         return specieService.updateSpecie(id, specieDTO);
     }
 
