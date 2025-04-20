@@ -9,15 +9,17 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
-public class User {
+@AllArgsConstructor
+public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
-    private String type;
-    private String email;
-    private String password;
-    private Integer status;
+    private Long roleId;
+
+    private String name;
+
+    private String description;
+
+    private Byte status;
 }

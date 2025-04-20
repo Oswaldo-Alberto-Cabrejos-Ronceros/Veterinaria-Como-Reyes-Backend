@@ -5,6 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.UserRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public UserDTO getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return UserMapper.maptoUserDTO(user);
+    }
+
+    @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
@@ -32,6 +39,7 @@ public class UserServiceImpl implements IUserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         User user = UserMapper.maptoUser(userDTO);
@@ -39,6 +47,7 @@ public class UserServiceImpl implements IUserService {
         return UserMapper.maptoUserDTO(savedUser);
     }
 
+    @Transactional
     @Override
     public UserDTO updateUser(Long id, UserDTO userDTO) {
         User user = userRepository.findById(id)
@@ -53,6 +62,7 @@ public class UserServiceImpl implements IUserService {
         return UserMapper.maptoUserDTO(updatedUser);
     }
 
+    @Transactional
     @Override
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)

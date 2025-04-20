@@ -8,6 +8,8 @@ public interface IUserService {
     
     UserDTO getUserById(Long id);
 
+    UserDTO getUserByEmail(String email);
+
     List<UserDTO> getAllUsers();
 
     UserDTO createUser(UserDTO userDTO);
