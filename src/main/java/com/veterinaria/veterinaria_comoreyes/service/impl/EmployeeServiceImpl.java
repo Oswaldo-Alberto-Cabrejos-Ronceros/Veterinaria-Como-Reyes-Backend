@@ -1,9 +1,11 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.mapper.EmployeeMapper;
+import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import jakarta.transaction.Transactional;
@@ -31,8 +33,8 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public EmployeeDTO getEmployeeByUser(User user) {
-        Employee employee = employeeRepository.findByUser(user).orElseThrow(()->new RuntimeException("Employee not found with user: " + user.getUserId()));
+    public EmployeeDTO getEmployeeByUser(UserDTO userDTO) {
+        Employee employee = employeeRepository.findByUser(UserMapper.maptoUser(userDTO)).orElseThrow(()->new RuntimeException("Employee not found with user: " + userDTO.getUserId()));
         return EmployeeMapper.mapToEmployeeDTO(employee);
     }
 

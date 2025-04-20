@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
+import com.veterinaria.veterinaria_comoreyes.dto.AuthenticationResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 
@@ -37,5 +38,7 @@ public class EmployeeMapper {
                 employeeDTO.getStatus()
         );
     }
-
+    public static AuthenticationResponseDTO mapToAuthenticationResponseDTO(Long userId,EmployeeDTO employeeDTO,String jwtToken, String refreshToken) {
+        return new AuthenticationResponseDTO(userId,employeeDTO.getName(),employeeDTO.getRole().getName(),jwtToken,refreshToken);
+    }
 }

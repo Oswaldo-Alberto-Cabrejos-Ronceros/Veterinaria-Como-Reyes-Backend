@@ -34,7 +34,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if(user.getType().equalsIgnoreCase("C")){
             authorities= List.of(new SimpleGrantedAuthority("CLIENT"));
         } else {
-            EmployeeDTO employee = iEmployeeService.getEmployeeByUser(UserMapper.maptoUser(user));
+            EmployeeDTO employee = iEmployeeService.getEmployeeByUser(user);
             authorities= List.of(new SimpleGrantedAuthority(employee.getRole().getName()));
         }
 

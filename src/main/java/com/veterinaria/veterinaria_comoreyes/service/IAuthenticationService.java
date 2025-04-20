@@ -1,15 +1,17 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
+import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
-import com.veterinaria.veterinaria_comoreyes.models.AuthenticationResponse;
-import com.veterinaria.veterinaria_comoreyes.models.LoginRequest;
+import com.veterinaria.veterinaria_comoreyes.dto.AuthenticationResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.LoginRequestDTO;
 
 public interface IAuthenticationService {
     //for authenticate client
-    public AuthenticationResponse authenticateClient(LoginRequest loginRequest);
-    public AuthenticationResponse authenticateEmployee(LoginRequest loginRequest);
+    AuthenticationResponseDTO authenticateClient(LoginRequestDTO loginRequestDTO);
+    AuthenticationResponseDTO authenticateEmployee(LoginRequestDTO loginRequestDTO);
     //para refrescar token
-    public String refreshToken(String refreshToken);
+    String refreshToken(String refreshToken);
     //solo para registrar clientes
-    public AuthenticationResponse registerUser(User user);
+    AuthenticationResponseDTO registerUserClient(ClientDTO clientDTO, UserDTO userDTO);
 }
