@@ -19,31 +19,34 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    //getting the secret key
+    //obtenemos la clsve secrete de aplication properties
     @Value("${jwt.secret}")
     private String secretKey;
-    //inicialize key
+    //generamos la clave para firmar
+    //declaramos key
     private Key key;
+    //inicializamos key
+
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    //for access token
+    //para el token de acceso
     public String generateAccessToken(Authentication authentication) {
         String email = authentication.getPrincipal().toString();
         String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
         return Jwts.builder().setSubject(email).setIssuedAt(new Date()).claim("authorities", authorities).setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000)).signWith(key).compact();
     }
 
-    //for refresh token
+    //para generar el token de refresco
     public String generateRefreshToken(Authentication authentication) {
         String email = authentication.getPrincipal().toString();
         return Jwts.builder().setSubject(email).setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + 120 * 60 * 60 * 1000)).signWith(key).compact();
     }
 
 
-    //for validate token
+    //para validar token
     public boolean validateToken(String token) {
         try {
             //para verificar, si falla el token es invalido
@@ -59,18 +62,19 @@ public class JwtUtil {
         }
     }
 
-    //for getting email from token
+    //para obtener el email del token
     public String getEmailFromJwt(String token) {
         return getClaimsIfValid(token).getSubject();
     }
 
-    //for getting authorities from token
+    //para obetener las autoridades del token
     public List<GrantedAuthority> getAuthoritiesFromJwt(String token) {
         String authorities = getClaimsIfValid(token).get("authorities", String.class);
         return List.of(authorities.split(",")).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
-    //for verifier if token is expired
+    //para verificar si el token esta expirado
+
     public boolean isTokenExpired(String token) {
         try {
             //obtenemos la fecha de expiracion del token
@@ -81,7 +85,7 @@ public class JwtUtil {
         }
     }
 
-    //for getting claims
+    //para obtener los claims si es validad
     private Claims getClaimsIfValid(String token) {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();

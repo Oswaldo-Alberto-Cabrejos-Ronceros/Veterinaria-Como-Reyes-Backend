@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.config;
 
+import com.veterinaria.veterinaria_comoreyes.service.impl.UserDetailsServiceImpl;
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -34,14 +35,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,AuthenticationProvider authenticationProvider) throws Exception {
+        http.authenticationProvider(authenticationProvider);
         return http.csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        httpRequests -> {
-                            //permisions
-                            httpRequests.anyRequest().authenticated();
+                        httpRequest -> {
+                            httpRequest.requestMatchers("/auth/**").permitAll();
+                            //permision
+                            httpRequest.requestMatchers("/api/**").permitAll();
+                            httpRequest.anyRequest().authenticated();
                         }
                 ).exceptionHandling(
                         exception -> exception.authenticationEntryPoint((request, response, authException) -> {
@@ -61,15 +65,13 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /*
     @Bean
-    public AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider( UserDetailsServiceImpl userDetailsServiceImp) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-        //implement with authService
+        provider.setUserDetailsService(userDetailsServiceImp::loadUserByUsername);
         return provider;
     }
-*/
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

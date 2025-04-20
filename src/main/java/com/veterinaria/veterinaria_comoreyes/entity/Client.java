@@ -7,17 +7,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
-public class User {
+public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long userId;
-    private String type;
-    private String email;
-    private String password;
-    private Integer status;
+    private long clientId;
+    private String name;
+    private String lastName;
+    private String address;
+    private String phone;
+    private String dirImage;
+    @OneToOne
+    private Headquarter headquarter;
+    @OneToOne
+    private User user;
+    private Byte status;
 }
