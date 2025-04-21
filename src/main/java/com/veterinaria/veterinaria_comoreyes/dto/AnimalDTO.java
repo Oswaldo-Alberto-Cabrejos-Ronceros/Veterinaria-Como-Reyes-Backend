@@ -1,0 +1,59 @@
+package com.veterinaria.veterinaria_comoreyes.dto;
+
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.veterinaria.veterinaria_comoreyes.entity.Breed;
+import com.veterinaria.veterinaria_comoreyes.entity.Client;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class AnimalDTO {
+
+    private Long animalId;
+
+    @NotBlank(message = "El nombre de la raza es obligatorio")
+    @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
+    private String name;
+
+    @NotBlank(message = "El genero es obligatorio")
+    @Size(min=1, max = 1,message = "El genero solo tiene un digito")
+    private String gender;
+
+    @NotBlank(message = "El peso es obligatorio")
+
+    private float weight;
+
+    @Past
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    @NotBlank(message = "La fecha de nacimiento es obligatorio")
+    private LocalDate birthDate;
+
+    @Null
+    @Size(max=255, message = "El comentario solo debe tener menos de 255 digitos")
+    private String comment;
+
+    @NotBlank
+    private String urlImage;
+
+    @NotNull
+    @ManyToOne
+    private Breed breed;
+
+    @NotNull
+    @ManyToOne
+    private Client client;
+
+    @NotNull
+    private Byte status;
+
+}

@@ -35,13 +35,13 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeCreated);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<EmployeeDTO> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employee) {
         EmployeeDTO employeeUpdated = employeeService.updateEmployee(id, employee);
         return ResponseEntity.ok(employeeUpdated);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
