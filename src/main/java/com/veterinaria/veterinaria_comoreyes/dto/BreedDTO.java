@@ -1,9 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.dto;
 
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +23,7 @@ public class BreedDTO {
     private String name;
 
     @NotNull
-    @Size(min = 0, max = 1, message = "El estado debe ser 0 o 1")
-    private Byte status;
+    @Max(value = 1, message = "El estado debe ser 0 o 1")
+    @Min(value = 0, message = "El estado debe ser 0 o 1")
+    private Byte status=1;
 }

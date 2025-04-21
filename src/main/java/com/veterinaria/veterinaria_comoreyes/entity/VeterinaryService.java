@@ -16,10 +16,12 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Service {
+public class VeterinaryService {
     @Id
     @GeneratedValue
     private Long serviceId;
+
+    private String name;
 
     private String description;
 

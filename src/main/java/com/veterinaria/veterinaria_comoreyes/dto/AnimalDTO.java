@@ -29,8 +29,8 @@ public class AnimalDTO {
     @Size(min=1, max = 1,message = "El genero solo tiene un digito")
     private String gender;
 
-    @NotBlank(message = "El peso es obligatorio")
-
+    @NotNull(message = "El peso es obligatorio")
+    @Digits(integer = 3,fraction = 2, message = "El peso debe tener como maximo 2 digitos")
     private float weight;
 
     @Past
@@ -54,6 +54,8 @@ public class AnimalDTO {
     private Client client;
 
     @NotNull
-    private Byte status;
+    @Max(value = 1, message = "El estado debe ser 0 o 1")
+    @Min(value = 0, message = "El estado debe ser 0 o 1")
+    private Byte status=1;
 
 }
