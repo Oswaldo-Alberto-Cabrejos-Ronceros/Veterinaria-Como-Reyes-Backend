@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -30,7 +31,7 @@ public class JwtUtil {
     // obtenemos el tiempo de expiracion del token de acceso y refresco
     @Value("${jwt.expiration}")
     private int jwtExpirationMs;
-    
+
     @Value("${jwt.refresh}")
     private int refreshExpirationMs;
 
@@ -88,12 +89,16 @@ public class JwtUtil {
 
     public boolean isTokenExpired(String token) {
         try {
-            // obtenemos la fecha de expiracion del token
-            Date expirateDate = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody()
-                    .getExpiration();
-            return expirateDate.before(new Date());
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true; // Claramente está expirado
         } catch (JwtException e) {
-            return false;
+            return false; // Token inválido (dañado, mal formado, etc.)
         }
     }
 

@@ -1,13 +1,11 @@
 package com.veterinaria.veterinaria_comoreyes.security;
 
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
@@ -20,10 +18,10 @@ public class JwtServiceTest {
     @BeforeEach
     void setUp() {
         jwtUtil = new JwtUtil();
-        jwtUtil.setJwtSecret("test-secret-key-12345678901234567890123456789012");
+        jwtUtil.setJwtSecret("test-secret-key-12345678901234567890123456789012"); // clave segura (mín. 32 bytes)
         jwtUtil.setJwtExpirationMs(3600000); // 1 hora
-        jwtUtil.setRefreshExpirationMs(7200000); // 2 horas
-        jwtUtil.init(); // importante para inicializar la clave secreta
+        jwtUtil.setRefreshExpirationMs(432000000); // 120 horas
+        jwtUtil.init(); // inicializa la clave 'key' para firmar tokens
     }
 
     @Test
@@ -32,12 +30,12 @@ public class JwtServiceTest {
         var auth = new UsernamePasswordAuthenticationToken(
                 "test@correo.com",
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_CLIENT"))
-        );
+                List.of(new SimpleGrantedAuthority("ROLE_CLIENT")));
 
         String token = jwtUtil.generateAccessToken(auth);
-        assertNotNull(token);
-        assertFalse(token.isBlank());
+
+        assertNotNull(token, "El token no debe ser null");
+        assertFalse(token.isBlank(), "El token no debe estar vacío");
     }
 
     @Test
@@ -47,7 +45,8 @@ public class JwtServiceTest {
         String token = jwtUtil.generateAccessToken(auth);
 
         String email = jwtUtil.getEmailFromJwt(token);
-        assertEquals("correo@ejemplo.com", email);
+
+        assertEquals("correo@ejemplo.com", email, "El email extraído debe coincidir con el original");
     }
 
     @Test
@@ -56,7 +55,7 @@ public class JwtServiceTest {
         var auth = new UsernamePasswordAuthenticationToken("correo@ejemplo.com", null, List.of());
         String token = jwtUtil.generateAccessToken(auth);
 
-        assertTrue(jwtUtil.validateToken(token));
+        assertTrue(jwtUtil.validateToken(token), "El token debe ser válido");
     }
 
     @Test
@@ -64,21 +63,21 @@ public class JwtServiceTest {
     void testInvalidToken() {
         String invalidToken = "abc.def.ghi";
 
-        assertFalse(jwtUtil.validateToken(invalidToken));
+        assertFalse(jwtUtil.validateToken(invalidToken), "El token inválido no debe pasar validación");
     }
 
     @Test
     @DisplayName("Detectar token expirado")
     void testExpiredToken() throws InterruptedException {
-        jwtUtil.setJwtExpirationMs(1); // Expira en 1 ms
+        jwtUtil.setJwtExpirationMs(1); // expira en 1 ms
         jwtUtil.init();
 
         var auth = new UsernamePasswordAuthenticationToken("correo@expirado.com", null, List.of());
         String token = jwtUtil.generateAccessToken(auth);
 
-        Thread.sleep(5); // Esperar para que expire
+        Thread.sleep(10); // esperar que expire
 
-        assertFalse(jwtUtil.validateToken(token));
-        assertTrue(jwtUtil.isTokenExpired(token));
+        assertFalse(jwtUtil.validateToken(token), "El token expirado no debe ser válido");
+        assertTrue(jwtUtil.isTokenExpired(token), "Debe detectarse como expirado");
     }
 }
