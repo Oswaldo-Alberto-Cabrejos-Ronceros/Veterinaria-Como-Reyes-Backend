@@ -18,7 +18,8 @@ public class JwtServiceTest {
 
     /**
      * Inicializa una instancia de JwtUtil antes de cada prueba.
-     * Se configura con una clave secreta y tiempos de expiración.
+     * Se configura con una clave secreta y tiempos de expiración tanto del token de
+     * acceso como del de refresco.
      */
     @BeforeEach
     void setUp() {
@@ -30,7 +31,8 @@ public class JwtServiceTest {
     }
 
     /**
-     * Verifica que se genere correctamente un token JWT a partir de una autenticación válida.
+     * Verifica que se genere correctamente un token JWT a partir de una
+     * autenticación válida.
      */
     @Test
     @DisplayName("Generar token JWT exitosamente")
@@ -38,8 +40,7 @@ public class JwtServiceTest {
         var auth = new UsernamePasswordAuthenticationToken(
                 "test@correo.com",
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_CLIENT"))
-        );
+                List.of(new SimpleGrantedAuthority("ROLE_CLIENT")));
 
         String token = jwtUtil.generateAccessToken(auth);
 
