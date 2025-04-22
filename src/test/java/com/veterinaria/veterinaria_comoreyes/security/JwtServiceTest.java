@@ -11,26 +11,35 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// Clase de prueba para validar el comportamiento de JwtUtil
 public class JwtServiceTest {
 
     private JwtUtil jwtUtil;
 
+    /**
+     * Inicializa una instancia de JwtUtil antes de cada prueba.
+     * Se configura con una clave secreta y tiempos de expiración.
+     */
     @BeforeEach
     void setUp() {
         jwtUtil = new JwtUtil();
-        jwtUtil.setJwtSecret("test-secret-key-12345678901234567890123456789012"); // clave segura (mín. 32 bytes)
+        jwtUtil.setJwtSecret("test-secret-key-12345678901234567890123456789012"); // clave segura
         jwtUtil.setJwtExpirationMs(3600000); // 1 hora
         jwtUtil.setRefreshExpirationMs(432000000); // 120 horas
-        jwtUtil.init(); // inicializa la clave 'key' para firmar tokens
+        jwtUtil.init();
     }
 
+    /**
+     * Verifica que se genere correctamente un token JWT a partir de una autenticación válida.
+     */
     @Test
     @DisplayName("Generar token JWT exitosamente")
     void testGenerateToken() {
         var auth = new UsernamePasswordAuthenticationToken(
                 "test@correo.com",
                 null,
-                List.of(new SimpleGrantedAuthority("ROLE_CLIENT")));
+                List.of(new SimpleGrantedAuthority("ROLE_CLIENT"))
+        );
 
         String token = jwtUtil.generateAccessToken(auth);
 
@@ -38,6 +47,9 @@ public class JwtServiceTest {
         assertFalse(token.isBlank(), "El token no debe estar vacío");
     }
 
+    /**
+     * Extrae correctamente el email desde un token válido.
+     */
     @Test
     @DisplayName("Extraer correo desde token válido")
     void testGetEmailFromToken() {
@@ -49,6 +61,9 @@ public class JwtServiceTest {
         assertEquals("correo@ejemplo.com", email, "El email extraído debe coincidir con el original");
     }
 
+    /**
+     * Valida correctamente un token recién generado.
+     */
     @Test
     @DisplayName("Validar token correcto")
     void testValidateCorrectToken() {
@@ -58,6 +73,9 @@ public class JwtServiceTest {
         assertTrue(jwtUtil.validateToken(token), "El token debe ser válido");
     }
 
+    /**
+     * Detecta correctamente un token inválido con estructura incorrecta.
+     */
     @Test
     @DisplayName("Detectar token inválido")
     void testInvalidToken() {
@@ -66,6 +84,9 @@ public class JwtServiceTest {
         assertFalse(jwtUtil.validateToken(invalidToken), "El token inválido no debe pasar validación");
     }
 
+    /**
+     * Detecta que un token expirado ya no es válido.
+     */
     @Test
     @DisplayName("Detectar token expirado")
     void testExpiredToken() throws InterruptedException {
