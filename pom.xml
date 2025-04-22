@@ -98,6 +98,14 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- for swagger -->
+
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+
 		<!-- for amazon s3-->
 
 		<dependency>
