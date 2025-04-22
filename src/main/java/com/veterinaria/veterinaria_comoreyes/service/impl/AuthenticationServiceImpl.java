@@ -25,16 +25,22 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private final IUserService userService;
     private final IClientService clientService;
     private final IEmployeeService employeeService;
-    private final PasswordEncoder passwordEncoder;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationServiceImpl(JwtUtil jwtUtil, IUserService userService,IClientService clientService,IEmployeeService employeeService,UserDetailsServiceImpl userDetailsServiceImpl) {
+    public AuthenticationServiceImpl(
+            JwtUtil jwtUtil,
+            IUserService userService,
+            IClientService clientService,
+            IEmployeeService employeeService,
+            UserDetailsServiceImpl userDetailsServiceImpl,
+            PasswordEncoder passwordEncoder) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.clientService = clientService;
         this.employeeService = employeeService;
-        this.passwordEncoder = new BCryptPasswordEncoder();
         this.userDetailsServiceImpl = userDetailsServiceImpl;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -42,16 +48,17 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(loginRequestDTO.getEmail());
         System.out.println(userDetails.getPassword());
         System.out.println(loginRequestDTO.getPassword());
-        if (passwordEncoder.matches(loginRequestDTO.getPassword(),userDetails.getPassword())) {
+        if (passwordEncoder.matches(loginRequestDTO.getPassword(), userDetails.getPassword())) {
             // generamos token
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null,
+                    userDetails.getAuthorities());
             String jwtToken = jwtUtil.generateAccessToken(authentication);
             // generamos refresh token
             String refreshToken = jwtUtil.generateRefreshToken(authentication);
             // obtenemos al client
             UserDTO userDTO = userService.getUserByEmail(userDetails.getUsername());
             ClientDTO clientDTO = clientService.getClientByUser(userDTO);
-            return ClientMapper.mapToAuthenticationResponseDTO(userDTO.getUserId(),clientDTO, jwtToken, refreshToken);
+            return ClientMapper.mapToAuthenticationResponseDTO(userDTO.getUserId(), clientDTO, jwtToken, refreshToken);
         } else {
             throw new BadCredentialsException("Credenciales incorrectas");
         }
@@ -60,16 +67,18 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     @Override
     public AuthenticationResponseDTO authenticateEmployee(LoginRequestDTO loginRequestDTO) {
         UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(loginRequestDTO.getEmail());
-        if (passwordEncoder.matches(loginRequestDTO.getPassword(),userDetails.getPassword())) {
+        if (passwordEncoder.matches(loginRequestDTO.getPassword(), userDetails.getPassword())) {
             // generamos token
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null,
+                    userDetails.getAuthorities());
             String jwtToken = jwtUtil.generateAccessToken(authentication);
             // generamos refresh token
             String refreshToken = jwtUtil.generateRefreshToken(authentication);
             // obtenemos al client
             UserDTO userDTO = userService.getUserByEmail(userDetails.getUsername());
-            EmployeeDTO employeeDTO =employeeService.getEmployeeByUser(userDTO);
-            return EmployeeMapper.mapToAuthenticationResponseDTO(userDTO.getUserId(),employeeDTO, jwtToken, refreshToken);
+            EmployeeDTO employeeDTO = employeeService.getEmployeeByUser(userDTO);
+            return EmployeeMapper.mapToAuthenticationResponseDTO(userDTO.getUserId(), employeeDTO, jwtToken,
+                    refreshToken);
         } else {
             throw new BadCredentialsException("Credenciales incorrectas");
         }
@@ -81,7 +90,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         if (isValid) {
             String email = jwtUtil.getEmailFromJwt(refreshToken);
             UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null,
+                    userDetails.getAuthorities());
             return jwtUtil.generateAccessToken(authentication);
         } else {
             throw new JwtException("Error al validad token de refresco");
@@ -89,19 +99,18 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public AuthenticationResponseDTO registerUserClient(ClientDTO clientDTO,UserDTO userDTO) {
+    public AuthenticationResponseDTO registerUserClient(ClientDTO clientDTO, UserDTO userDTO) {
         userDTO.setType("C");
         UserDTO userSaved = userService.createUser(userDTO);
         clientDTO.setUser(UserMapper.maptoUser(userSaved));
         ClientDTO clientSaved = clientService.createClient(clientDTO);
         UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(userDTO.getEmail());
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null,
+                userDetails.getAuthorities());
 
         String jwtToken = jwtUtil.generateAccessToken(authentication);
         String refreshToken = jwtUtil.generateRefreshToken(authentication);
 
-        return ClientMapper.mapToAuthenticationResponseDTO(userSaved.getUserId(),clientSaved,jwtToken,refreshToken);
+        return ClientMapper.mapToAuthenticationResponseDTO(userSaved.getUserId(), clientSaved, jwtToken, refreshToken);
     }
 }
-
-
