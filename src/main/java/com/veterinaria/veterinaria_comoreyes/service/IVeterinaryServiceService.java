@@ -15,7 +15,7 @@ public interface IVeterinaryServiceService {
 
     VeterinaryServiceDTO createService(VeterinaryServiceDTO veterinaryServiceDTO);
 
-    VeterinaryServiceDTO updateService(VeterinaryServiceDTO veterinaryServiceDTO);
+    VeterinaryServiceDTO updateService(Long id,VeterinaryServiceDTO veterinaryServiceDTO);
 
     void deleteService(Long id);
 }

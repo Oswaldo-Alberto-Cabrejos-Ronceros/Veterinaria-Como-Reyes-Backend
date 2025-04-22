@@ -56,7 +56,7 @@ public class AnimalServiceImpl implements IAnimalService {
         animal.setName(animalDTO.getName());
         animal.setBreed(animalDTO.getBreed());
         animal.setGender(animalDTO.getGender());
-        animal.setComment(animalDTO.getComment());
+        animal.setAnimalComment(animalDTO.getAnimalComment());
         animal.setBirthDate(animalDTO.getBirthDate());
         animal.setWeight(animalDTO.getWeight());
         animal.setUrlImage(animalDTO.getUrlImage());

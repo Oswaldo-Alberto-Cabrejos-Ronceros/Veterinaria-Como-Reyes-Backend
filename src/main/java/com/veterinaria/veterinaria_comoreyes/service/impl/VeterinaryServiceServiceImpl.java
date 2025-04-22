@@ -7,7 +7,6 @@ import com.veterinaria.veterinaria_comoreyes.entity.VeterinaryService;
 import com.veterinaria.veterinaria_comoreyes.mapper.CategoryMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.SpecieMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.VeterinaryServiceMapper;
-import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.VeterinaryServiceRepository;
 import com.veterinaria.veterinaria_comoreyes.service.ICategoryService;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
@@ -15,7 +14,6 @@ import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryServiceService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
@@ -60,12 +58,22 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     }
 
     @Override
-    public VeterinaryServiceDTO updateService(VeterinaryServiceDTO veterinaryServiceDTO) {
-        return null;
+    public VeterinaryServiceDTO updateService(Long id,VeterinaryServiceDTO veterinaryServiceDTO) {
+        VeterinaryService veterinaryService = veterinaryServiceRepository.findById(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        veterinaryService.setName(veterinaryServiceDTO.getName());
+        veterinaryService.setDescription(veterinaryServiceDTO.getDescription());
+        veterinaryService.setCategory(veterinaryServiceDTO.getCategory());
+        veterinaryService.setSpecie(veterinaryServiceDTO.getSpecie());
+        veterinaryService.setDirImage(veterinaryServiceDTO.getDirImage());
+        veterinaryService.setDuration(veterinaryServiceDTO.getDuration());
+       VeterinaryService saved= veterinaryServiceRepository.save(veterinaryService);
+        return VeterinaryServiceMapper.mapToServiceDTO(saved);
     }
 
     @Override
     public void deleteService(Long id) {
-
+        VeterinaryService veterinaryService = veterinaryServiceRepository.findById(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        veterinaryService.setStatus((byte)0);//disabled
+        veterinaryServiceRepository.save(veterinaryService);
     }
 }

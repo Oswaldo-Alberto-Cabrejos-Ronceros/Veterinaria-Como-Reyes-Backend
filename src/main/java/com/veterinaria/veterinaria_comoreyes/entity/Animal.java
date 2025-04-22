@@ -27,7 +27,7 @@ public class Animal {
 
     private LocalDate birthDate;
 
-    private String comment;
+    private String animalComment;
 
     private String urlImage;
 

@@ -40,7 +40,7 @@ public class AnimalDTO {
 
     @Null
     @Size(max=255, message = "El comentario solo debe tener menos de 255 digitos")
-    private String comment;
+    private String animalComment;
 
     @NotBlank
     private String urlImage;

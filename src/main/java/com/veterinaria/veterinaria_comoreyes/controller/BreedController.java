@@ -39,7 +39,7 @@ public class BreedController {
         return ResponseEntity.ok(breedService.createBreed(breedDTO));
     }
 
-    @PutMapping("{/id}")
+    @PutMapping("/{id}")
     public ResponseEntity<BreedDTO> updateBreed(@PathVariable Long id, @RequestBody BreedDTO breedDTO){
         return ResponseEntity.ok(breedService.updateBreed(id, breedDTO));
     }
