@@ -1,24 +1,25 @@
 package com.veterinaria.veterinaria_comoreyes.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentMethod {
+public class Breed {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentMethodId;
+    private Long breedId;
+
+    @OneToOne
+    private Specie specie;
+
     private String name;
-    private String description;
-    private Integer status;
+
+    private Byte status;
 }
