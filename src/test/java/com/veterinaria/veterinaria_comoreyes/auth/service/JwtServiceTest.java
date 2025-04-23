@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.security;
+package com.veterinaria.veterinaria_comoreyes.auth.service;
 
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,6 +1,9 @@
-package com.veterinaria.veterinaria_comoreyes.service;
+package com.veterinaria.veterinaria_comoreyes.auth.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.*;
+import com.veterinaria.veterinaria_comoreyes.service.IClientService;
+import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
+import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import com.veterinaria.veterinaria_comoreyes.service.impl.AuthenticationServiceImpl;
 import com.veterinaria.veterinaria_comoreyes.service.impl.UserDetailsServiceImpl;
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;

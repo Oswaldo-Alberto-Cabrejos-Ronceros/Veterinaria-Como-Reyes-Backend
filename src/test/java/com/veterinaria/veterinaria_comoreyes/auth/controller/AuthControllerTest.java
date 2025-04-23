@@ -1,7 +1,8 @@
-package com.veterinaria.veterinaria_comoreyes.controller;
+package com.veterinaria.veterinaria_comoreyes.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veterinaria.veterinaria_comoreyes.dto.LoginRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.controller.AuthenticationController;
 import com.veterinaria.veterinaria_comoreyes.dto.AuthenticationResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAuthenticationService;
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
