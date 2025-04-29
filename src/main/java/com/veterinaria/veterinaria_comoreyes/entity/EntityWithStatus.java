@@ -16,9 +16,9 @@ import org.hibernate.annotations.ParamDef;
 @AllArgsConstructor
 @SuperBuilder
 //para filtro
-@FilterDef(name = "estadoActivo", parameters = @ParamDef(name = "estado", type = Boolean.class))
-@Filter(name = "estadoActivo", condition = "estado = :estado")
+@FilterDef(name = "statusActive", parameters = @ParamDef(name = "status", type = Boolean.class))
+@Filter(name = "statusActive", condition = "status = :status")
 @MappedSuperclass
-public abstract class EntidadConEstado {
-    private Boolean estado=true;
+public abstract class EntityWithStatus {
+    private Boolean status=true;
 }

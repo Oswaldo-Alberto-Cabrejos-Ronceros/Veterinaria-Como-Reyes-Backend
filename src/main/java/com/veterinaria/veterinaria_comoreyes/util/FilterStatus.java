@@ -5,11 +5,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.Session;
 
-public abstract class FiltroEstado {
+public abstract class FilterStatus {
     @PersistenceContext
     protected EntityManager entityManager;
 
-    protected void activarFiltroEstado(boolean estado) {
-        entityManager.unwrap(Session.class).enableFilter("estadoActivo").setParameter("estado", estado);
+    protected void activarFiltroEstado(boolean status) {
+        entityManager.unwrap(Session.class).enableFilter("statusActive").setParameter("status", status);
     }
 }
