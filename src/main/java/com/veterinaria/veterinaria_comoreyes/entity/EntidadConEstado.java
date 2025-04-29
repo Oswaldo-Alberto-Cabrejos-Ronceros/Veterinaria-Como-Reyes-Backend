@@ -1,4 +1,4 @@
-package com.clinicaregional.clinica.entity;
+package com.veterinaria.veterinaria_comoreyes.entity;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
