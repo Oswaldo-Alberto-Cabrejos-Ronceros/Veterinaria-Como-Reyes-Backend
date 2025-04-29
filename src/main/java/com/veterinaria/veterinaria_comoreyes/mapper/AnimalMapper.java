@@ -14,8 +14,7 @@ public class AnimalMapper {
                 animalDTO.getAnimalComment(),
                 animalDTO.getUrlImage(),
                 animalDTO.getBreed(),
-                animalDTO.getClient(),
-                animalDTO.getStatus()
+                animalDTO.getClient()
         );
     }
 
@@ -29,8 +28,7 @@ public class AnimalMapper {
                 animal.getAnimalComment(),
                 animal.getUrlImage(),
                 animal.getBreed(),
-                animal.getClient(),
-                animal.getStatus()
+                animal.getClient()
         );
     }
 }
