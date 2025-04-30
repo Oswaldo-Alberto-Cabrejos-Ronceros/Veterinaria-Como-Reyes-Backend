@@ -1,7 +1,11 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +49,21 @@ public class EmployeeController {
     public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<EmployeeListDTO>> searchEmployees(
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) Byte status,
+            @RequestParam(required = false) Long headquarterId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EmployeeListDTO> result = employeeService.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
+        return ResponseEntity.ok(result);
     }
 
 }

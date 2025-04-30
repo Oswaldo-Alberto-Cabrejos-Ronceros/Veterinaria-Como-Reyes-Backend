@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,4 +69,23 @@ public class RoleServiceImpl implements IRoleService {
         role.setStatus(false);
         roleRepository.save(role);
     }
+
+    @Override
+    public List<Role> validateAndFetchRoles(List<RoleDTO> roleDTOs) {
+        List<Role> roles = new ArrayList<>();
+
+        for (RoleDTO dto : roleDTOs) {
+            Role role = roleRepository.findById(dto.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + dto.getRoleId()));
+
+            if (role.getStatus() == 0) {
+                throw new RuntimeException("El rol " + role.getName() + " no está activo");
+            }
+
+            roles.add(role);
+        }
+
+        return roles;
+    }
+
 }

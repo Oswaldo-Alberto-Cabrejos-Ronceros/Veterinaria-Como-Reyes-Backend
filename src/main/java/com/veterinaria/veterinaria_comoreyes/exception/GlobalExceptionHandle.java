@@ -45,6 +45,31 @@ public class GlobalExceptionHandle {
         return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
     }
 
+    //Manejar la exception de numero ya registrado
+    @ExceptionHandler(PhoneAlreadyExistsException.class)
+    public ResponseEntity<String> handlePhoneAlreadyExistsException(PhoneAlreadyExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    //Manejar la exception de correo ya registrado
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    //Manejar la exception de sede no disponible
+    @ExceptionHandler(HeadquarterNotValidException.class)
+    public ResponseEntity<String> handleHeadquarterNotValidException(HeadquarterNotValidException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    //Manejar la exception de validaciones incorrectad de datos ingresados con la reniec
+    @ExceptionHandler(ReniecDataMismatchException.class)
+    public ResponseEntity<String> handleReniecMismatch(ReniecDataMismatchException ex) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
     @Getter
     @Setter
     @AllArgsConstructor

@@ -1,28 +1,39 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
-import com.veterinaria.veterinaria_comoreyes.dto.AuthenticationResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
-
+import jakarta.validation.constraints.Null;
 public class UserMapper {
 
+    // Método para mapear de User a UserDTO
     public static UserDTO maptoUserDTO(User user) {
-        return new UserDTO(
-                user.getUserId(),
-                user.getType(),
-                user.getEmail(),
-                user.getPassword(),
-                user.getStatus()
-        );
+        if (user == null) {
+            return null;
+        }
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserId(user.getUserId());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setPassword(user.getPassword());
+        userDTO.setType(user.getType());
+        userDTO.setStatus(user.getStatus());
+
+        return userDTO;
     }
 
+    // Método para mapear de UserDTO a User
     public static User maptoUser(UserDTO userDTO) {
-        return new User(
-                userDTO.getUserId(),
-                userDTO.getType(),
-                userDTO.getEmail(),
-                userDTO.getPassword(),
-                userDTO.getStatus()
-        );
+        if (userDTO == null) {
+            return null;
+        }
+
+        User user = new User();
+        user.setUserId(userDTO.getUserId());
+        user.setEmail(userDTO.getEmail());
+        user.setPassword(userDTO.getPassword());
+        user.setType(userDTO.getType());
+        user.setStatus(userDTO.getStatus());
+
+        return user;
     }
 }

@@ -8,27 +8,33 @@ public class ClientMapper {
     public static ClientDTO mapToClientDTO(Client client) {
         return new ClientDTO(
         client.getClientId(),
+                client.getDni(),
                 client.getName(),
                 client.getLastName(),
                 client.getAddress(),
                 client.getPhone(),
+                client.getBirthDate(),
                 client.getDirImage(),
                 client.getHeadquarter(),
                 client.getUser(),
-                client.getStatus()
+                client.getStatus(),
+                client.getBlockNote()
         );
     }
 
     public static Client mapToClient(ClientDTO clientDTO) {
         return new Client(
                 clientDTO.getClientId(),
+                clientDTO.getDni(),
                 clientDTO.getName(),
                 clientDTO.getLastName(),
                 clientDTO.getAddress(),
                 clientDTO.getPhone(),
+                clientDTO.getBirthDate(),
                 clientDTO.getDirImage(),
                 clientDTO.getHeadquarter(),
                 clientDTO.getUser(),
+                clientDTO.getBlockNote(),
                 clientDTO.getStatus()
         );
     }

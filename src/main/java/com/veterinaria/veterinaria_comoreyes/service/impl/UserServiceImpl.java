@@ -1,15 +1,14 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.UserRepository;
-import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
+import com.veterinaria.veterinaria_comoreyes.util.EmailUtil;
+import com.veterinaria.veterinaria_comoreyes.util.PasswordUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +21,16 @@ public class UserServiceImpl implements IUserService {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private EmailUtil emailUtil;
+
+    @Autowired
+    private PasswordUtil passwordUtil;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, EmailUtil emailUtil) {
+        this.userRepository = userRepository;
+        this.emailUtil = emailUtil;
+    }
 
     @Override
     public UserDTO getUserById(Long id) {
@@ -48,14 +56,22 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new IllegalStateException("Ya existe un usuario con el correo ingresado");
-        }
+        // Validar correo
+        emailUtil.validateEmailAvailable(userDTO.getEmail());
+
+        // Mapear el DTO a la entidad User
         User user = UserMapper.maptoUser(userDTO);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Encriptar la contraseña
+        user.setPassword(passwordUtil.encodePassword(user.getPassword()));
+
+        // Guardar el usuario en la base de datos
         User savedUser = userRepository.save(user);
+
+        // Mapear el usuario guardado (User) a UserDTO y devolverlo
         return UserMapper.maptoUserDTO(savedUser);
     }
+
 
     @Transactional
     @Override
@@ -63,11 +79,18 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
+        // Actualizar los campos con los valores del DTO
         user.setType(userDTO.getType());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+
+        // Cifrar la nueva contraseña (si la contraseña está presente en el DTO)
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+            user.setPassword(passwordUtil.encodePassword(userDTO.getPassword()));
+        }
+
         user.setStatus(userDTO.getStatus());
 
+        // Guardar el usuario actualizado en la base de datos
         User updatedUser = userRepository.save(user);
         return UserMapper.maptoUserDTO(updatedUser);
     }
@@ -79,7 +102,7 @@ public class UserServiceImpl implements IUserService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         // Cambio de estado a inactivo
-        user.setStatus(0); // 0 = inactivo
+        user.setStatus((byte) 0); // 0 = inactivo
         userRepository.save(user);
     }
 }

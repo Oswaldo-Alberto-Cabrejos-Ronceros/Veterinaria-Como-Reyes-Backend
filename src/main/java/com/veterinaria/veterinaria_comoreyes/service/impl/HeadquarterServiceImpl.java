@@ -75,10 +75,13 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Transactional
     @Override
     public void deleteHeadquarter(Long id) {
+
         filterStatus.activeFilterStatus(true);
         Headquarter hq = headquarterRepository.findByIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
         hq.setStatus(false); // Desactivado
         headquarterRepository.save(hq);
+
     }
+
 }

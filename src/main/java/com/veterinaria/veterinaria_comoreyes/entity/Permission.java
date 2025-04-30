@@ -22,8 +22,12 @@ import org.hibernate.annotations.Filter;
 public class Permission extends EntityWithStatus{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long permissionId;
+
     private String actionCode;
+
     private String module;
+
     private String description;
 }
