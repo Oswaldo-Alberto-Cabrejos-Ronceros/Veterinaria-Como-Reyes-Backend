@@ -39,8 +39,4 @@ public class HeadquarterDTO {
     @Size(max = 50, message = "El departamento no puede tener más de 50 caracteres")
     private String department;
 
-    @NotNull(message = "El estado es obligatorio")
-    @Min(value = 0, message = "El estado debe ser 0 o 1")
-    @Max(value = 1, message = "El estado debe ser 0 o 1")
-    private Integer status;
 }
