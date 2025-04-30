@@ -42,9 +42,4 @@ public class VeterinaryServiceDTO {
     @NotNull
     private Category category;
 
-    @NotNull
-    @Max(value = 1, message = "El estado debe ser 0 o 1")
-    @Min(value = 0, message = "El estado debe ser 0 o 1")
-    private Byte status=1;
-
 }

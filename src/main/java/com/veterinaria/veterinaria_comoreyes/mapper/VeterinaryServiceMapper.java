@@ -13,8 +13,7 @@ public class VeterinaryServiceMapper {
                 veterinaryService.getDuration(),
                 veterinaryService.getDirImage(),
                 veterinaryService.getSpecie(),
-                veterinaryService.getCategory(),
-                veterinaryService.getStatus());
+                veterinaryService.getCategory());
     }
 
     public static VeterinaryService mapToService(VeterinaryServiceDTO veterinaryServiceDTO) {
@@ -26,8 +25,7 @@ public class VeterinaryServiceMapper {
                 veterinaryServiceDTO.getDuration(),
                 veterinaryServiceDTO.getDirImage(),
                 veterinaryServiceDTO.getSpecie(),
-                veterinaryServiceDTO.getCategory(),
-                veterinaryServiceDTO.getStatus()
+                veterinaryServiceDTO.getCategory()
         );
     }
 }
