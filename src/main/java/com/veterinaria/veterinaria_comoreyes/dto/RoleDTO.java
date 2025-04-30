@@ -24,7 +24,4 @@ public class RoleDTO {
     @Size(max = 255, message = "La descripción no puede tener más de 255 caracteres")
     private String description;
 
-    @NotNull(message = "El estado es obligatorio")
-    private Byte status=1;
-
 }

@@ -9,8 +9,7 @@ public class RoleMapper {
         return new RoleDTO(
                 role.getRoleId(),
                 role.getName(),
-                role.getDescription(),
-                role.getStatus()
+                role.getDescription()
         );
     }
 
@@ -18,8 +17,7 @@ public class RoleMapper {
         return new Role(
                 roleDTO.getRoleId(),
                 roleDTO.getName(),
-                roleDTO.getDescription(),
-                roleDTO.getStatus()
+                roleDTO.getDescription()
         );
     }
 
