@@ -15,21 +15,22 @@ import java.util.stream.Collectors;
 @Service
 public class SpecieServiceImpl implements ISpecieService {
 
-    @Autowired
     private SpecieRepository specieRepository;
+
+    @Autowired
+    public SpecieServiceImpl(SpecieRepository specieRepository){
+        this.specieRepository=specieRepository;
+    }
 
     @Override
     public SpecieDTO getSpecieById(Long id) {
-        Specie specie = specieRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
         return SpecieMapper.maptoSpecieDTO(specie);
     }
 
     @Override
     public List<SpecieDTO> getAllSpecies() {
-        return specieRepository.findAll().stream()
-                .map(SpecieMapper::maptoSpecieDTO)
-                .collect(Collectors.toList());
+        return specieRepository.findAll().stream().map(SpecieMapper::maptoSpecieDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -41,12 +42,10 @@ public class SpecieServiceImpl implements ISpecieService {
 
     @Override
     public SpecieDTO updateSpecie(Long id, SpecieDTO specieDTO) {
-        Specie specie = specieRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
 
         specie.setName(specieDTO.getName());
         specie.setImagePath(specieDTO.getImagePath());
-        specie.setStatus(specieDTO.getStatus());
 
         Specie updated = specieRepository.save(specie);
         return SpecieMapper.maptoSpecieDTO(updated);
@@ -54,9 +53,8 @@ public class SpecieServiceImpl implements ISpecieService {
 
     @Override
     public void deleteSpecie(Long id) {
-        Specie specie = specieRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
-        specie.setStatus(0); // 0 = inactivo
+        Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        specie.setStatus(false); // 0 = inactivo
         specieRepository.save(specie);
     }
 }

@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SpecieDTO {
 
-    private long specieId;
+    private Long specieId;
 
     @NotBlank(message = "El nombre de la especie es obligatorio")
     @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
@@ -22,8 +22,4 @@ public class SpecieDTO {
     @Size(max = 255, message = "La ruta de la imagen no puede tener más de 255 caracteres")
     private String imagePath;
 
-    @NotNull(message = "El estado es obligatorio")
-    @Min(value = 0, message = "El estado debe ser 0 o 1")
-    @Max(value = 1, message = "El estado debe ser 0 o 1")
-    private Integer status;
 }
