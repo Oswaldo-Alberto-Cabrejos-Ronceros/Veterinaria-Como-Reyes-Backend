@@ -60,14 +60,13 @@ public class AnimalServiceImpl implements IAnimalService {
         animal.setBirthDate(animalDTO.getBirthDate());
         animal.setWeight(animalDTO.getWeight());
         animal.setUrlImage(animalDTO.getUrlImage());
-        animal.setStatus(animalDTO.getStatus());
         return AnimalMapper.maptoAnimalDTO(animalRepository.save(animal));
     }
 
     @Override
     public void deleteAnimal(Long id) {
         Animal animal = animalRepository.findById(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
-        animal.setStatus((byte) 0); //inactivo
+        animal.setStatus(false); //inactivo
         animalRepository.save(animal);
     }
 }
