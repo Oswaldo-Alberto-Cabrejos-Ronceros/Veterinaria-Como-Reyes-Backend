@@ -14,11 +14,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentMethod {
+public class PaymentMethod extends EntityWithStatus{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long paymentMethodId;
     private String name;
     private String description;
-    private Integer status;
 }

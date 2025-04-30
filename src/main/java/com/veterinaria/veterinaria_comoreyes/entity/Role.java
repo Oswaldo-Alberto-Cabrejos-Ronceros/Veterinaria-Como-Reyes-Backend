@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 import java.util.List;
 
@@ -13,7 +15,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class Role extends EntityWithStatus{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,9 +29,6 @@ public class Role {
 
     @Column(length = 60)
     private String description;
-
-    @Column(nullable = false, columnDefinition = "NUMBER(1,0)")
-    private Byte status;
 
     @ManyToMany(mappedBy = "roles")
     private List<Employee> employees;

@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -19,73 +20,89 @@ import java.util.stream.Collectors;
 @Component
 public class JwtUtil {
 
-    //obtenemos la clsve secrete de aplication properties
+    // obtenemos la clsve secrete de aplication properties
     @Value("${jwt.secret}")
     private String secretKey;
-    //generamos la clave para firmar
-    //declaramos key
+    // generamos la clave para firmar
+    // declaramos key
     private Key key;
-    //inicializamos key
+    // inicializamos key
+
+    // obtenemos el tiempo de expiracion del token de acceso y refresco
+    @Value("${jwt.expiration}")
+    private int jwtExpirationMs;
+
+    @Value("${jwt.refresh}")
+    private int refreshExpirationMs;
 
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    //para el token de acceso
+    // para el token de acceso
     public String generateAccessToken(Authentication authentication) {
         String email = authentication.getPrincipal().toString();
-        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
-        return Jwts.builder().setSubject(email).setIssuedAt(new Date()).claim("authorities", authorities).setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000)).signWith(key).compact();
+        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+        return Jwts.builder().setSubject(email).setIssuedAt(new Date()).claim("authorities", authorities)
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key).compact();
     }
 
-    //para generar el token de refresco
+    // para generar el token de refresco
     public String generateRefreshToken(Authentication authentication) {
         String email = authentication.getPrincipal().toString();
-        return Jwts.builder().setSubject(email).setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + 120 * 60 * 60 * 1000)).signWith(key).compact();
+        return Jwts.builder().setSubject(email).setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
+                .signWith(key).compact();
     }
 
-
-    //para validar token
+    // para validar token
     public boolean validateToken(String token) {
         try {
-            //para verificar, si falla el token es invalido
+            // para verificar, si falla el token es invalido
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-            //para verificar si el token expiro
+            // para verificar si el token expiro
             boolean isExpired = claims.getExpiration().before(new Date());
             String emailToken = claims.getSubject();
 
-            //no tiene que estar espirado y el email debe ser valido
+            // no tiene que estar espirado y el email debe ser valido
             return !isExpired && emailToken != null && !emailToken.trim().isEmpty();
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-    //para obtener el email del token
+    // para obtener el email del token
     public String getEmailFromJwt(String token) {
         return getClaimsIfValid(token).getSubject();
     }
 
-    //para obetener las autoridades del token
+    // para obetener las autoridades del token
     public List<GrantedAuthority> getAuthoritiesFromJwt(String token) {
         String authorities = getClaimsIfValid(token).get("authorities", String.class);
         return List.of(authorities.split(",")).stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
-    //para verificar si el token esta expirado
+    // para verificar si el token esta expirado
 
     public boolean isTokenExpired(String token) {
         try {
-            //obtenemos la fecha de expiracion del token
-            Date expirateDate = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
-            return expirateDate.before(new Date());
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true; // Claramente está expirado
         } catch (JwtException e) {
-            return false;
+            return false; // Token inválido (dañado, mal formado, etc.)
         }
     }
 
-    //para obtener los claims si es validad
+    // para obtener los claims si es validad
     private Claims getClaimsIfValid(String token) {
         try {
             Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
@@ -98,5 +115,17 @@ public class JwtUtil {
         }
     }
 
+    // Estas funciones ayudaran a obtener el tiempo de expiracion del token
 
+    public void setJwtSecret(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    public void setJwtExpirationMs(int jwtExpirationMs) {
+        this.jwtExpirationMs = jwtExpirationMs;
+    }
+
+    public void setRefreshExpirationMs(int refreshExpirationMs) {
+        this.refreshExpirationMs = refreshExpirationMs;
+    }
 }

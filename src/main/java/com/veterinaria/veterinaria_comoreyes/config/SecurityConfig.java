@@ -56,6 +56,9 @@ public class SecurityConfig {
                         httpRequest -> {
                             httpRequest.requestMatchers("/auth/**").permitAll();
                             //permision
+                            httpRequest.requestMatchers(                "/swagger-ui.html",
+                                    "/swagger-ui/**",
+                                    "/v3/api-docs/**").permitAll();
                             httpRequest.requestMatchers("/api/**").permitAll();
                             httpRequest.anyRequest().authenticated();
                         }

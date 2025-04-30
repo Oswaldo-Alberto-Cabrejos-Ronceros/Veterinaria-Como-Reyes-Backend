@@ -8,12 +8,14 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
+import java.util.Optional;
+
+
+   
+
+
 public interface HeadquarterRepository extends JpaRepository<Headquarter, Long> {
+Optional<Headquarter> findByIdAndStatusIsTrue(Long id);
+   boolean existsByHeadquarterId(long headquarterId);
 
-    // Metodo para saber si existe id con esa sede
-    boolean existsByHeadquarterId(long headquarterId);
-
-    // Método para obtener solo el estado (status) de la sede por su id
-    @Query("SELECT h.status FROM Headquarter h WHERE h.headquarterId = :id")
-    Byte findStatusById(@Param("id") long id);
 }

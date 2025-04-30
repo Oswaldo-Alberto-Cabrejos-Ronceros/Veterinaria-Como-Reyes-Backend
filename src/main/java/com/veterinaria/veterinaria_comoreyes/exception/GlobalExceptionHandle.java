@@ -1,3 +1,4 @@
+/* para desarrollo
 package com.veterinaria.veterinaria_comoreyes.exception;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,13 @@ public class GlobalExceptionHandle {
         logger.error(ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(ex.getMessage()));
     }
+    //Para entradas no validas
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errores = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> errores.put(error.getField(), error.getDefaultMessage()));
+        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+    }
 
     //Manejar la exception de numero ya registrado
     @ExceptionHandler(PhoneAlreadyExistsException.class)
@@ -69,3 +77,4 @@ public class GlobalExceptionHandle {
         private String message;
     }
 }
+*/
