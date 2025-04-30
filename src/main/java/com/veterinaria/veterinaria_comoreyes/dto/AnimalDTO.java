@@ -46,11 +46,9 @@ public class AnimalDTO {
     private String urlImage;
 
     @NotNull
-    @ManyToOne
     private Breed breed;
 
     @NotNull
-    @ManyToOne
-    private Client client;
+    private Long clientId;
 
 }

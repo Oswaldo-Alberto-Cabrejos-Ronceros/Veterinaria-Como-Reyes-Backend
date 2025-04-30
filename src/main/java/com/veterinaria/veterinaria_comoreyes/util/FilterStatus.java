@@ -9,7 +9,7 @@ public abstract class FilterStatus {
     @PersistenceContext
     protected EntityManager entityManager;
 
-    protected void activarFiltroEstado(boolean status) {
+    public void activeFilterStatus(boolean status) {
         entityManager.unwrap(Session.class).enableFilter("statusActive").setParameter("status", status);
     }
 }
