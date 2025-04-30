@@ -5,6 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterDTO;
 import java.util.List;
 
 public interface IHeadquarterService {
+
     HeadquarterDTO getHeadquarterById(Long id);
 
     List<HeadquarterDTO> getAllHeadquarters();

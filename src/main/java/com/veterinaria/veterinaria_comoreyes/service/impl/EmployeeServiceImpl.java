@@ -63,7 +63,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
         employeeFound.setPhone(employeeDTO.getPhone());
         employeeFound.setDirImage(employeeDTO.getDirImage());
         employeeFound.setHeadquarter(employeeDTO.getHeadquarter());
-        employeeFound.setRole(employeeDTO.getRole());
         employeeFound.setStatus(employeeDTO.getStatus());
         Employee updatedEmployee = employeeRepository.save(employeeFound);
         return EmployeeMapper.mapToEmployeeDTO(updatedEmployee);

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationServiceImpl implements IAuthenticationService {
-
+    /*
     private final JwtUtil jwtUtil;
     private final IUserService userService;
     private final IClientService clientService;
@@ -101,7 +101,8 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         String refreshToken = jwtUtil.generateRefreshToken(authentication);
 
         return ClientMapper.mapToAuthenticationResponseDTO(userSaved.getUserId(),clientSaved,jwtToken,refreshToken);
-    }
+    }*/
+
 }
 
 

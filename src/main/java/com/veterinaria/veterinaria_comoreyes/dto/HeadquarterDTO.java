@@ -14,6 +14,10 @@ public class HeadquarterDTO {
 
     private long headquarterId;
 
+    @NotBlank(message = "El nombre clave de la sede es obligatoria")
+    @Size(max = 40, message = "El nombre de la sede no puede tener más de 40 caracteres")
+    private  String name;
+
     @NotBlank(message = "El teléfono es obligatorio")
     @Pattern(regexp = "^\\d{9}$", message = "El teléfono debe tener exactamente 9 dígitos")
     private String phone;
@@ -42,5 +46,5 @@ public class HeadquarterDTO {
     @NotNull(message = "El estado es obligatorio")
     @Min(value = 0, message = "El estado debe ser 0 o 1")
     @Max(value = 1, message = "El estado debe ser 0 o 1")
-    private Integer status;
+    private Byte status;
 }

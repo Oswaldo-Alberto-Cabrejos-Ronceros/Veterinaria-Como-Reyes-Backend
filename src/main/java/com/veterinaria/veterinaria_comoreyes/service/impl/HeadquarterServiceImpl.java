@@ -58,9 +58,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
 
     @Override
     public void deleteHeadquarter(Long id) {
-        Headquarter hq = headquarterRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
-        hq.setStatus(0); // Desactivado
-        headquarterRepository.save(hq);
+
     }
+
 }

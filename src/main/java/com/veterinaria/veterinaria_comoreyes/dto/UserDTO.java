@@ -20,7 +20,6 @@ public class UserDTO {
     private String type;
 
     @NotBlank(message = "El correo electrónico es obligatorio")
-    @Email(message = "Formato de correo inválido")
     @Size(max = 100, message = "El correo no puede tener más de 100 caracteres")
     @Pattern(regexp = "^[^<>\"'\\\\/()]*$", message = "El correo electrónico contiene caracteres no permitidos")
     private String email;
@@ -33,5 +32,5 @@ public class UserDTO {
     @NotNull(message = "El estado es obligatorio")
     @Min(value = 0, message = "El estado debe ser 0 o 1")
     @Max(value = 1, message = "El estado debe ser 0 o 1")
-    private Integer status;
+    private Byte status;
 }

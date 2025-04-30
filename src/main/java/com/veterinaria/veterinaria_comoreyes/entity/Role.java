@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -17,9 +19,13 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roleId;
 
+    @Column(length = 20)
     private String name;
 
+    @Column(length = 60)
     private String description;
 
+    @Column(nullable = false, columnDefinition = "NUMBER(1,0)")
     private Byte status;
+
 }

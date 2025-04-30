@@ -23,6 +23,7 @@ import java.util.Optional;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
+    /*
     private final IAuthenticationService authenticationService;
 
     @Autowired
@@ -90,5 +91,5 @@ public class AuthenticationController {
         AuthenticationResponseDTO responseToSend = new AuthenticationResponseDTO(authenticationResponseDTO.getUsuarioId(), authenticationResponseDTO.getName(), authenticationResponseDTO.getRole());
         return ResponseEntity.ok(responseToSend);
     }
-
+*/
 }

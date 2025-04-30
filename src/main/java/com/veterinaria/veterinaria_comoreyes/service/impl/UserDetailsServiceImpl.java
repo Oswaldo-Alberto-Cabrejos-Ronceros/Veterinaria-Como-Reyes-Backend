@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
-
+public abstract class UserDetailsServiceImpl {
+/*
     private final IUserService iUserService;
     private final IEmployeeService iEmployeeService;
     @Autowired
@@ -40,4 +40,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
+
+ */
 }

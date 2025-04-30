@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RoleDTO {
 
-    private long roleId;
+    private Long roleId;
 
     @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 50,message = "El nombre no puede tener más de 50 caracteres")

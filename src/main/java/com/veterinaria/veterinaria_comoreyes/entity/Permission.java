@@ -18,7 +18,10 @@ public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long permissionId;
+
     private String actionCode;
+
     private String module;
+
     private String description;
 }
