@@ -67,6 +67,7 @@ public class PermissionServiceImpl implements IPermissionService {
         filterStatus.activeFilterStatus(true);
         Permission permission = permissionRepository.findByIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Permission not found with id: " + id));
-        permissionRepository.delete(permission);
+        permission.setStatus(false); //borrado logico
+        permissionRepository.save(permission);
     }
 }
