@@ -8,16 +8,21 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Permission {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class Permission extends EntityWithStatus{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long permissionId;
+    private Long permissionId;
     private String actionCode;
     private String module;
     private String description;
