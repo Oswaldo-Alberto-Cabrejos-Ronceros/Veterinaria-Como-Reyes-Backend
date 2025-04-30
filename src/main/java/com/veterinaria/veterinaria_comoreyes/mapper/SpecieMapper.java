@@ -9,15 +9,13 @@ public class SpecieMapper {
                 return new SpecieDTO(
                                 specie.getSpecieId(),
                                 specie.getName(),
-                                specie.getImagePath(),
-                                specie.getStatus());
+                                specie.getImagePath());
         }
 
         public static Specie maptoSpecie(SpecieDTO specieDTO) {
                 return new Specie(
                                 specieDTO.getSpecieId(),
                                 specieDTO.getName(),
-                                specieDTO.getImagePath(),
-                                specieDTO.getStatus());
+                                specieDTO.getImagePath());
         }
 }

@@ -5,13 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Role {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class Role extends EntityWithStatus{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +25,4 @@ public class Role {
     private String name;
 
     private String description;
-
-    private Byte status;
 }

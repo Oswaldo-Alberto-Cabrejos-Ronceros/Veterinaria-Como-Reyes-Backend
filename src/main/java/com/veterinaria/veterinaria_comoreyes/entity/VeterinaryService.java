@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalTime;
 
@@ -16,7 +18,10 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VeterinaryService {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class VeterinaryService extends EntityWithStatus{
     @Id
     @GeneratedValue
     private Long serviceId;
@@ -36,7 +41,5 @@ public class VeterinaryService {
 
     @OneToOne
     private Category category;
-
-    private Byte status;
 
 }

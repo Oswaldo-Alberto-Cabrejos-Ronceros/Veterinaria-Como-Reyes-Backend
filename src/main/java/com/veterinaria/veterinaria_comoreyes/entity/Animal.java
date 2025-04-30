@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDate;
 
@@ -13,13 +15,17 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Animal {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class Animal extends EntityWithStatus{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long animalId;
 
     private String name;
+
 
     private String gender;
 
@@ -37,5 +43,4 @@ public class Animal {
     @ManyToOne
     private Client client;
 
-    private Byte status;
 }

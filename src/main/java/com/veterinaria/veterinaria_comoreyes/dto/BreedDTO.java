@@ -21,9 +21,4 @@ public class BreedDTO {
     @NotBlank(message = "El nombre de la raza es obligatorio")
     @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
     private String name;
-
-    @NotNull
-    @Max(value = 1, message = "El estado debe ser 0 o 1")
-    @Min(value = 0, message = "El estado debe ser 0 o 1")
-    private Byte status=1;
 }

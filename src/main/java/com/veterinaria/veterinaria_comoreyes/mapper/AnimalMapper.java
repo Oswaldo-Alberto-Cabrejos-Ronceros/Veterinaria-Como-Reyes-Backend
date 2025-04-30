@@ -2,9 +2,12 @@ package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.dto.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
+import com.veterinaria.veterinaria_comoreyes.entity.Client;
 
 public class AnimalMapper {
     public static Animal maptoAnimal(AnimalDTO animalDTO) {
+        Client client = new Client();
+        client.setClientId(animalDTO.getClientId());
         return new Animal(
                 animalDTO.getAnimalId(),
                 animalDTO.getName(),
@@ -14,8 +17,7 @@ public class AnimalMapper {
                 animalDTO.getAnimalComment(),
                 animalDTO.getUrlImage(),
                 animalDTO.getBreed(),
-                animalDTO.getClient(),
-                animalDTO.getStatus()
+                client
         );
     }
 
@@ -29,8 +31,7 @@ public class AnimalMapper {
                 animal.getAnimalComment(),
                 animal.getUrlImage(),
                 animal.getBreed(),
-                animal.getClient(),
-                animal.getStatus()
+                animal.getClient().getClientId()
         );
     }
 }

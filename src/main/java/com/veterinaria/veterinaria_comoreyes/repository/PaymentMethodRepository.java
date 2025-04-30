@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentMethod;
 
-public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Long> {
+import java.util.Optional;
 
+public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Long> {
+Optional<PaymentMethod> findByIdAndStatusIsTrue(Long id);
 }

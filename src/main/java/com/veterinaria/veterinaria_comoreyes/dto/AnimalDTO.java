@@ -46,16 +46,9 @@ public class AnimalDTO {
     private String urlImage;
 
     @NotNull
-    @ManyToOne
     private Breed breed;
 
     @NotNull
-    @ManyToOne
-    private Client client;
-
-    @NotNull
-    @Max(value = 1, message = "El estado debe ser 0 o 1")
-    @Min(value = 0, message = "El estado debe ser 0 o 1")
-    private Byte status=1;
+    private Long clientId;
 
 }

@@ -11,9 +11,13 @@ import com.veterinaria.veterinaria_comoreyes.repository.VeterinaryServiceReposit
 import com.veterinaria.veterinaria_comoreyes.service.ICategoryService;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryServiceService;
+import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.logging.Filter;
 
 @Service
 public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
@@ -21,45 +25,60 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     private final VeterinaryServiceRepository veterinaryServiceRepository;
     private final ISpecieService specieService;
     private final ICategoryService categoryService;
+    private final FilterStatus filterStatus;
 
-    public VeterinaryServiceServiceImpl(VeterinaryServiceRepository veterinaryServiceRepository,ISpecieService specieService,ICategoryService categoryService) {
+    @Autowired
+    public VeterinaryServiceServiceImpl(VeterinaryServiceRepository veterinaryServiceRepository, ISpecieService specieService, ICategoryService categoryService, FilterStatus filterStatus) {
         this.veterinaryServiceRepository = veterinaryServiceRepository;
         this.specieService = specieService;
         this.categoryService = categoryService;
+        this.filterStatus=filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public VeterinaryServiceDTO getServiceById(Long id) {
-        VeterinaryService service = veterinaryServiceRepository.findById(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        filterStatus.activeFilterStatus(true);
+        VeterinaryService service = veterinaryServiceRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
         return VeterinaryServiceMapper.mapToServiceDTO(service);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VeterinaryServiceDTO> getAllServices() {
+        filterStatus.activeFilterStatus(true);
         return veterinaryServiceRepository.findAll().stream().map(VeterinaryServiceMapper::mapToServiceDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VeterinaryServiceDTO> getAllServicesBySpecie(Long specieId) {
+        filterStatus.activeFilterStatus(true);
         SpecieDTO specieDTO = specieService.getSpecieById(specieId);
         return veterinaryServiceRepository.findAllBySpecie(SpecieMapper.maptoSpecie(specieDTO)).stream().map(VeterinaryServiceMapper::mapToServiceDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VeterinaryServiceDTO> getAllServicesByCategory(Long categoryId) {
+        filterStatus.activeFilterStatus(true);
         CategoryDTO categoryDTO = categoryService.getCategoryById(categoryId);
         return veterinaryServiceRepository.findAllByCategory(CategoryMapper.maptoCategory(categoryDTO)).stream().map(VeterinaryServiceMapper::mapToServiceDTO).toList();
     }
 
+    @Transactional
     @Override
     public VeterinaryServiceDTO createService(VeterinaryServiceDTO veterinaryServiceDTO) {
+        filterStatus.activeFilterStatus(true);
         VeterinaryService service = veterinaryServiceRepository.save(VeterinaryServiceMapper.mapToService(veterinaryServiceDTO));
         return VeterinaryServiceMapper.mapToServiceDTO(service);
     }
 
+    @Transactional
     @Override
     public VeterinaryServiceDTO updateService(Long id,VeterinaryServiceDTO veterinaryServiceDTO) {
-        VeterinaryService veterinaryService = veterinaryServiceRepository.findById(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        filterStatus.activeFilterStatus(true);
+        VeterinaryService veterinaryService = veterinaryServiceRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
         veterinaryService.setName(veterinaryServiceDTO.getName());
         veterinaryService.setDescription(veterinaryServiceDTO.getDescription());
         veterinaryService.setCategory(veterinaryServiceDTO.getCategory());
@@ -70,10 +89,12 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         return VeterinaryServiceMapper.mapToServiceDTO(saved);
     }
 
+    @Transactional
     @Override
     public void deleteService(Long id) {
-        VeterinaryService veterinaryService = veterinaryServiceRepository.findById(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
-        veterinaryService.setStatus((byte)0);//disabled
+        filterStatus.activeFilterStatus(true);
+        VeterinaryService veterinaryService = veterinaryServiceRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        veterinaryService.setStatus(false);//disabled
         veterinaryServiceRepository.save(veterinaryService);
     }
 }

@@ -8,8 +8,7 @@ public class BreedMapper {
         return new BreedDTO(
           breed.getBreedId(),
           breed.getSpecie(),
-          breed.getName(),
-          breed.getStatus()
+          breed.getName()
         );
     }
 
@@ -17,8 +16,7 @@ public class BreedMapper {
         return new Breed(
                 breedDTO.getBreedId(),
                 breedDTO.getSpecie(),
-                breedDTO.getName(),
-                breedDTO.getStatus()
+                breedDTO.getName()
         );
     }
 }
