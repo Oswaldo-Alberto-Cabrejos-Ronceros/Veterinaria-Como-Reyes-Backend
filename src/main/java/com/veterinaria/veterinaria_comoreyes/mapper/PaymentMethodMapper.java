@@ -9,8 +9,7 @@ public class PaymentMethodMapper {
         return new PaymentMethodDTO(
                 paymentMethod.getPaymentMethodId(),
                 paymentMethod.getName(),
-                paymentMethod.getDescription(),
-                paymentMethod.getStatus()
+                paymentMethod.getDescription()
         );
     }
 
@@ -18,8 +17,7 @@ public class PaymentMethodMapper {
         return new PaymentMethod(
                 paymentMethodDTO.getPaymentMethodId(),
                 paymentMethodDTO.getName(),
-                paymentMethodDTO.getDescription(),
-                paymentMethodDTO.getStatus()
+                paymentMethodDTO.getDescription()
         );
     }
 
