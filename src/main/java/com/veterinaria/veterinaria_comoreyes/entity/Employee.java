@@ -43,6 +43,7 @@ public class Employee {
     @Column(length = 255)
     private String dirImage;
 
+
     @ManyToOne
     @JoinColumn(name = "id_headquarter")
     private Headquarter headquarter;
@@ -53,5 +54,12 @@ public class Employee {
 
     @Column(nullable = false, columnDefinition = "NUMBER(1,0)")
     private Byte status;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "employee_role", joinColumns = @JoinColumn(name = "id_employee", referencedColumnName = "employeeId"),
+            inverseJoinColumns = @JoinColumn(name = "id_role",referencedColumnName = "roleId")
+    )
+    private List<Role> roles;
 
 }

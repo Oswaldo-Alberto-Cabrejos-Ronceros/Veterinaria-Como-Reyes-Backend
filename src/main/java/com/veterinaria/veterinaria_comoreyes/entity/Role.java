@@ -28,4 +28,7 @@ public class Role {
     @Column(nullable = false, columnDefinition = "NUMBER(1,0)")
     private Byte status;
 
+    @ManyToMany(mappedBy = "roles")
+    private List<Employee> employees;
+
 }

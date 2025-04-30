@@ -26,8 +26,19 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf().disable()
+                .authorizeHttpRequests()
+                .requestMatchers("/api/employee").permitAll() // permite acceso sin login
+                .anyRequest().authenticated()
+                .and()
+                .httpBasic(); // o .formLogin();
+
+        return http.build();
+    }
     /*
     private final JwtUtil jwtUtil;
 

@@ -20,7 +20,7 @@ public class EmployeeDTO {
 
     private Long employeeId;
 
-    @NotBlank(message = "El DNI es obligatorio")
+
     @Size(min = 8, max = 8, message = "El DNI debe tener 8 caracteres")
     @Pattern(regexp = "^[0-9]*$", message = "El DNI solo debe contener números")
     private String dni;
@@ -29,25 +29,21 @@ public class EmployeeDTO {
     @Pattern(regexp = "^[0-9]*$", message = "El CMVP solo debe contener números")
     private String cmvp;
 
-    @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")
     private String name;
 
-    @NotBlank(message = "El apellido es obligatorio")
     @Size(max = 50, message = "El apellido no puede tener más de 50 caracteres")
     private String lastName;
 
     @Size(max = 255, message = "La dirección no puede tener más de 255 caracteres")
     private String address;
 
-    @NotBlank(message = "El celular es obligatorio")
     @Size(min = 9, max = 9, message = "El celular debe tener 9 caracteres")
     @Pattern(regexp = "^[0-9]*$", message = "El celular solo debe contener números")
     private String phone;
 
     private LocalDate birthDate;
 
-    @NotBlank(message = "La dirección de imagen es obligatoria")
     private String dirImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgpnmY-O9iz09Jka-vGvK2Lv-U-pL3H18CfA&s";
 
     @NotNull(message = "La sede es obligatoria")
@@ -57,4 +53,6 @@ public class EmployeeDTO {
 
     @NotNull(message = "El estado es obligatorio")
     private Byte status=1;
+
+    private List<RoleDTO> roles;
 }
