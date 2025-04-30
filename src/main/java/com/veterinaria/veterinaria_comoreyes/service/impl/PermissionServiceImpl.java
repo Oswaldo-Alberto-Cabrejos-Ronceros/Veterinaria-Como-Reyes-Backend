@@ -8,6 +8,7 @@ import com.veterinaria.veterinaria_comoreyes.service.IPermissionService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,12 +19,14 @@ public class PermissionServiceImpl implements IPermissionService {
 
     private PermissionRepository permissionRepository;
     private FilterStatus filterStatus;
+
+    @Autowired
     public PermissionServiceImpl(PermissionRepository permissionRepository, FilterStatus filterStatus){
         this.permissionRepository=permissionRepository;
         this.filterStatus=filterStatus;
     }
 
-
+    @Transactional(readOnly = true)
     @Override
     public PermissionDTO getPermissionById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -32,6 +35,7 @@ public class PermissionServiceImpl implements IPermissionService {
         return PermissionMapper.maptoPermissionDTO(permission);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<PermissionDTO> getAllPermissions() {
         filterStatus.activeFilterStatus(true);
@@ -40,6 +44,7 @@ public class PermissionServiceImpl implements IPermissionService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public PermissionDTO createPermission(PermissionDTO permissionDTO) {
         filterStatus.activeFilterStatus(true);
@@ -48,6 +53,7 @@ public class PermissionServiceImpl implements IPermissionService {
         return PermissionMapper.maptoPermissionDTO(saved);
     }
 
+    @Transactional
     @Override
     public PermissionDTO updatePermission(Long id, PermissionDTO permissionDTO) {
         filterStatus.activeFilterStatus(true);
@@ -62,6 +68,7 @@ public class PermissionServiceImpl implements IPermissionService {
         return PermissionMapper.maptoPermissionDTO(updated);
     }
 
+    @Transactional
     @Override
     public void deletePermission(Long id) {
         filterStatus.activeFilterStatus(true);

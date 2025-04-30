@@ -14,6 +14,7 @@ import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryServiceService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.logging.Filter;
@@ -34,6 +35,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         this.filterStatus=filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public VeterinaryServiceDTO getServiceById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -41,12 +43,14 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         return VeterinaryServiceMapper.mapToServiceDTO(service);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VeterinaryServiceDTO> getAllServices() {
         filterStatus.activeFilterStatus(true);
         return veterinaryServiceRepository.findAll().stream().map(VeterinaryServiceMapper::mapToServiceDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VeterinaryServiceDTO> getAllServicesBySpecie(Long specieId) {
         filterStatus.activeFilterStatus(true);
@@ -54,6 +58,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         return veterinaryServiceRepository.findAllBySpecie(SpecieMapper.maptoSpecie(specieDTO)).stream().map(VeterinaryServiceMapper::mapToServiceDTO).toList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<VeterinaryServiceDTO> getAllServicesByCategory(Long categoryId) {
         filterStatus.activeFilterStatus(true);
@@ -61,6 +66,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         return veterinaryServiceRepository.findAllByCategory(CategoryMapper.maptoCategory(categoryDTO)).stream().map(VeterinaryServiceMapper::mapToServiceDTO).toList();
     }
 
+    @Transactional
     @Override
     public VeterinaryServiceDTO createService(VeterinaryServiceDTO veterinaryServiceDTO) {
         filterStatus.activeFilterStatus(true);
@@ -68,6 +74,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         return VeterinaryServiceMapper.mapToServiceDTO(service);
     }
 
+    @Transactional
     @Override
     public VeterinaryServiceDTO updateService(Long id,VeterinaryServiceDTO veterinaryServiceDTO) {
         filterStatus.activeFilterStatus(true);
@@ -82,6 +89,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         return VeterinaryServiceMapper.mapToServiceDTO(saved);
     }
 
+    @Transactional
     @Override
     public void deleteService(Long id) {
         filterStatus.activeFilterStatus(true);

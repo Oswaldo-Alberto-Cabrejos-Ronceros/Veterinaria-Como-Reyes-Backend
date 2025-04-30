@@ -8,6 +8,7 @@ import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,12 +19,14 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
 
     private HeadquarterRepository headquarterRepository;
     private FilterStatus filterStatus;
+
     @Autowired
     public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository, FilterStatus filterStatus){
         this.headquarterRepository=headquarterRepository;
         this.filterStatus=filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public HeadquarterDTO getHeadquarterById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -32,6 +35,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         return HeadquarterMapper.maptoHeadquarterDTO(hq);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<HeadquarterDTO> getAllHeadquarters() {
         filterStatus.activeFilterStatus(true);
@@ -41,6 +45,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public HeadquarterDTO createHeadquarter(HeadquarterDTO dto) {
         filterStatus.activeFilterStatus(true);
@@ -49,6 +54,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         return HeadquarterMapper.maptoHeadquarterDTO(saved);
     }
 
+    @Transactional
     @Override
     public HeadquarterDTO updateHeadquarter(Long id, HeadquarterDTO dto) {
         filterStatus.activeFilterStatus(true);
@@ -66,6 +72,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         return HeadquarterMapper.maptoHeadquarterDTO(updated);
     }
 
+    @Transactional
     @Override
     public void deleteHeadquarter(Long id) {
         filterStatus.activeFilterStatus(true);

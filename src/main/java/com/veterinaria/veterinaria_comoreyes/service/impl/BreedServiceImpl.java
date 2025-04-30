@@ -12,6 +12,7 @@ import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ public class BreedServiceImpl implements IBreedService {
         this.filterStatus = filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BreedDTO getBreedById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -37,6 +39,7 @@ public class BreedServiceImpl implements IBreedService {
         return BreedMapper.maptoBreedDTO(breed);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BreedDTO> getBreedsBySpecies(Long speciesId) {
         filterStatus.activeFilterStatus(true);
@@ -44,12 +47,14 @@ public class BreedServiceImpl implements IBreedService {
         return breedRepository.findBySpecie(specie).stream().map(BreedMapper::maptoBreedDTO).collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BreedDTO> getAllBreeds() {
         filterStatus.activeFilterStatus(true);
         return breedRepository.findAll().stream().map(BreedMapper::maptoBreedDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public BreedDTO createBreed(BreedDTO breedDTO) {
         filterStatus.activeFilterStatus(true);
@@ -57,6 +62,7 @@ public class BreedServiceImpl implements IBreedService {
         return BreedMapper.maptoBreedDTO(breedSave);
     }
 
+    @Transactional
     @Override
     public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
         Breed breed = breedRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
@@ -66,6 +72,7 @@ public class BreedServiceImpl implements IBreedService {
         return BreedMapper.maptoBreedDTO(breedUpdated);
     }
 
+    @Transactional
     @Override
     public void deleteBreed(Long id) {
         Breed breed = breedRepository.findById(id).orElseThrow(() -> new RuntimeException("Breed not found with id:" + id));

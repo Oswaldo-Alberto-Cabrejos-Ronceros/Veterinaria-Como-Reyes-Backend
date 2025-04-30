@@ -8,6 +8,7 @@ import com.veterinaria.veterinaria_comoreyes.service.IPaymentMethodService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,11 +21,12 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     private FilterStatus filterStatus;
 
     @Autowired
-    public PaymentMethodServiceImpl(PaymentMethodRepository paymentMethodRepository,FilterStatus filterStatus){
-        this.paymentMethodRepository=paymentMethodRepository;
-        this.filterStatus=filterStatus;
+    public PaymentMethodServiceImpl(PaymentMethodRepository paymentMethodRepository, FilterStatus filterStatus) {
+        this.paymentMethodRepository = paymentMethodRepository;
+        this.filterStatus = filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public PaymentMethodDTO getPaymentMethodById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -33,6 +35,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         return PaymentMethodMapper.maptoPaymentMethodDTO(method);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<PaymentMethodDTO> getAllPaymentMethods() {
         filterStatus.activeFilterStatus(true);
@@ -41,6 +44,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public PaymentMethodDTO createPaymentMethod(PaymentMethodDTO dto) {
         filterStatus.activeFilterStatus(true);
@@ -49,6 +53,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         return PaymentMethodMapper.maptoPaymentMethodDTO(saved);
     }
 
+    @Transactional
     @Override
     public PaymentMethodDTO updatePaymentMethod(Long id, PaymentMethodDTO dto) {
         filterStatus.activeFilterStatus(true);
@@ -62,6 +67,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         return PaymentMethodMapper.maptoPaymentMethodDTO(updated);
     }
 
+    @Transactional
     @Override
     public void deletePaymentMethod(Long id) {
         filterStatus.activeFilterStatus(true);

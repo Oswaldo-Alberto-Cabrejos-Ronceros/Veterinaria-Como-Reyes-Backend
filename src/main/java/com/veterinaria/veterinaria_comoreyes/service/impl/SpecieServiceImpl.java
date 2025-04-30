@@ -8,6 +8,7 @@ import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,17 +23,20 @@ public class SpecieServiceImpl implements ISpecieService {
         this.specieRepository=specieRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public SpecieDTO getSpecieById(Long id) {
         Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
         return SpecieMapper.maptoSpecieDTO(specie);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<SpecieDTO> getAllSpecies() {
         return specieRepository.findAll().stream().map(SpecieMapper::maptoSpecieDTO).collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public SpecieDTO createSpecie(SpecieDTO specieDTO) {
         Specie specie = SpecieMapper.maptoSpecie(specieDTO);
@@ -40,6 +44,7 @@ public class SpecieServiceImpl implements ISpecieService {
         return SpecieMapper.maptoSpecieDTO(savedSpecie);
     }
 
+    @Transactional
     @Override
     public SpecieDTO updateSpecie(Long id, SpecieDTO specieDTO) {
         Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
@@ -51,6 +56,7 @@ public class SpecieServiceImpl implements ISpecieService {
         return SpecieMapper.maptoSpecieDTO(updated);
     }
 
+    @Transactional
     @Override
     public void deleteSpecie(Long id) {
         Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));

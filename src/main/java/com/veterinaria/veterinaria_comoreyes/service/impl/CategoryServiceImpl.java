@@ -8,6 +8,7 @@ import com.veterinaria.veterinaria_comoreyes.service.ICategoryService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ public class CategoryServiceImpl implements ICategoryService {
         this.filterStatus = filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryDTO getCategoryById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -33,6 +35,7 @@ public class CategoryServiceImpl implements ICategoryService {
         return CategoryMapper.maptoCategoryDTO(category);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDTO> getAllCategories() {
         filterStatus.activeFilterStatus(true);
@@ -41,6 +44,7 @@ public class CategoryServiceImpl implements ICategoryService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         filterStatus.activeFilterStatus(true);
@@ -49,6 +53,7 @@ public class CategoryServiceImpl implements ICategoryService {
         return CategoryMapper.maptoCategoryDTO(saved);
     }
 
+    @Transactional
     @Override
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         filterStatus.activeFilterStatus(true);
@@ -62,6 +67,7 @@ public class CategoryServiceImpl implements ICategoryService {
         return CategoryMapper.maptoCategoryDTO(updated);
     }
 
+    @Transactional
     @Override
     public void deleteCategory(Long id) {
         filterStatus.activeFilterStatus(true);

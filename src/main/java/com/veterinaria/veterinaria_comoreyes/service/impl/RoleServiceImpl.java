@@ -6,9 +6,9 @@ import com.veterinaria.veterinaria_comoreyes.mapper.RoleMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.RoleRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IRoleService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +25,7 @@ public class RoleServiceImpl implements IRoleService {
         this.filterStatus=filterStatus;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public RoleDTO getRoleById(Long id) {
         filterStatus.activeFilterStatus(true);
@@ -32,6 +33,7 @@ public class RoleServiceImpl implements IRoleService {
         return RoleMapper.mapToRoleDTO(role);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<RoleDTO> getAllRoles() {
         filterStatus.activeFilterStatus(true);
