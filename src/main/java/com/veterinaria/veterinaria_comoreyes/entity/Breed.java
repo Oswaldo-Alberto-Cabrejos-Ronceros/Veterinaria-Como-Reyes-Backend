@@ -5,13 +5,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Breed {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class Breed extends EntityWithStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long breedId;
@@ -20,6 +25,4 @@ public class Breed {
     private Specie specie;
 
     private String name;
-
-    private Byte status;
 }
