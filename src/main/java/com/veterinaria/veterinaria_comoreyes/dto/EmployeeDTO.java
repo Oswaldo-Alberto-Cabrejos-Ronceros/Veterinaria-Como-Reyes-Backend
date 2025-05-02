@@ -46,6 +46,8 @@ public class EmployeeDTO {
 
     private String dirImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgpnmY-O9iz09Jka-vGvK2Lv-U-pL3H18CfA&s";
 
+    private String mainRole;
+
     @NotNull(message = "La sede es obligatoria")
     private Headquarter headquarter;
 

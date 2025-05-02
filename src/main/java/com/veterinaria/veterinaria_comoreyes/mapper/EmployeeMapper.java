@@ -28,6 +28,7 @@ public class EmployeeMapper {
         employeeDTO.setPhone(employee.getPhone());
         employeeDTO.setBirthDate(employee.getBirthDate());
         employeeDTO.setDirImage(employee.getDirImage());
+        employeeDTO.setMainRole(employee.getMainRole());
         employeeDTO.setStatus(employee.getStatus());
 
         // Mapear relaciones
@@ -61,6 +62,7 @@ public class EmployeeMapper {
         employee.setPhone(dto.getPhone());
         employee.setBirthDate(dto.getBirthDate());
         employee.setDirImage(dto.getDirImage());
+        employee.setMainRole(dto.getMainRole());
         employee.setStatus(dto.getStatus());
 
         // Relaciones

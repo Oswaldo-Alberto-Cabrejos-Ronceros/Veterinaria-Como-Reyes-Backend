@@ -24,4 +24,6 @@ public class RoleDTO {
     @Size(max = 255, message = "La descripción no puede tener más de 255 caracteres")
     private String description;
 
+    private Integer position;
+
 }

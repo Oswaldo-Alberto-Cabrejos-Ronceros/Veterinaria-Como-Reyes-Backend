@@ -8,12 +8,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-
-
-   
-
-
 public interface HeadquarterRepository extends JpaRepository<Headquarter, Long> {
 Optional<Headquarter> findByHeadquarterIdAndStatusIsTrue(Long id);
    boolean existsByHeadquarterIdAndStatusIsTrue(long headquarterId);
+   Headquarter findByHeadquarterId(long headquarterId);
 }

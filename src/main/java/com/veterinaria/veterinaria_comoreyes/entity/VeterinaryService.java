@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,10 +33,12 @@ public class VeterinaryService extends EntityWithStatus{
 
     private String dirImage;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "id_specie")
     private Specie specie;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "id_category")
     private Category category;
 
 }

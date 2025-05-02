@@ -1,8 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -19,9 +17,13 @@ public interface IClientService {
     ClientDTO updateClient(Long id, ClientDTO clientDTO);
     void blockClientById(Long id);
     void deleteClientById(Long id);
-
+    void updateBlockNote(Long id, String blockNote);
 
     // Método para búsqueda personalizada
     Page<ClientListDTO> searchClients(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
+
+    // SERVICES OF CLIENT TO AS A USER
+    MyInfoClientDTO myInfoAsClient(String Token, Long id);
+    void updateInfoAsClient(String Token, Long id, DataUpdateAsClientDTO dataUpdateAsClientDTO);
 
 }

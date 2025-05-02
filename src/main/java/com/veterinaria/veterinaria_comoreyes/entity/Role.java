@@ -33,4 +33,6 @@ public class Role extends EntityWithStatus{
     @ManyToMany(mappedBy = "roles")
     private List<Employee> employees;
 
+    private Integer position;
+
 }

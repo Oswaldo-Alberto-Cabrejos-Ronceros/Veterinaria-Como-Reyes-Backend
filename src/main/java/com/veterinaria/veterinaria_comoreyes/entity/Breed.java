@@ -21,7 +21,8 @@ public class Breed extends EntityWithStatus {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long breedId;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "id_specie")
     private Specie specie;
 
     private String name;

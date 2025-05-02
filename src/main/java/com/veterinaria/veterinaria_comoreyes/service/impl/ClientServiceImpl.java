@@ -1,17 +1,18 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
+import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
 import com.veterinaria.veterinaria_comoreyes.mapper.ClientMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
+import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import com.veterinaria.veterinaria_comoreyes.util.HeadquarterUtil;
+import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
 import com.veterinaria.veterinaria_comoreyes.util.PhoneUtil;
 import com.veterinaria.veterinaria_comoreyes.util.ReniecUtil;
 import jakarta.transaction.Transactional;
@@ -31,20 +32,23 @@ public class ClientServiceImpl implements IClientService {
     private final PhoneUtil phoneUtil;
     private final HeadquarterUtil headquarterUtil;
     private final ReniecUtil reniecUtil;
-
-
-    @Override
-    public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable) {
-        return clientRepository.searchClients(dni, name, lastName, status, headquarterId, pageable);
-    }
+    private final JwtUtil jwtUtil;
+    private final HeadquarterRepository headquarterRepository;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, HeadquarterUtil headquarterUtil, IUserService userService, PhoneUtil phoneUtil, ReniecUtil reniecUtil) {
+    public ClientServiceImpl(ClientRepository clientRepository, HeadquarterUtil headquarterUtil, IUserService userService, PhoneUtil phoneUtil, ReniecUtil reniecUtil, JwtUtil jwtUtil, HeadquarterRepository headquarterRepository) {
         this.clientRepository = clientRepository;
         this.userService = userService;
         this.phoneUtil = phoneUtil;
         this.headquarterUtil = headquarterUtil;
         this.reniecUtil = reniecUtil;
+        this.jwtUtil = jwtUtil;
+        this.headquarterRepository = headquarterRepository;
+    }
+
+    @Override
+    public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable) {
+        return clientRepository.searchClients(dni, name, lastName, status, headquarterId, pageable);
     }
 
     @Override
@@ -98,12 +102,9 @@ public class ClientServiceImpl implements IClientService {
 
         }
 
-        System.out.println("🛠️ TODO ESTA VALIDADO");
-        System.out.println(clientDTO.getDni());
         // Mapear DTO a entidad Client
         Client client = ClientMapper.mapToClient(clientDTO);
-        System.out.println(clientDTO.getDni());
-        System.out.println("DNI antes de guardar: " + client.getDni() + " (longitud: " + client.getDni().length() + ")");
+
         // Guardar el cliente
         Client savedClient = clientRepository.save(client);
 
@@ -111,27 +112,29 @@ public class ClientServiceImpl implements IClientService {
         return ClientMapper.mapToClientDTO(savedClient);
     }
 
-
-
-
-
-
     //necesitas los datos en formato de un dto (el usuario no se cambia asi ingreses otros datos en el formato)
     @Transactional
     @Override
     public ClientDTO updateClient(Long clientId, ClientDTO clientDTO) {
         // 1. Buscar el cliente existente
-        Client existingClient = clientRepository.findById(clientId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clientId));
+        Client existingClient = clientRepository.findByClientId(clientId);
 
         // 2. Validar si el nuevo teléfono ya existe en otro cliente
             phoneUtil.validatePhoneAvailable(clientDTO.getPhone(), "cliente");
 
 
         // 3. Validar si se desea actualizar el DNI
-            if (clientRepository.existsByDni(clientDTO.getDni())) {
-                throw new RuntimeException("Otro cliente ya registrado con el mismo DNI: " + clientDTO.getDni());
-            }
+        if (!existingClient.getDni().equals(clientDTO.getDni()) &&
+                clientRepository.existsByDni(clientDTO.getDni())) {
+            throw new RuntimeException("Otro cliente ya registrado con el mismo DNI: " + clientDTO.getDni());
+        }else{
+            // Validar que los datos ingresados coincidan con la reniec
+            reniecUtil.validateData(
+                    clientDTO.getDni(),
+                    clientDTO.getName(),
+                    clientDTO.getLastName()
+            );
+        }
 
 
         // 4. Si quiere cambiar de sede, validar que la nueva sede exista y esté activa
@@ -178,5 +181,65 @@ public class ClientServiceImpl implements IClientService {
         clientRepository.save(client);
     }
 
+    //ACTIONS DEL CLIENT
+    @Override
+    public MyInfoClientDTO myInfoAsClient(String token, Long id) {
+        // Extraer el ID real del JWT
+        Long clientIdFromToken = Long.valueOf(jwtUtil.getIdFromJwt(token));
+
+        // Verificar que el ID enviado por el frontend coincida con el del token
+        if (!clientIdFromToken.equals(id)) {
+            throw new RuntimeException("No tienes permiso para acceder a esta información.");
+        }
+
+        // Buscamos el cliente por su ID
+        Client client = clientRepository.findByClientId((id));
+
+        // Construir el DTO solo con los datos necesarios
+        MyInfoClientDTO dto = new MyInfoClientDTO();
+        dto.setClientId(client.getClientId());
+        dto.setUserId(client.getUser().getUserId());
+        dto.setDni(client.getDni());
+        dto.setNames(client.getName());
+        dto.setLastNames(client.getLastName());
+        dto.setPhone(client.getPhone());
+        dto.setHeadquarterName(client.getHeadquarter().getName());
+        // dto.setRole("cliente"); // ya viene por defecto
+
+        return dto;
+    }
+
+    @Override
+    public void updateInfoAsClient(String token, Long id, DataUpdateAsClientDTO data) {
+
+        Long clientId = Long.valueOf(jwtUtil.getIdFromJwt(token));
+
+        if (!clientId.equals(id)) {
+            throw new RuntimeException("No tienes permiso para modificar esta información.");
+        }
+
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
+
+        client.setAddress(data.getAddress());
+        client.setPhone(data.getPhone());
+
+        // Verificar y obtener la nueva sede
+        headquarterUtil.validateHeadquarterAvailable(data.getHeadquarterId());
+        Headquarter newHeadquarter = headquarterRepository.findByHeadquarterId((data.getHeadquarterId()));
+        client.setHeadquarter(newHeadquarter);
+
+        clientRepository.save(client);
+    }
+
+    // update the lock note field
+    @Override
+    public void updateBlockNote(Long clientId, String BlockNote) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clientId));
+
+        client.setAddress(BlockNote);
+        clientRepository.save(client);
+    }
 
 }

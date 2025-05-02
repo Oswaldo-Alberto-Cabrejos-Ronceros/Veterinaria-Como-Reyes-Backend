@@ -128,4 +128,12 @@ public class JwtUtil {
     public void setRefreshExpirationMs(int refreshExpirationMs) {
         this.refreshExpirationMs = refreshExpirationMs;
     }
+
+
+
+    //EXTRAER EL ID DEL TOKEN PARA CONFIRMAR IDENTIDAD IN ACTIONS
+
+    public String getIdFromJwt(String token) {
+        return getClaimsIfValid(token).getSubject();
+    }
 }

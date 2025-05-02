@@ -32,7 +32,7 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/employee").permitAll() // permite acceso sin login
+                .requestMatchers("/**").permitAll() // permite acceso sin login
                 .anyRequest().authenticated()
                 .and()
                 .httpBasic(); // o .formLogin();

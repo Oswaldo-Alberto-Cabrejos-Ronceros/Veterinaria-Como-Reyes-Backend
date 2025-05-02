@@ -43,6 +43,7 @@ public class Employee {
     @Column(length = 255)
     private String dirImage;
 
+    private String mainRole;
 
     @ManyToOne
     @JoinColumn(name = "id_headquarter")

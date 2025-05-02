@@ -17,6 +17,7 @@ public class RoleMapper {
         roleDTO.setRoleId(role.getRoleId());
         roleDTO.setName(role.getName());
         roleDTO.setDescription(role.getDescription());
+        roleDTO.setPosition(role.getPosition());
 
         return roleDTO;
     }
@@ -30,6 +31,7 @@ public class RoleMapper {
         role.setRoleId(roleDTO.getRoleId());
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
+        role.setPosition(roleDTO.getPosition());
 
         // No configuramos la lista de empleados aquí para evitar referencias circulares
         return role;

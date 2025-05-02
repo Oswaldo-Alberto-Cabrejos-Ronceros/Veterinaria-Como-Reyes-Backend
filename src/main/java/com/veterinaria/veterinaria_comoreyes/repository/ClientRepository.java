@@ -30,4 +30,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
                                       @Param("status") Byte status,
                                       @Param("headquarterId") Long headquarterId,
                                       Pageable pageable);
+
+    Client findByClientId(long clientId);
 }
