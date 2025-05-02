@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface AnimalRepository extends JpaRepository<Animal, Long> {
     List<Animal> findByClient(Client client);
-    Optional<Animal> findByIdAndStatusIsTrue(Long id);
+    Optional<Animal> findByAnimalIdAndStatusIsTrue(Long id);
 }

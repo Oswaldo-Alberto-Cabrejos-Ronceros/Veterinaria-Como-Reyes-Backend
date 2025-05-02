@@ -7,5 +7,5 @@ import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import java.util.Optional;
 
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
-    Optional<Permission> findByIdAndStatusIsTrue(Long id);
+    Optional<Permission> findByPermissionIdAndStatusIsTrue(Long id);
 }

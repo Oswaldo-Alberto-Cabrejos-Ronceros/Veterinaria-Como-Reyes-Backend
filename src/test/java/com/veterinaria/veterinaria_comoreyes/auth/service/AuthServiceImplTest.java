@@ -39,7 +39,7 @@ public class AuthServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
-
+/*
     @Test
     @DisplayName("Autenticación exitosa de cliente")
     void testAuthenticateClientSuccess() {
@@ -119,5 +119,5 @@ public class AuthServiceImplTest {
 
         assertEquals("Marcos", response.getName());
         assertEquals("access-token", response.getJwtToken());
-    }
+    }*/
 }

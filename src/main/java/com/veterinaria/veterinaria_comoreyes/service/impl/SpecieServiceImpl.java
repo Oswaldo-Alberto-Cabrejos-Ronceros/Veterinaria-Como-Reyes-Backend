@@ -26,7 +26,7 @@ public class SpecieServiceImpl implements ISpecieService {
     @Transactional(readOnly = true)
     @Override
     public SpecieDTO getSpecieById(Long id) {
-        Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
         return SpecieMapper.maptoSpecieDTO(specie);
     }
 
@@ -47,7 +47,7 @@ public class SpecieServiceImpl implements ISpecieService {
     @Transactional
     @Override
     public SpecieDTO updateSpecie(Long id, SpecieDTO specieDTO) {
-        Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
 
         specie.setName(specieDTO.getName());
         specie.setImagePath(specieDTO.getImagePath());
@@ -59,7 +59,7 @@ public class SpecieServiceImpl implements ISpecieService {
     @Transactional
     @Override
     public void deleteSpecie(Long id) {
-        Specie specie = specieRepository.findByIdAndStatus(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
         specie.setStatus(false); // 0 = inactivo
         specieRepository.save(specie);
     }

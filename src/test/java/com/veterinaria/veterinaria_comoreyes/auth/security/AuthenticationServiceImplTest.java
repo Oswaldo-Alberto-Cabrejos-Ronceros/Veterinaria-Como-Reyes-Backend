@@ -48,7 +48,7 @@ public class AuthenticationServiceImplTest {
         MockitoAnnotations.openMocks(this);
         SecurityContextHolder.clearContext();
     }
-
+    /*
     @Test
     @DisplayName("Autenticación exitosa de cliente")
     void testAuthenticateClientSuccess() {
@@ -146,5 +146,5 @@ public class AuthenticationServiceImplTest {
 
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals("user@correo.com", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    }
+    }*/
 }

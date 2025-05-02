@@ -30,7 +30,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     @Override
     public PaymentMethodDTO getPaymentMethodById(Long id) {
         filterStatus.activeFilterStatus(true);
-        PaymentMethod method = paymentMethodRepository.findByIdAndStatusIsTrue(id)
+        PaymentMethod method = paymentMethodRepository.findByPaymentMethodIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("PaymentMethod not found with id: " + id));
         return PaymentMethodMapper.maptoPaymentMethodDTO(method);
     }
@@ -57,7 +57,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     @Override
     public PaymentMethodDTO updatePaymentMethod(Long id, PaymentMethodDTO dto) {
         filterStatus.activeFilterStatus(true);
-        PaymentMethod existing = paymentMethodRepository.findByIdAndStatusIsTrue(id)
+        PaymentMethod existing = paymentMethodRepository.findByPaymentMethodIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("PaymentMethod not found with id: " + id));
 
         existing.setName(dto.getName());
@@ -71,7 +71,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     @Override
     public void deletePaymentMethod(Long id) {
         filterStatus.activeFilterStatus(true);
-        PaymentMethod method = paymentMethodRepository.findByIdAndStatusIsTrue(id)
+        PaymentMethod method = paymentMethodRepository.findByPaymentMethodIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("PaymentMethod not found with id: " + id));
         method.setStatus(false); // Inactivar
         paymentMethodRepository.save(method);

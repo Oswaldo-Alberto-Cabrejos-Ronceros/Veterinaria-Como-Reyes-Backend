@@ -30,7 +30,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public HeadquarterDTO getHeadquarterById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Headquarter hq = headquarterRepository.findByIdAndStatusIsTrue(id)
+        Headquarter hq = headquarterRepository.findByHeadquarterIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
         return HeadquarterMapper.maptoHeadquarterDTO(hq);
     }
@@ -58,7 +58,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public HeadquarterDTO updateHeadquarter(Long id, HeadquarterDTO dto) {
         filterStatus.activeFilterStatus(true);
-        Headquarter hq = headquarterRepository.findByIdAndStatusIsTrue(id)
+        Headquarter hq = headquarterRepository.findByHeadquarterIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
 
         hq.setPhone(dto.getPhone());
@@ -77,7 +77,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     public void deleteHeadquarter(Long id) {
 
         filterStatus.activeFilterStatus(true);
-        Headquarter hq = headquarterRepository.findByIdAndStatusIsTrue(id)
+        Headquarter hq = headquarterRepository.findByHeadquarterIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
         hq.setStatus(false); // Desactivado
         headquarterRepository.save(hq);

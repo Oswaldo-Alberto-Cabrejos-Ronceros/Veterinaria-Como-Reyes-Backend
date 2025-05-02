@@ -30,7 +30,7 @@ public class PermissionServiceImpl implements IPermissionService {
     @Override
     public PermissionDTO getPermissionById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Permission permission = permissionRepository.findByIdAndStatusIsTrue(id)
+        Permission permission = permissionRepository.findByPermissionIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Permission not found with id: " + id));
         return PermissionMapper.maptoPermissionDTO(permission);
     }
@@ -57,7 +57,7 @@ public class PermissionServiceImpl implements IPermissionService {
     @Override
     public PermissionDTO updatePermission(Long id, PermissionDTO permissionDTO) {
         filterStatus.activeFilterStatus(true);
-        Permission permission = permissionRepository.findByIdAndStatusIsTrue(id)
+        Permission permission = permissionRepository.findByPermissionIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Permission not found with id: " + id));
 
         permission.setActionCode(permissionDTO.getActionCode());
@@ -72,7 +72,7 @@ public class PermissionServiceImpl implements IPermissionService {
     @Override
     public void deletePermission(Long id) {
         filterStatus.activeFilterStatus(true);
-        Permission permission = permissionRepository.findByIdAndStatusIsTrue(id)
+        Permission permission = permissionRepository.findByPermissionIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Permission not found with id: " + id));
         permission.setStatus(false); //borrado logico
         permissionRepository.save(permission);

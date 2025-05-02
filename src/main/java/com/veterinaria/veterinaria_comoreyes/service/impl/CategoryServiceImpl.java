@@ -30,7 +30,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryDTO getCategoryById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Category category = categoryRepository.findByIdAndStatusIsTrue(id)
+        Category category = categoryRepository.findByCategoryIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
         return CategoryMapper.maptoCategoryDTO(category);
     }
@@ -57,7 +57,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         filterStatus.activeFilterStatus(true);
-        Category existing = categoryRepository.findByIdAndStatusIsTrue(id)
+        Category existing = categoryRepository.findByCategoryIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
         existing.setName(categoryDTO.getName());
@@ -71,7 +71,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public void deleteCategory(Long id) {
         filterStatus.activeFilterStatus(true);
-        Category category = categoryRepository.findByIdAndStatusIsTrue(id)
+        Category category = categoryRepository.findByCategoryIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
         category.setStatus(false); // Inactivo
         categoryRepository.save(category);

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface SpecieRepository extends JpaRepository<Specie, Long> {
 
-    Optional<Specie> findByIdAndStatus(Long id);
+    Optional<Specie> findBySpecieIdAndStatusIsTrue(Long id);
 }

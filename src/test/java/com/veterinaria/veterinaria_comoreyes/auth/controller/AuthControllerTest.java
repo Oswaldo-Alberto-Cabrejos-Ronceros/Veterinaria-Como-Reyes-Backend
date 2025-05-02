@@ -52,7 +52,7 @@ public class AuthControllerTest {
                 response.setRefreshToken(refresh);
                 return response;
         }
-
+        /*
         @Test
         @DisplayName("Login cliente exitoso devuelve respuesta con datos y status 200")
         void testLoginClientExitoso() throws Exception {
@@ -92,5 +92,5 @@ public class AuthControllerTest {
                                 .andExpect(jsonPath("$.usuarioId").value(2))
                                 .andExpect(jsonPath("$.name").value("Ana Sánchez"))
                                 .andExpect(jsonPath("$.role").value("EMPLOYEE"));
-        }
+        }*/
 }

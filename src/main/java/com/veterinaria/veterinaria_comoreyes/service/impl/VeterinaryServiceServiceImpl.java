@@ -39,7 +39,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Override
     public VeterinaryServiceDTO getServiceById(Long id) {
         filterStatus.activeFilterStatus(true);
-        VeterinaryService service = veterinaryServiceRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        VeterinaryService service = veterinaryServiceRepository.findByServiceIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
         return VeterinaryServiceMapper.mapToServiceDTO(service);
     }
 
@@ -78,7 +78,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Override
     public VeterinaryServiceDTO updateService(Long id,VeterinaryServiceDTO veterinaryServiceDTO) {
         filterStatus.activeFilterStatus(true);
-        VeterinaryService veterinaryService = veterinaryServiceRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        VeterinaryService veterinaryService = veterinaryServiceRepository.findByServiceIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
         veterinaryService.setName(veterinaryServiceDTO.getName());
         veterinaryService.setDescription(veterinaryServiceDTO.getDescription());
         veterinaryService.setCategory(veterinaryServiceDTO.getCategory());
@@ -93,7 +93,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Override
     public void deleteService(Long id) {
         filterStatus.activeFilterStatus(true);
-        VeterinaryService veterinaryService = veterinaryServiceRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
+        VeterinaryService veterinaryService = veterinaryServiceRepository.findByServiceIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Veterinary Service Not Found with id:" + id));
         veterinaryService.setStatus(false);//disabled
         veterinaryServiceRepository.save(veterinaryService);
     }

@@ -28,7 +28,7 @@ public class HeadquarterMapper {
                 headquarterDTO.getDistrict(),
                 headquarterDTO.getProvince(),
                 headquarterDTO.getDepartment(),
-                headquarterDTO.getName(),
+                headquarterDTO.getName()
         );
     }
 }

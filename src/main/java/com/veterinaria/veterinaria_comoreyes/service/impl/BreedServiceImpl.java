@@ -35,7 +35,7 @@ public class BreedServiceImpl implements IBreedService {
     @Override
     public BreedDTO getBreedById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Breed breed = breedRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
         return BreedMapper.maptoBreedDTO(breed);
     }
 
@@ -43,7 +43,7 @@ public class BreedServiceImpl implements IBreedService {
     @Override
     public List<BreedDTO> getBreedsBySpecies(Long speciesId) {
         filterStatus.activeFilterStatus(true);
-        Specie specie = specieRepository.findByIdAndStatus(speciesId).orElseThrow( () -> new RuntimeException("Breed not found with id: " + speciesId));
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(speciesId).orElseThrow( () -> new RuntimeException("Breed not found with id: " + speciesId));
         return breedRepository.findBySpecie(specie).stream().map(BreedMapper::maptoBreedDTO).collect(Collectors.toList());
     }
 
@@ -65,7 +65,7 @@ public class BreedServiceImpl implements IBreedService {
     @Transactional
     @Override
     public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
-        Breed breed = breedRepository.findByIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
         breed.setName(breedDTO.getName());
         breed.setSpecie(breedDTO.getSpecie());
         Breed breedUpdated = breedRepository.save(breed);

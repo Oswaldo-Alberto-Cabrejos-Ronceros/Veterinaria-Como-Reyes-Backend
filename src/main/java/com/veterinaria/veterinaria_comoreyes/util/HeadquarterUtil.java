@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.util;
 
+import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.exception.EmailAlreadyExistsException;
 import com.veterinaria.veterinaria_comoreyes.exception.HeadquarterNotValidException;
 import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
@@ -20,20 +21,9 @@ public class HeadquarterUtil {
 
     // Validar si la sede existe y esta disponible
     public void validateHeadquarterAvailable(Long id) {
-
-        // Verificar si la sede existe
-        if (!headquarterRepository.existsByHeadquarterId(id)) {
-            // Lanza una excepción si la sede no existe
-            throw new HeadquarterNotValidException("La sede no existe");
-        }
-
-        // Verificar el estado de la sede
-        Byte status = headquarterRepository.findStatusById(id);
-
-        // Comparar si la sede no está disponible
-        if (status != null && status == 0) {
-            // Lanza una excepción si la sede no está disponible
-            throw new HeadquarterNotValidException("La sede no está disponible");
+        boolean exist= headquarterRepository.existsByHeadquarterIdAndStatusIsTrue(id);
+        if(!exist){
+            throw new HeadquarterNotValidException("Headquarter not available");
         }
     }
 }

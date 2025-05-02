@@ -30,7 +30,7 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public RoleDTO getRoleById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Role role= roleRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
+        Role role= roleRepository.findByRoleIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
         return RoleMapper.mapToRoleDTO(role);
     }
 
@@ -54,7 +54,7 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public RoleDTO updateRole(Long id, RoleDTO roleDTO) {
         filterStatus.activeFilterStatus(true);
-        Role role = roleRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
+        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
         Role updateRole = roleRepository.save(role);
@@ -65,7 +65,7 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public void deleteRole(Long id) {
         filterStatus.activeFilterStatus(true);
-        Role role = roleRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
+        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
         role.setStatus(false);
         roleRepository.save(role);
     }
@@ -77,10 +77,6 @@ public class RoleServiceImpl implements IRoleService {
         for (RoleDTO dto : roleDTOs) {
             Role role = roleRepository.findById(dto.getRoleId())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + dto.getRoleId()));
-
-            if (role.getStatus() == 0) {
-                throw new RuntimeException("El rol " + role.getName() + " no está activo");
-            }
 
             roles.add(role);
         }

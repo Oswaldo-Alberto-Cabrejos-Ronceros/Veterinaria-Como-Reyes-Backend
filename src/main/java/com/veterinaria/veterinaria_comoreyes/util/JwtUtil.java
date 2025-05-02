@@ -32,7 +32,7 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private int jwtExpirationMs;
 
-    @Value("${jwt.refresh}")
+    @Value("${jwt.refresh.expiration}")
     private int refreshExpirationMs;
 
     @PostConstruct

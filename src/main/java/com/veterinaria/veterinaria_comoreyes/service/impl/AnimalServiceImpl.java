@@ -36,7 +36,7 @@ public class AnimalServiceImpl implements IAnimalService {
     @Override
     public AnimalDTO getAnimalById(Long id) {
         filterStatus.activeFilterStatus(true);
-        return AnimalMapper.maptoAnimalDTO(animalRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id)));
+        return AnimalMapper.maptoAnimalDTO(animalRepository.findByAnimalIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id)));
     }
 
     @Transactional(readOnly = true)
@@ -67,7 +67,7 @@ public class AnimalServiceImpl implements IAnimalService {
     @Override
     public AnimalDTO updateAnimal(Long id, AnimalDTO animalDTO) {
         filterStatus.activeFilterStatus(true);
-        Animal animal = animalRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
+        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
         //validar cliente
         animal.setName(animalDTO.getName());
         animal.setBreed(animalDTO.getBreed());
@@ -83,7 +83,7 @@ public class AnimalServiceImpl implements IAnimalService {
     @Override
     public void deleteAnimal(Long id) {
         filterStatus.activeFilterStatus(true);
-        Animal animal = animalRepository.findByIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
+        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
         animal.setStatus(false); //inactivo
         animalRepository.save(animal);
     }

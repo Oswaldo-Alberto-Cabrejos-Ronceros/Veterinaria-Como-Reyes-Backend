@@ -13,5 +13,5 @@ List<VeterinaryService> findAllBySpecie(Specie specie);
 
 List<VeterinaryService> findAllByCategory(Category category);
 
-Optional<VeterinaryService> findByIdAndStatusIsTrue (Long id);
+Optional<VeterinaryService> findByServiceIdAndStatusIsTrue (Long id);
 }

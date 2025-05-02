@@ -7,5 +7,5 @@ import com.veterinaria.veterinaria_comoreyes.entity.PaymentMethod;
 import java.util.Optional;
 
 public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Long> {
-Optional<PaymentMethod> findByIdAndStatusIsTrue(Long id);
+Optional<PaymentMethod> findByPaymentMethodIdAndStatusIsTrue(Long id);
 }
