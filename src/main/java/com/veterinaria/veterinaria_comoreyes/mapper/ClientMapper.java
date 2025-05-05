@@ -37,7 +37,8 @@ public class ClientMapper {
         );
     }
 
+    /*
     public static AuthenticationResponseDTO mapToAuthenticationResponseDTO(Long userId,ClientDTO clientDTO,String jwtToken, String refreshToken) {
         return new AuthenticationResponseDTO(userId,clientDTO.getName(),"CLIENT",jwtToken,refreshToken);
-    }
+    }*/
 }

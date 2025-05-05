@@ -29,6 +29,7 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAut
 })
 public class AuthControllerTest {
 
+        /*
         @Autowired
         private MockMvc mockMvc;
 

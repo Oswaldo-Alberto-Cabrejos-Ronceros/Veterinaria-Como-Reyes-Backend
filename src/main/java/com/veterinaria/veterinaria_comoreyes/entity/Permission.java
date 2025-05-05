@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,23 +8,36 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
+import java.util.List;
+
 @Entity
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-//para filtro
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "actionCode"),
+                @UniqueConstraint(columnNames = "name")
+        }
+)
 @Filter(name = "statusActive", condition = "status = :status")
-public class Permission extends EntityWithStatus{
+public class Permission extends EntityWithStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     private Long permissionId;
 
-    private String actionCode;
+    @Column(unique = true)
+    private String actionCode; // Ej: "animal_update"
 
-    private String module;
+    @Column(unique = true, length = 50)
+    private String name;       // Ej: "Actualizar animal"
 
-    private String description;
+    @Column(length = 200)
+    private String description; // Ej: "Permite modificar la información básica de los animales en el sistema"
+
+    private String module;     // Ej: "animales"
+
+    @ManyToMany(mappedBy = "permissions")
+    private List<Role> roles;
 }

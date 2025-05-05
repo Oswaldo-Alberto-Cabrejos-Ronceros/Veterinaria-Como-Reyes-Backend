@@ -16,7 +16,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-//para filtro
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "name"),
+                @UniqueConstraint(columnNames = "position")
+        }
+)
 @Filter(name = "statusActive", condition = "status = :status")
 public class Role extends EntityWithStatus{
 
@@ -35,6 +40,11 @@ public class Role extends EntityWithStatus{
 
     private Integer position;
 
-
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "role_permission", joinColumns = @JoinColumn(name = "id_role", referencedColumnName = "roleId"),
+            inverseJoinColumns = @JoinColumn(name = "id_permission",referencedColumnName = "permissionId")
+    )
+    private List<Permission> permissions;
 
 }
