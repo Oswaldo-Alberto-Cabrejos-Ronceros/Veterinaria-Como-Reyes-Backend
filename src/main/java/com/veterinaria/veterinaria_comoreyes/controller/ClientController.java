@@ -31,7 +31,7 @@ public class ClientController {
             @RequestParam(required = false) String dni,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) Byte status,
+            @RequestParam(required = false) Boolean status,
             @RequestParam(required = false) Long headquarterId,
             @PageableDefault(size = 10) Pageable pageable
     ) {

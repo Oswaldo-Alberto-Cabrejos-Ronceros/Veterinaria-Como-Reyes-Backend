@@ -47,7 +47,7 @@ public class ClientServiceImpl implements IClientService {
     }
 
     @Override
-    public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable) {
+    public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Boolean status, Long headquarterId, Pageable pageable) {
         return clientRepository.searchClients(dni, name, lastName, status, headquarterId, pageable);
     }
 
@@ -93,7 +93,7 @@ public class ClientServiceImpl implements IClientService {
             userDTO.setType("C");
             userDTO.setEmail(clientDTO.getUser().getEmail());
             userDTO.setPassword(clientDTO.getUser().getPassword());
-            userDTO.setStatus((byte) 1);
+
 
             // Crear el usuario
             UserDTO savedUserDTO = userService.createUser(userDTO);
@@ -105,6 +105,7 @@ public class ClientServiceImpl implements IClientService {
         // Mapear DTO a entidad Client
         Client client = ClientMapper.mapToClient(clientDTO);
 
+        client.setStatus(true);
         // Guardar el cliente
         Client savedClient = clientRepository.save(client);
 
@@ -151,7 +152,6 @@ public class ClientServiceImpl implements IClientService {
         existingClient.setPhone(clientDTO.getPhone());
         existingClient.setBirthDate(clientDTO.getBirthDate());
         existingClient.setDirImage(clientDTO.getDirImage());
-        existingClient.setStatus(clientDTO.getStatus());
 
         // ¡NO actualizamos nada de User!
 
@@ -168,7 +168,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void blockClientById(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(()-> new RuntimeException("Client not found with id: " + id));
-        client.setStatus((byte) 0);
+        client.setStatus(false);
         clientRepository.save(client);
     }
 
@@ -177,7 +177,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void deleteClientById(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(()-> new RuntimeException("Client not found with id: " + id));
-        client.setStatus((byte) 0);
+        client.setStatus(false);
         clientRepository.save(client);
     }
 
@@ -230,6 +230,7 @@ public class ClientServiceImpl implements IClientService {
         client.setHeadquarter(newHeadquarter);
 
         clientRepository.save(client);
+
     }
 
     // update the lock note field
@@ -238,7 +239,7 @@ public class ClientServiceImpl implements IClientService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clientId));
 
-        client.setAddress(BlockNote);
+        client.setBlockNote(BlockNote);
         clientRepository.save(client);
     }
 

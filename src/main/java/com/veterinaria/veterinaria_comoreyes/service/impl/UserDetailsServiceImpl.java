@@ -18,18 +18,18 @@ import java.util.List;
 @Service
 public abstract class UserDetailsServiceImpl {
 /*
-    private final IUserService iUserService;
+    private final IUserService userService;
     private final IEmployeeService iEmployeeService;
     @Autowired
-    public UserDetailsServiceImpl(IUserService iUserService, IEmployeeService iEmployeeService) {
-        this.iUserService = iUserService;
+    public UserDetailsServiceImpl(IUserService userService, IEmployeeService iEmployeeService) {
+        this.iUserService = userService;
         this.iEmployeeService = iEmployeeService;
     }
 
     //arreglar
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDTO user = iUserService.getUserByEmail(username);
+        UserDTO user = userService.getUserByEmail(username);
         List<GrantedAuthority> authorities;
         if(user.getType().equalsIgnoreCase("C")){
             authorities= List.of(new SimpleGrantedAuthority("CLIENT"));

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Length;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -16,7 +17,8 @@ import java.util.Date;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Client {
+@Filter(name = "statusActive", condition = "status = :status")
+public class Client extends EntityWithStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long clientId;
@@ -51,8 +53,5 @@ public class Client {
 
     @Column(length = 100)
     private String blockNote;
-
-    @Column(nullable = false, columnDefinition = "NUMBER(1,0)")
-    private Byte status;
 
 }

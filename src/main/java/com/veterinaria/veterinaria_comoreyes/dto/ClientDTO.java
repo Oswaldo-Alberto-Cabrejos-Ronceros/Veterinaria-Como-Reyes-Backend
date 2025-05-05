@@ -50,9 +50,6 @@ public class ClientDTO {
 
     private User user;
 
-    @NotNull(message = "El status es obligatorio")
-    private Byte status = 1;
-
     @Size(max = 100, message = "Maximo longitud 100 caracteres.")
     private String blockNote;
 }

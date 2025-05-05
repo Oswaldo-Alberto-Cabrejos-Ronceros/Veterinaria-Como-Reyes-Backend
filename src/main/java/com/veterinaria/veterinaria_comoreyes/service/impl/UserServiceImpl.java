@@ -64,6 +64,7 @@ public class UserServiceImpl implements IUserService {
 
         // Encriptar la contraseña
         user.setPassword(passwordUtil.encodePassword(user.getPassword()));
+        user.setStatus(true);
 
         // Guardar el usuario en la base de datos
         User savedUser = userRepository.save(user);
@@ -88,8 +89,6 @@ public class UserServiceImpl implements IUserService {
             user.setPassword(passwordUtil.encodePassword(userDTO.getPassword()));
         }
 
-        user.setStatus(userDTO.getStatus());
-
         // Guardar el usuario actualizado en la base de datos
         User updatedUser = userRepository.save(user);
         return UserMapper.maptoUserDTO(updatedUser);
@@ -98,11 +97,23 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByUserIdAndStatusTrue(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         // Cambio de estado a inactivo
-        user.setStatus((byte) 0); // 0 = inactivo
+        user.setStatus(false);// false = inactivo
+        userRepository.save(user);
+    }
+
+    //update only password
+    @Override
+    public void updatePassword(Long id, String newPassword){
+        User user = userRepository.findByUserIdAndStatusTrue(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        //send the new encrypted password
+        user.setPassword(passwordUtil.encodePassword(newPassword));
+
         userRepository.save(user);
     }
 }

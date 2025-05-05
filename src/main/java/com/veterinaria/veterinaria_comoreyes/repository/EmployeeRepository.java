@@ -24,13 +24,17 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     Optional<Employee> findByDni(String dni);
 
+    Optional<Employee> findByEmployeeIdAndStatusTrue(Long id);
+
+
     @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO(" +
             "e.employeeId, " +
             "e.dni, " +
+            "e.cmvp,"+
             "e.name, " +
             "e.lastName, " +
             "e.headquarter.name, " +
-            "CASE WHEN e.status = 1 THEN 'Activo' ELSE 'Bloqueado' END) " +
+            "CASE WHEN e.status = true THEN 'Activo' ELSE 'Bloqueado' END) " +
             "FROM Employee e " +
             "WHERE (:dni IS NULL OR e.dni = :dni) AND " +
             "(:name IS NULL OR e.name LIKE %:name%) AND " +
@@ -43,4 +47,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                                           @Param("status") Byte status,
                                           @Param("headquarterId") Long headquarterId,
                                           Pageable pageable);
+
+    Employee findByEmployeeId(Long employeeId);
 }

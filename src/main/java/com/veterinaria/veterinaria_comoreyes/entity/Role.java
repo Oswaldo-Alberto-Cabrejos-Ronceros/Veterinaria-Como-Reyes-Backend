@@ -35,4 +35,6 @@ public class Role extends EntityWithStatus{
 
     private Integer position;
 
+
+
 }

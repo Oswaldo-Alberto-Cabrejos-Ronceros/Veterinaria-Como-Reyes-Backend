@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -43,4 +40,5 @@ public interface IEmployeeService {
     // Método para búsqueda personalizada
     Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
 
+    MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id);
 }

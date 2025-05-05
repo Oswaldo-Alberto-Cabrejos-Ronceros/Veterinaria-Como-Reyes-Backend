@@ -7,6 +7,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.AuthenticationResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.LoginRequestDTO;
 
 public interface IAuthenticationService {
+
     /*
     //for authenticate client
     AuthenticationResponseDTO authenticateClient(LoginRequestDTO loginRequestDTO);
@@ -14,5 +15,7 @@ public interface IAuthenticationService {
     //para refrescar token
     String refreshToken(String refreshToken);
     //solo para registrar clientes
-    AuthenticationResponseDTO registerUserClient(ClientDTO clientDTO, UserDTO userDTO);*/
+    AuthenticationResponseDTO registerUserClient(ClientDTO clientDTO, UserDTO userDTO);
+
+     */
 }

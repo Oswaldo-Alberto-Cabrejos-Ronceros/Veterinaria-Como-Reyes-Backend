@@ -37,6 +37,11 @@ public class RoleServiceImpl implements IRoleService {
     @Transactional(readOnly = true)
     @Override
     public List<RoleDTO> getAllRoles() {
+        return roleRepository.findAll().stream().map(RoleMapper::mapToRoleDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RoleDTO> getAllRolesAndStatusTrue() {
         filterStatus.activeFilterStatus(true);
         return roleRepository.findAll().stream().map(RoleMapper::mapToRoleDTO).collect(Collectors.toList());
     }
@@ -80,7 +85,6 @@ public class RoleServiceImpl implements IRoleService {
 
             roles.add(role);
         }
-
         return roles;
     }
 

@@ -17,7 +17,6 @@ public class ClientMapper {
                 client.getDirImage(),
                 client.getHeadquarter(),
                 client.getUser(),
-                client.getStatus(),
                 client.getBlockNote()
         );
     }
@@ -34,8 +33,7 @@ public class ClientMapper {
                 clientDTO.getDirImage(),
                 clientDTO.getHeadquarter(),
                 clientDTO.getUser(),
-                clientDTO.getBlockNote(),
-                clientDTO.getStatus()
+                clientDTO.getBlockNote()
         );
     }
 

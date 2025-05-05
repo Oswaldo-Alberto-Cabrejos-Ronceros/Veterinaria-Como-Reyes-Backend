@@ -1,19 +1,17 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.mapper.EmployeeMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.RoleRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import com.veterinaria.veterinaria_comoreyes.service.IRoleService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import com.veterinaria.veterinaria_comoreyes.util.HeadquarterUtil;
+import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
 import com.veterinaria.veterinaria_comoreyes.util.PhoneUtil;
 import com.veterinaria.veterinaria_comoreyes.util.ReniecUtil;
 import jakarta.transaction.Transactional;
@@ -22,7 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -35,19 +33,23 @@ public class EmployeeServiceImpl implements IEmployeeService {
     private final HeadquarterUtil headquarterUtil;
     private final ReniecUtil reniecUtil;
     private final IRoleService roleService;
+    private final JwtUtil jwtUtil;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, IUserService userService, PhoneUtil phoneUtil, HeadquarterUtil headquarterUtil, ReniecUtil reniecUtil, IRoleService roleService) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, IUserService userService, PhoneUtil phoneUtil, HeadquarterUtil headquarterUtil, ReniecUtil reniecUtil, IRoleService roleService, JwtUtil jwtUtil) {
         this.employeeRepository = employeeRepository;
         this.userService = userService;
         this.phoneUtil = phoneUtil;
         this.headquarterUtil = headquarterUtil;
         this.reniecUtil = reniecUtil;
         this.roleService = roleService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     public EmployeeDTO getEmployeeById(Long id) {
-        return null;
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
+        return EmployeeMapper.mapToEmployeeDTO(employee);
     }
 
     @Override
@@ -57,7 +59,8 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAll();
+        return EmployeeMapper.mapToEmployeeDTOList(employees);
     }
 
     @Transactional
@@ -88,7 +91,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
             userDTO.setType("E");
             userDTO.setEmail(employeeDTO.getUser().getEmail());
             userDTO.setPassword(employeeDTO.getUser().getPassword());
-            userDTO.setStatus((byte) 1);
 
             UserDTO savedUserDTO = userService.createUser(userDTO);
             User savedUser = UserMapper.maptoUser(savedUserDTO);
@@ -132,7 +134,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
         existingEmployee.setPhone(employeeDTO.getPhone());
         existingEmployee.setBirthDate(employeeDTO.getBirthDate());
         existingEmployee.setDirImage(employeeDTO.getDirImage());
-        existingEmployee.setStatus(employeeDTO.getStatus());
 
         // Procesar roles solo si se proporcionan explícitamente
 
@@ -151,10 +152,10 @@ public class EmployeeServiceImpl implements IEmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
 
-        employee.setStatus((byte) 0);
+        employee.setStatus(false);
 
         if (employee.getUser() != null) {
-            employee.getUser().setStatus((byte) 0);
+            employee.getUser().setStatus(false);
         }
 
         employeeRepository.save(employee);
@@ -173,10 +174,10 @@ public class EmployeeServiceImpl implements IEmployeeService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
-        employee.setStatus((byte) 1);
+        employee.setStatus(true);
 
         if (employee.getUser() != null) {
-            employee.getUser().setStatus((byte) 1);
+            employee.getUser().setStatus(true);
         }
 
         employeeRepository.save(employee);
@@ -200,6 +201,50 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Override
     public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable) {
         return employeeRepository.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
+    }
+
+    @Override
+    public MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id) {
+
+        // Extraer el ID real del JWT
+        Long employeeIdFromToken = Long.valueOf(jwtUtil.getIdFromJwt(token));
+
+        // Verificar que el ID enviado por el frontend coincida con el del token
+        if (!employeeIdFromToken.equals(id)) {
+            throw new RuntimeException("No tienes permiso para acceder a esta información.");
+        }
+
+
+        // Buscar al empleado por su ID
+        Employee employee = employeeRepository.findByEmployeeId(id);
+
+        if (employee == null) {
+            throw new RuntimeException("Empleado no encontrado con id: " + id);
+        }
+
+        // Construir el DTO
+        MyInfoEmployeeDTO dto = new MyInfoEmployeeDTO();
+        dto.setEmployeeId(employee.getEmployeeId());
+        dto.setUserId(employee.getUser().getUserId());
+        dto.setDni(employee.getDni());
+        dto.setCmvp(employee.getCmvp());
+        dto.setNames(employee.getName());
+        dto.setLastNames(employee.getLastName());
+        dto.setAddress(employee.getAddress());
+        dto.setPhone(employee.getPhone());
+        dto.setBirthDate(employee.getBirthDate()); // Asegúrate que es un LocalDate, si no, adapta esto
+        dto.setDirImage(employee.getDirImage());
+        dto.setHeadquarterName(employee.getHeadquarter().getName());
+
+        // Obtener el rol con menor posición (más cercano a 0)
+        String mainRole = employee.getRoles().stream()
+                .min(Comparator.comparingInt(role -> role.getPosition()))
+                .map(Role::getName)
+                .orElse("Sin rol");
+
+        dto.setMainRole(mainRole);
+
+        return dto;
     }
 }
 

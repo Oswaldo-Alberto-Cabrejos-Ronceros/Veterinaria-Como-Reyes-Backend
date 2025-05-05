@@ -74,11 +74,6 @@ public class JwtUtil {
         }
     }
 
-    // para obtener el email del token
-    public String getEmailFromJwt(String token) {
-        return getClaimsIfValid(token).getSubject();
-    }
-
     // para obetener las autoridades del token
     public List<GrantedAuthority> getAuthoritiesFromJwt(String token) {
         String authorities = getClaimsIfValid(token).get("authorities", String.class);
@@ -136,4 +131,9 @@ public class JwtUtil {
     public String getIdFromJwt(String token) {
         return getClaimsIfValid(token).getSubject();
     }
+    // para obtener el email del token
+    public String getEmailFromJwt(String token) {
+        return getClaimsIfValid(token).getSubject();
+    }
+
 }

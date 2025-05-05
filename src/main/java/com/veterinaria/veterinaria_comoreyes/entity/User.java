@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Getter
@@ -12,7 +14,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class User {
+@SuperBuilder
+//para filtro
+@Filter(name = "statusActive", condition = "status = :status")
+public class User extends EntityWithStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long userId;
@@ -24,5 +29,4 @@ public class User {
 
     private String password;
 
-    private Byte status;
 }

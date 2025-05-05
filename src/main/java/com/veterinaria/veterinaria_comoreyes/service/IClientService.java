@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface IClientService {
 
+    Page<ClientListDTO> searchClients(String dni, String name, String lastName, Boolean status, Long headquarterId, Pageable pageable);
+
     ClientDTO getClientById(Long id);
     ClientDTO getClientByUser(UserDTO userDTO);
     List<ClientDTO> getAllClients();
@@ -19,8 +21,6 @@ public interface IClientService {
     void deleteClientById(Long id);
     void updateBlockNote(Long id, String blockNote);
 
-    // Método para búsqueda personalizada
-    Page<ClientListDTO> searchClients(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
 
     // SERVICES OF CLIENT TO AS A USER
     MyInfoClientDTO myInfoAsClient(String Token, Long id);

@@ -9,6 +9,7 @@ import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
+import com.veterinaria.veterinaria_comoreyes.util.PasswordUtil;
 import io.jsonwebtoken.JwtException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,13 +21,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationServiceImpl implements IAuthenticationService {
+
     /*
     private final JwtUtil jwtUtil;
     private final IUserService userService;
     private final IClientService clientService;
     private final IEmployeeService employeeService;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordUtil passwordUtil;
 
     public AuthenticationServiceImpl(
             JwtUtil jwtUtil,
@@ -34,15 +36,89 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
             IClientService clientService,
             IEmployeeService employeeService,
             UserDetailsServiceImpl userDetailsServiceImpl,
-            PasswordEncoder passwordEncoder) {
+            PasswordUtil passwordUtil) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
         this.clientService = clientService;
         this.employeeService = employeeService;
         this.userDetailsServiceImpl = userDetailsServiceImpl;
-        this.passwordEncoder = passwordEncoder;
+        this.passwordUtil=passwordUtil;
     }
 
+    @Override
+    public AuthenticationResponseDTO authenticateClient(LoginRequestDTO loginRequestDTO) {
+        return null;
+    }
+
+    @Override
+    public AuthenticationResponseDTO authenticateEmployee(LoginRequestDTO loginRequestDTO) {
+        return null;
+    }
+
+    @Override
+    public String refreshToken(String refreshToken) {
+        return "";
+    }
+
+    @Transactional
+@Override
+public AuthenticationResponseDTO registerUserClient(RegisterRequestDTO newClient) {
+    // Validar teléfono
+    phoneUtil.validatePhoneAvailable(newClient.getPhone(), "cliente");
+
+    // Validar que no exista cliente con mismo DNI
+    if (clientRepository.existsByDni(newClient.getDni())) {
+        throw new RuntimeException("Cliente ya registrado con ese DNI: " + newClient.getDni());
+    }
+
+    // Validar con Reniec
+    reniecUtil.validateData(
+            newClient.getDni(),
+            newClient.getName(),
+            newClient.getLastName()
+    );
+
+    // Validar sede
+    headquarterUtil.validateHeadquarterAvailable(newClient.getIdHeadquarter());
+
+    // Crear el usuario
+    UserDTO userDTO = new UserDTO();
+    userDTO.setType("C");
+    userDTO.setEmail(newClient.getEmail());
+    userDTO.setPassword(newClient.getPassword());
+
+    UserDTO savedUserDTO = userService.createUser(userDTO);
+    User savedUser = UserMapper.maptoUser(savedUserDTO);
+
+    // Construir ClientDTO
+    ClientDTO clientDTO = new ClientDTO();
+    clientDTO.setDni(newClient.getDni());
+    clientDTO.setName(newClient.getName());
+    clientDTO.setLastName(newClient.getLastName());
+    clientDTO.setAddress(newClient.getAddress());
+    clientDTO.setPhone(newClient.getPhone());
+    clientDTO.setBirthDate(newClient.getBirthDate());
+    clientDTO.setDirImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgpnmY-O9iz09Jka-vGvK2Lv-U-pL3H18CfA&s");
+
+    // Obtener sede activa
+    Headquarter headquarter = headquarterRepository.findById(newClient.getIdHeadquarter())
+            .orElseThrow(() -> new RuntimeException("Sede no encontrada con ID: " + newClient.getIdHeadquarter()));
+    clientDTO.setHeadquarter(headquarter);
+
+    // Asociar el User al DTO
+    clientDTO.setUser(savedUser);
+
+    // Mapear a entidad y guardar
+    Client clientEntity = ClientMapper.mapToClient(clientDTO);
+    clientEntity.setStatus(true);
+
+    clientRepository.save(clientEntity);
+
+    // Retornar respuesta (luego aquí agregas token)
+    return new AuthenticationResponseDTO();
+}
+
+    /*
     @Override
     public AuthenticationResponseDTO authenticateClient(LoginRequestDTO loginRequestDTO) {
         UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(loginRequestDTO.getEmail());
