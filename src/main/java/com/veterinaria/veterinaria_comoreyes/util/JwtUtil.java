@@ -125,12 +125,6 @@ public class JwtUtil {
     }
 
 
-
-    //EXTRAER EL ID DEL TOKEN PARA CONFIRMAR IDENTIDAD IN ACTIONS
-
-    public String getIdFromJwt(String token) {
-        return getClaimsIfValid(token).getSubject();
-    }
     // para obtener el email del token
     public String getEmailFromJwt(String token) {
         return getClaimsIfValid(token).getSubject();

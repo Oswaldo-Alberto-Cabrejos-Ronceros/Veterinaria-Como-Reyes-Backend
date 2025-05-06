@@ -1,6 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.config;
 
+import com.veterinaria.veterinaria_comoreyes.security.auth.JwtAuthenticationFilter;
+import com.veterinaria.veterinaria_comoreyes.security.auth.JwtAuthorizationFilter;
 import com.veterinaria.veterinaria_comoreyes.service.impl.UserDetailsServiceImpl;
+import com.veterinaria.veterinaria_comoreyes.util.JwtTokenUtil;
 import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +20,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -27,18 +31,54 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final JwtTokenUtil jwtTokenUtil;
+    private final AuthenticationConfiguration authenticationConfiguration;
+
+    // Constructor para inyectar las dependencias
+    public SecurityConfig(JwtTokenUtil jwtTokenUtil, AuthenticationConfiguration authenticationConfiguration) {
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.authenticationConfiguration = authenticationConfiguration;
+    }
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Configuración básica
         http
-                .csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/**").permitAll() // permite acceso sin login
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic(); // o .formLogin();
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                );
+
+        // Configuración de filtros
+        AuthenticationManager authenticationManager = authenticationManager(authenticationConfiguration);
+        http.addFilter(new JwtAuthenticationFilter(authenticationManager, jwtTokenUtil))
+                .addFilterBefore(new JwtAuthorizationFilter(jwtTokenUtil), UsernamePasswordAuthenticationFilter.class);
+
+        // Manejo de errores
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
+                })
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso denegado");
+                })
+        );
 
         return http.build();
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+}
+
+
+
+
+
     /*
     private final JwtUtil jwtUtil;
 
@@ -104,4 +144,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }*/
-}
+

@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
+import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.mapper.EmployeeMapper;
@@ -10,10 +11,7 @@ import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import com.veterinaria.veterinaria_comoreyes.service.IRoleService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import com.veterinaria.veterinaria_comoreyes.util.HeadquarterUtil;
-import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
-import com.veterinaria.veterinaria_comoreyes.util.PhoneUtil;
-import com.veterinaria.veterinaria_comoreyes.util.ReniecUtil;
+import com.veterinaria.veterinaria_comoreyes.util.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements IEmployeeService {
@@ -33,16 +32,16 @@ public class EmployeeServiceImpl implements IEmployeeService {
     private final HeadquarterUtil headquarterUtil;
     private final ReniecUtil reniecUtil;
     private final IRoleService roleService;
-    private final JwtUtil jwtUtil;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, IUserService userService, PhoneUtil phoneUtil, HeadquarterUtil headquarterUtil, ReniecUtil reniecUtil, IRoleService roleService, JwtUtil jwtUtil) {
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository, IUserService userService, PhoneUtil phoneUtil, HeadquarterUtil headquarterUtil, ReniecUtil reniecUtil, IRoleService roleService, JwtTokenUtil jwtTokenUtil) {
         this.employeeRepository = employeeRepository;
         this.userService = userService;
         this.phoneUtil = phoneUtil;
         this.headquarterUtil = headquarterUtil;
         this.reniecUtil = reniecUtil;
         this.roleService = roleService;
-        this.jwtUtil = jwtUtil;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @Override
@@ -207,7 +206,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     public MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id) {
 
         // Extraer el ID real del JWT
-        Long employeeIdFromToken = Long.valueOf(jwtUtil.getIdFromJwt(token));
+        Long employeeIdFromToken = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
 
         // Verificar que el ID enviado por el frontend coincida con el del token
         if (!employeeIdFromToken.equals(id)) {
@@ -246,5 +245,21 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
         return dto;
     }
+
+    //permissos de un empleado considerando todos su roles
+    @Override
+    public List<String> getEmployeePermissions(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+
+        return employee.getRoles().stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus())) // Solo roles activos
+                .flatMap(role -> role.getPermissions().stream()
+                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus()))) // Solo permisos activos
+                .map(Permission::getActionCode)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
 }
 

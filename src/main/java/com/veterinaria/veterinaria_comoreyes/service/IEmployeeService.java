@@ -41,4 +41,7 @@ public interface IEmployeeService {
     Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
 
     MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id);
+
+    //permissos de un empleado considerando todos su roles
+    List<String> getEmployeePermissions(Long employeeId);
 }

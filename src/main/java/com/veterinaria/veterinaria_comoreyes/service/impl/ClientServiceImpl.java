@@ -11,10 +11,7 @@ import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import com.veterinaria.veterinaria_comoreyes.util.HeadquarterUtil;
-import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
-import com.veterinaria.veterinaria_comoreyes.util.PhoneUtil;
-import com.veterinaria.veterinaria_comoreyes.util.ReniecUtil;
+import com.veterinaria.veterinaria_comoreyes.util.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,18 +29,18 @@ public class ClientServiceImpl implements IClientService {
     private final PhoneUtil phoneUtil;
     private final HeadquarterUtil headquarterUtil;
     private final ReniecUtil reniecUtil;
-    private final JwtUtil jwtUtil;
     private final HeadquarterRepository headquarterRepository;
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    public ClientServiceImpl(ClientRepository clientRepository, HeadquarterUtil headquarterUtil, IUserService userService, PhoneUtil phoneUtil, ReniecUtil reniecUtil, JwtUtil jwtUtil, HeadquarterRepository headquarterRepository) {
+    public ClientServiceImpl(ClientRepository clientRepository, HeadquarterUtil headquarterUtil, IUserService userService, PhoneUtil phoneUtil, ReniecUtil reniecUtil, HeadquarterRepository headquarterRepository, JwtTokenUtil jwtTokenUtil) {
         this.clientRepository = clientRepository;
         this.userService = userService;
         this.phoneUtil = phoneUtil;
         this.headquarterUtil = headquarterUtil;
         this.reniecUtil = reniecUtil;
-        this.jwtUtil = jwtUtil;
         this.headquarterRepository = headquarterRepository;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @Override
@@ -185,7 +182,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public MyInfoClientDTO myInfoAsClient(String token, Long id) {
         // Extraer el ID real del JWT
-        Long clientIdFromToken = Long.valueOf(jwtUtil.getIdFromJwt(token));
+        Long clientIdFromToken = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
 
         // Verificar que el ID enviado por el frontend coincida con el del token
         if (!clientIdFromToken.equals(id)) {
@@ -212,7 +209,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void updateInfoAsClient(String token, Long id, DataUpdateAsClientDTO data) {
 
-        Long clientId = Long.valueOf(jwtUtil.getIdFromJwt(token));
+        Long clientId = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
 
         if (!clientId.equals(id)) {
             throw new RuntimeException("No tienes permiso para modificar esta información.");

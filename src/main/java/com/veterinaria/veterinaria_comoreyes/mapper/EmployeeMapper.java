@@ -1,11 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
-import com.veterinaria.veterinaria_comoreyes.dto.AuthenticationResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
-import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
-import com.veterinaria.veterinaria_comoreyes.entity.Role;
-import com.veterinaria.veterinaria_comoreyes.entity.User;
 
 import java.util.ArrayList;
 import java.util.List;

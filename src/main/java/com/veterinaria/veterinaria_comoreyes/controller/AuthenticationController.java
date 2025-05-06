@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/auth")
 public class AuthenticationController {
 
     /*
