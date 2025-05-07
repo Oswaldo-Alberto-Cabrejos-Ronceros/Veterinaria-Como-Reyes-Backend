@@ -8,9 +8,11 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+
 
 @Component
 public class JwtTokenUtil {
@@ -29,16 +31,22 @@ public class JwtTokenUtil {
         this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
 
+    // Método para obtener el tiempo de expiración
+    public int getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
+
     public String generateToken(Long userId, Long entityId, String type, List<String> permissions) {
         return Jwts.builder()
-                .setSubject(userId.toString()) // El ID del usuario, que puede ser cliente o empleado
-                .claim("entityId", entityId)   // El ID de la entidad relacionada al usuario
-                .claim("type", type)           // El tipo de usuario (cliente o empleado)
-                .claim("perms", permissions)   // Los permisos del usuario (lista de permisos)
-                .setIssuedAt(new Date())       // Fecha de emisión del token
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs)) // Fecha de expiración
-                .signWith(key, SignatureAlgorithm.HS512) // Firma usando la clave generada
-                .compact(); // Generación y compactación del token
+                .setSubject(userId.toString())
+                .claim("entityId", entityId)
+                .claim("type", type)
+                .claim("perms", permissions)
+                .setAudience("your-audience") // Add this line
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
     }
 
     public Claims parseToken(String token) {
@@ -58,7 +66,7 @@ public class JwtTokenUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .requireAudience("your-audience") // Si aplica, audiencias específicas
+                    .requireAudience("your-audience") // <-- THIS LINE HERE
                     .setSigningKey(key) // Verificar la firma
                     .build()
                     .parseClaimsJws(token); // Intentar parsear el token
@@ -68,7 +76,7 @@ public class JwtTokenUtil {
         }
     }
 
-    //EXTRAER EL ID DEL TOKEN PARA CONFIRMAR IDENTIDAD IN ACTIONS
+    // EXTRAER EL ID DEL TOKEN PARA CONFIRMAR IDENTIDAD IN ACTIONS
     public Long getEntityIdFromJwt(String token) {
         Claims claims = parseToken(token);
         return claims.get("entityId", Long.class);

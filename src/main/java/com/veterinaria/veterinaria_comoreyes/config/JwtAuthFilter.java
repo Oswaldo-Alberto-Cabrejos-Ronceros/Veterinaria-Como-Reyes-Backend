@@ -20,8 +20,8 @@
     import java.util.Optional;
 
     @Component
-    public class JwtAuthFilter extends OncePerRequestFilter {
-
+    public abstract class JwtAuthFilter extends OncePerRequestFilter {
+    /*
         //inyectamos por constructor
         private final JwtUtil jwtUtil;
 
@@ -62,4 +62,6 @@
             }
             filterChain.doFilter(request, response);
         }
+
+     */
     }

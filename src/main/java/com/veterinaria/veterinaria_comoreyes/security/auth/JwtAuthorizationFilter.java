@@ -1,10 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth;
 
 import com.veterinaria.veterinaria_comoreyes.security.models.JwtDetails;
+import com.veterinaria.veterinaria_comoreyes.util.CookieUtil;
 import com.veterinaria.veterinaria_comoreyes.util.JwtTokenUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,9 +23,11 @@ import java.util.stream.Collectors;
 
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
+    private final CookieUtil cookieUtil;
 
-    public JwtAuthorizationFilter(JwtTokenUtil jwtTokenUtil) {
+    public JwtAuthorizationFilter(JwtTokenUtil jwtTokenUtil, CookieUtil cookieUtil) {
         this.jwtTokenUtil = jwtTokenUtil;
+        this.cookieUtil = cookieUtil;
     }
 
     @Override
@@ -31,16 +35,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain chain) throws IOException, ServletException {
 
-        String header = request.getHeader("Authorization");
+        // 1) Extraer token usando CookieUtil
+        String token = cookieUtil
+                .getTokenFromCookies(request)
+                .orElseGet(() -> {
+                    String h = request.getHeader("Authorization");
+                    return (h != null && h.startsWith("Bearer ")) ? h.substring(7) : null;
+                });
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
-            return;
-        }
+        System.out.println(">> JWT token desde cookie/header: " + token);
 
-        String token = header.substring(7); // Eliminar "Bearer "
-
-        if (jwtTokenUtil.validateToken(token)) {
+        if (token != null && jwtTokenUtil.validateToken(token)) {
             Claims claims = jwtTokenUtil.parseToken(token);
 
             Long userId = Long.parseLong(claims.getSubject());

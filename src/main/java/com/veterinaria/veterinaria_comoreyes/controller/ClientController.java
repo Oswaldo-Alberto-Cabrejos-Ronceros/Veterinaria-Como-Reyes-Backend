@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,14 @@ public class ClientController {
     @Autowired
     public ClientController(IClientService clientService) {
         this.clientService = clientService;
+    }
+
+    //Obtener info client
+    @PreAuthorize("hasAuthority('create_client')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
+        ClientDTO client = clientService.getClientById(id);
+        return ResponseEntity.ok(client);
     }
 
     @GetMapping("/search")
@@ -45,13 +54,6 @@ public class ClientController {
         return ResponseEntity.ok(createdClient);
     }
 
-    //Obtener info client
-    @GetMapping("/{id}")
-    public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
-        ClientDTO client = clientService.getClientById(id);
-        return ResponseEntity.ok(client);
-    }
-
     // Obtener todos los clientes
     @GetMapping
     public ResponseEntity<List<ClientDTO>> getAllClients() {
@@ -60,6 +62,7 @@ public class ClientController {
 
     // Update client
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('update_client')")
     public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @RequestBody ClientDTO clientDTO) {
         ClientDTO updatedClient = clientService.updateClient(id, clientDTO);
         return ResponseEntity.ok(updatedClient);

@@ -1,79 +1,99 @@
 package com.veterinaria.veterinaria_comoreyes.config;
 
-import com.veterinaria.veterinaria_comoreyes.security.auth.JwtAuthenticationFilter;
 import com.veterinaria.veterinaria_comoreyes.security.auth.JwtAuthorizationFilter;
-import com.veterinaria.veterinaria_comoreyes.service.impl.UserDetailsServiceImpl;
+import com.veterinaria.veterinaria_comoreyes.util.CookieUtil;
 import com.veterinaria.veterinaria_comoreyes.util.JwtTokenUtil;
-import com.veterinaria.veterinaria_comoreyes.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+
     private final JwtTokenUtil jwtTokenUtil;
+    private final CookieUtil cookieUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    // Constructor para inyectar las dependencias
-    public SecurityConfig(JwtTokenUtil jwtTokenUtil, AuthenticationConfiguration authenticationConfiguration) {
+    public SecurityConfig(JwtTokenUtil jwtTokenUtil,
+                          AuthenticationConfiguration authenticationConfiguration,
+                          CookieUtil cookieUtil) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.cookieUtil = cookieUtil;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Configuración básica
         http
+                // 0) Habilitar CORS con tu fuente de configuración
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // 1) No necesitamos csrf porque usamos JWT en cookie
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 2) Stateless: no mantenemos sesión HTTP
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // 3) Rutas públicas vs protegidas
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()  // login, refresh, logout...
+                        .anyRequest().authenticated()                 // el resto requiere JWT válido
+                )
+
+                // 4) Filtro de autorización: lee cookie “jwtToken” y valida
+                .addFilterBefore(
+                        new JwtAuthorizationFilter(jwtTokenUtil, cookieUtil),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+
+                // 5) Manejo de errores de seguridad
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, ex2) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado"))
+                        .accessDeniedHandler((req, res, ex3) ->
+                                res.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso denegado"))
                 );
-
-        // Configuración de filtros
-        AuthenticationManager authenticationManager = authenticationManager(authenticationConfiguration);
-        http.addFilter(new JwtAuthenticationFilter(authenticationManager, jwtTokenUtil))
-                .addFilterBefore(new JwtAuthorizationFilter(jwtTokenUtil), UsernamePasswordAuthenticationFilter.class);
-
-        // Manejo de errores
-        http.exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autorizado");
-                })
-                .accessDeniedHandler((request, response, accessDeniedException) -> {
-                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso denegado");
-                })
-        );
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
+            throws Exception {
         return authConfig.getAuthenticationManager();
     }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("*")); // o "*" en Postman
+        config.setAllowCredentials(true);
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Set-Cookie"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }
+
 
 
 

@@ -1,8 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.security.models;
 
 public class JwtDetails {
-    private Long entityId;
-    private String type;
+    private final Long entityId;
+    private final String type;
 
     public JwtDetails(Long entityId, String type) {
         this.entityId = entityId;
