@@ -17,62 +17,53 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements IUserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final EmailUtil emailUtil;
+    private final PasswordUtil passwordUtil;
+    private final UserMapper userMapper;
 
     @Autowired
-    private EmailUtil emailUtil;
-
-    @Autowired
-    private PasswordUtil passwordUtil;
-
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailUtil emailUtil) {
+    public UserServiceImpl(UserRepository userRepository, EmailUtil emailUtil, PasswordUtil passwordUtil, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.emailUtil = emailUtil;
+        this.passwordUtil = passwordUtil;
+        this.userMapper = userMapper;
     }
 
     @Override
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        return UserMapper.maptoUserDTO(user);
+        return userMapper.maptoUserDTO(user);
     }
 
     @Override
     public UserDTO getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        return UserMapper.maptoUserDTO(user);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        return userMapper.maptoUserDTO(user);
     }
 
     @Override
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(UserMapper::maptoUserDTO)
+                .map(userMapper::maptoUserDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        // Validar correo
         emailUtil.validateEmailAvailable(userDTO.getEmail());
 
-        // Mapear el DTO a la entidad User
-        User user = UserMapper.maptoUser(userDTO);
-
-        // Encriptar la contraseña
+        User user = userMapper.maptoUser(userDTO);
         user.setPassword(passwordUtil.encodePassword(user.getPassword()));
         user.setStatus(true);
 
-        // Guardar el usuario en la base de datos
         User savedUser = userRepository.save(user);
-
-        // Mapear el usuario guardado (User) a UserDTO y devolverlo
-        return UserMapper.maptoUserDTO(savedUser);
+        return userMapper.maptoUserDTO(savedUser);
     }
-
 
     @Transactional
     @Override
@@ -80,18 +71,15 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        // Actualizar los campos con los valores del DTO
         user.setType(userDTO.getType());
         user.setEmail(userDTO.getEmail());
 
-        // Cifrar la nueva contraseña (si la contraseña está presente en el DTO)
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             user.setPassword(passwordUtil.encodePassword(userDTO.getPassword()));
         }
 
-        // Guardar el usuario actualizado en la base de datos
         User updatedUser = userRepository.save(user);
-        return UserMapper.maptoUserDTO(updatedUser);
+        return userMapper.maptoUserDTO(updatedUser);
     }
 
     @Transactional
@@ -99,21 +87,17 @@ public class UserServiceImpl implements IUserService {
     public void deleteUser(Long id) {
         User user = userRepository.findByUserIdAndStatusTrue(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-
-        // Cambio de estado a inactivo
-        user.setStatus(false);// false = inactivo
+        user.setStatus(false);
         userRepository.save(user);
     }
 
-    //update only password
+    @Transactional
     @Override
-    public void updatePassword(Long id, String newPassword){
+    public void updatePassword(Long id, String newPassword) {
         User user = userRepository.findByUserIdAndStatusTrue(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        //send the new encrypted password
         user.setPassword(passwordUtil.encodePassword(newPassword));
-
         userRepository.save(user);
     }
 }

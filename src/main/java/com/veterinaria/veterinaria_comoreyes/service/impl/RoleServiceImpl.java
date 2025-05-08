@@ -19,58 +19,69 @@ public class RoleServiceImpl implements IRoleService {
 
     private final RoleRepository roleRepository;
     private final FilterStatus filterStatus;
+    private final RoleMapper roleMapper;
 
     @Autowired
-    public RoleServiceImpl(RoleRepository roleRepository,FilterStatus filterStatus) {
+    public RoleServiceImpl(RoleRepository roleRepository, FilterStatus filterStatus, RoleMapper roleMapper) {
         this.roleRepository = roleRepository;
-        this.filterStatus=filterStatus;
+        this.filterStatus = filterStatus;
+        this.roleMapper = roleMapper;
     }
 
     @Transactional(readOnly = true)
     @Override
     public RoleDTO getRoleById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Role role= roleRepository.findByRoleIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
-        return RoleMapper.mapToRoleDTO(role);
+        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Role not found with id " + id));
+        return roleMapper.mapToRoleDTO(role);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<RoleDTO> getAllRoles() {
-        return roleRepository.findAll().stream().map(RoleMapper::mapToRoleDTO).collect(Collectors.toList());
+        return roleRepository.findAll()
+                .stream()
+                .map(roleMapper::mapToRoleDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<RoleDTO> getAllRolesAndStatusTrue() {
         filterStatus.activeFilterStatus(true);
-        return roleRepository.findAll().stream().map(RoleMapper::mapToRoleDTO).collect(Collectors.toList());
+        return roleRepository.findAll()
+                .stream()
+                .map(roleMapper::mapToRoleDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public RoleDTO createRole(RoleDTO roleDTO) {
         filterStatus.activeFilterStatus(true);
-        Role role = RoleMapper.mapToRole(roleDTO);
+        Role role = roleMapper.mapToRole(roleDTO);
         Role savedRole = roleRepository.save(role);
-        return RoleMapper.mapToRoleDTO(savedRole);
+        return roleMapper.mapToRoleDTO(savedRole);
     }
 
     @Transactional
     @Override
     public RoleDTO updateRole(Long id, RoleDTO roleDTO) {
         filterStatus.activeFilterStatus(true);
-        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
+        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Role not found with id " + id));
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
-        Role updateRole = roleRepository.save(role);
-        return RoleMapper.mapToRoleDTO(updateRole);
+        Role updatedRole = roleRepository.save(role);
+        return roleMapper.mapToRoleDTO(updatedRole);
     }
 
     @Transactional
     @Override
     public void deleteRole(Long id) {
         filterStatus.activeFilterStatus(true);
-        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Role not found with id " + id));
+        Role role = roleRepository.findByRoleIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Role not found with id " + id));
         role.setStatus(false);
         roleRepository.save(role);
     }
@@ -82,10 +93,9 @@ public class RoleServiceImpl implements IRoleService {
         for (RoleDTO dto : roleDTOs) {
             Role role = roleRepository.findById(dto.getRoleId())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + dto.getRoleId()));
-
             roles.add(role);
         }
+
         return roles;
     }
-
 }

@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeServiceImpl implements IEmployeeService {
 
-    @Autowired
     private final EmployeeRepository employeeRepository;
     private final IUserService userService;
     private final PhoneUtil phoneUtil;
@@ -33,8 +32,19 @@ public class EmployeeServiceImpl implements IEmployeeService {
     private final ReniecUtil reniecUtil;
     private final IRoleService roleService;
     private final JwtTokenUtil jwtTokenUtil;
+    private final UserMapper userMapper;
+    private final EmployeeMapper employeeMapper;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, IUserService userService, PhoneUtil phoneUtil, HeadquarterUtil headquarterUtil, ReniecUtil reniecUtil, IRoleService roleService, JwtTokenUtil jwtTokenUtil) {
+    @Autowired
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+            IUserService userService,
+            PhoneUtil phoneUtil,
+            HeadquarterUtil headquarterUtil,
+            ReniecUtil reniecUtil,
+            IRoleService roleService,
+            JwtTokenUtil jwtTokenUtil,
+            UserMapper userMapper,
+            EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.userService = userService;
         this.phoneUtil = phoneUtil;
@@ -42,13 +52,15 @@ public class EmployeeServiceImpl implements IEmployeeService {
         this.reniecUtil = reniecUtil;
         this.roleService = roleService;
         this.jwtTokenUtil = jwtTokenUtil;
+        this.userMapper = userMapper;
+        this.employeeMapper = employeeMapper;
     }
 
     @Override
     public EmployeeDTO getEmployeeById(Long id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
-        return EmployeeMapper.mapToEmployeeDTO(employee);
+        return employeeMapper.mapToEmployeeDTO(employee);
     }
 
     @Override
@@ -59,32 +71,25 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Override
     public List<EmployeeDTO> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
-        return EmployeeMapper.mapToEmployeeDTOList(employees);
+        return employeeMapper.mapToEmployeeDTOList(employees);
     }
 
     @Transactional
     @Override
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
-
-        //validacines del telefono
         phoneUtil.validatePhoneAvailable(employeeDTO.getPhone(), "empleado");
 
-        //Validar si hay otro dni registrado ya
         if (employeeRepository.existsByDni(employeeDTO.getDni())) {
             throw new RuntimeException("Ya existe un empleado con ese DNI: " + employeeDTO.getDni());
         }
 
-        //Validar Data con la Reniec ( los nombre y apellidos coincidan con el dni)
         reniecUtil.validateData(
                 employeeDTO.getDni(),
                 employeeDTO.getName(),
-                employeeDTO.getLastName()
-        );
+                employeeDTO.getLastName());
 
-        //validar Sede
         headquarterUtil.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
 
-        //Agregar Usuario si tiene credenciales
         if (employeeDTO.getUser() != null) {
             UserDTO userDTO = new UserDTO();
             userDTO.setType("E");
@@ -92,21 +97,19 @@ public class EmployeeServiceImpl implements IEmployeeService {
             userDTO.setPassword(employeeDTO.getUser().getPassword());
 
             UserDTO savedUserDTO = userService.createUser(userDTO);
-            User savedUser = UserMapper.maptoUser(savedUserDTO);
+            User savedUser = userMapper.maptoUser(savedUserDTO); // USO CORRECTO
             employeeDTO.setUser(savedUser);
         }
 
-        //Mapeamos el empleadoDTO en la entidad empleado
-        Employee employee = EmployeeMapper.mapToEmployee(employeeDTO);
+        Employee employee = employeeMapper.mapToEmployee(employeeDTO);
 
-        // Procesar roles
         if (employeeDTO.getRoles() != null && !employeeDTO.getRoles().isEmpty()) {
             List<Role> roles = roleService.validateAndFetchRoles(employeeDTO.getRoles());
-            employee.setRoles(roles); // si usas mapping manual
+            employee.setRoles(roles);
         }
 
         Employee savedEmployee = employeeRepository.save(employee);
-        return EmployeeMapper.mapToEmployeeDTO(savedEmployee);
+        return employeeMapper.mapToEmployeeDTO(savedEmployee);
     }
 
     @Transactional
@@ -134,16 +137,13 @@ public class EmployeeServiceImpl implements IEmployeeService {
         existingEmployee.setBirthDate(employeeDTO.getBirthDate());
         existingEmployee.setDirImage(employeeDTO.getDirImage());
 
-        // Procesar roles solo si se proporcionan explícitamente
-
-
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
-        return EmployeeMapper.mapToEmployeeDTO(updatedEmployee);
+        return employeeMapper.mapToEmployeeDTO(updatedEmployee);
     }
 
     @Override
     public void deleteEmployee(Long id) {
-        //logica para eliminar el empleado y tos las filas relacionadas a el
+        // lógica de eliminación si aplica
     }
 
     @Override
@@ -152,7 +152,6 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
 
         employee.setStatus(false);
-
         if (employee.getUser() != null) {
             employee.getUser().setStatus(false);
         }
@@ -164,17 +163,15 @@ public class EmployeeServiceImpl implements IEmployeeService {
     public EmployeeDTO getEmployeeByDni(String dni) {
         Employee employee = employeeRepository.findByDni(dni)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con DNI: " + dni));
-        return EmployeeMapper.mapToEmployeeDTO(employee);
+        return employeeMapper.mapToEmployeeDTO(employee);
     }
 
-    //DEBERIA FUNCIONAR CON EN PACTH para solo cambiar el estado
     @Override
     public void restoreEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
         employee.setStatus(true);
-
         if (employee.getUser() != null) {
             employee.getUser().setStatus(true);
         }
@@ -198,30 +195,24 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable) {
+    public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status,
+            Long headquarterId, Pageable pageable) {
         return employeeRepository.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
     }
 
     @Override
     public MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id) {
-
-        // Extraer el ID real del JWT
         Long employeeIdFromToken = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
 
-        // Verificar que el ID enviado por el frontend coincida con el del token
         if (!employeeIdFromToken.equals(id)) {
             throw new RuntimeException("No tienes permiso para acceder a esta información.");
         }
 
-
-        // Buscar al empleado por su ID
         Employee employee = employeeRepository.findByEmployeeId(id);
-
         if (employee == null) {
             throw new RuntimeException("Empleado no encontrado con id: " + id);
         }
 
-        // Construir el DTO
         MyInfoEmployeeDTO dto = new MyInfoEmployeeDTO();
         dto.setEmployeeId(employee.getEmployeeId());
         dto.setUserId(employee.getUser().getUserId());
@@ -231,13 +222,12 @@ public class EmployeeServiceImpl implements IEmployeeService {
         dto.setLastNames(employee.getLastName());
         dto.setAddress(employee.getAddress());
         dto.setPhone(employee.getPhone());
-        dto.setBirthDate(employee.getBirthDate()); // Asegúrate que es un LocalDate, si no, adapta esto
+        dto.setBirthDate(employee.getBirthDate());
         dto.setDirImage(employee.getDirImage());
         dto.setHeadquarterName(employee.getHeadquarter().getName());
 
-        // Obtener el rol con menor posición (más cercano a 0)
         String mainRole = employee.getRoles().stream()
-                .min(Comparator.comparingInt(role -> role.getPosition()))
+                .min(Comparator.comparingInt(Role::getPosition))
                 .map(Role::getName)
                 .orElse("Sin rol");
 
@@ -246,20 +236,17 @@ public class EmployeeServiceImpl implements IEmployeeService {
         return dto;
     }
 
-    //permissos de un empleado considerando todos su roles
     @Override
     public List<String> getEmployeePermissions(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
         return employee.getRoles().stream()
-                .filter(role -> Boolean.TRUE.equals(role.getStatus())) // Solo roles activos
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
                 .flatMap(role -> role.getPermissions().stream()
-                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus()))) // Solo permisos activos
+                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus())))
                 .map(Permission::getActionCode)
                 .distinct()
                 .collect(Collectors.toList());
     }
-
 }
-

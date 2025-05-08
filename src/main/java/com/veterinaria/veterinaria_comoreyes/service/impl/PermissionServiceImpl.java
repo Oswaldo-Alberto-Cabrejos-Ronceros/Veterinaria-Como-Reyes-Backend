@@ -7,60 +7,64 @@ import com.veterinaria.veterinaria_comoreyes.mapper.PermissionMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.PermissionRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.RoleRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IPermissionService;
-import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class PermissionServiceImpl implements IPermissionService {
 
     private final PermissionRepository permissionRepository;
+    private final PermissionMapper permissionMapper;
     private final RoleRepository roleRepository;
+
+    @Autowired
+    public PermissionServiceImpl(PermissionRepository permissionRepository,
+            RoleRepository roleRepository,
+            PermissionMapper permissionMapper) {
+        this.permissionRepository = permissionRepository;
+        this.roleRepository = roleRepository;
+        this.permissionMapper = permissionMapper;
+    }
 
     @Override
     @Transactional
     public PermissionDTO createPermission(PermissionDTO permissionDTO) {
-        // Validar actionCode único
         if (permissionRepository.existsByActionCode(permissionDTO.getActionCode())) {
             throw new RuntimeException("Ya existe un permiso con ese código de acción");
         }
 
-        // Validar nombre único
         if (permissionRepository.existsByName(permissionDTO.getName())) {
             throw new RuntimeException("Ya existe un permiso con ese nombre");
         }
 
-        Permission permission = PermissionMapper.mapToPermission(permissionDTO);
-        permission.setStatus(true); // Por defecto activo
+        Permission permission = permissionMapper.maptoPermission(permissionDTO);
+        permission.setStatus(true);
 
         Permission savedPermission = permissionRepository.save(permission);
-        return PermissionMapper.mapToPermissionDTO(savedPermission);
+        return permissionMapper.maptoPermissionDTO(savedPermission);
     }
 
     @Override
     public PermissionDTO getPermissionById(Long id) {
         Permission permission = permissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Permiso no encontrado con ID: " + id));
-        return PermissionMapper.mapToPermissionDTO(permission);
+        return permissionMapper.maptoPermissionDTO(permission);
     }
 
     @Override
     public List<PermissionDTO> getAllPermissions() {
         List<Permission> permissions = permissionRepository.findAll();
-        return PermissionMapper.mapToPermissionDTOList(permissions);
+        return permissionMapper.mapToPermissionDTOList(permissions);
     }
 
     @Override
     public List<PermissionDTO> getAllActivePermissions() {
         List<Permission> permissions = permissionRepository.findByStatusTrue();
-        return PermissionMapper.mapToPermissionDTOList(permissions);
+        return permissionMapper.mapToPermissionDTOList(permissions);
     }
 
     @Override
@@ -69,7 +73,6 @@ public class PermissionServiceImpl implements IPermissionService {
         Permission existingPermission = permissionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Permiso no encontrado con ID: " + id));
 
-        // Validar actionCode único si está siendo modificado
         if (permissionDTO.getActionCode() != null &&
                 !existingPermission.getActionCode().equals(permissionDTO.getActionCode())) {
             if (permissionRepository.existsByActionCode(permissionDTO.getActionCode())) {
@@ -77,7 +80,6 @@ public class PermissionServiceImpl implements IPermissionService {
             }
         }
 
-        // Validar nombre único si está siendo modificado
         if (permissionDTO.getName() != null &&
                 !existingPermission.getName().equals(permissionDTO.getName())) {
             if (permissionRepository.existsByName(permissionDTO.getName())) {
@@ -85,9 +87,9 @@ public class PermissionServiceImpl implements IPermissionService {
             }
         }
 
-        PermissionMapper.updatePermissionFromDTO(permissionDTO, existingPermission);
+        permissionMapper.updatePermissionFromDTO(permissionDTO, existingPermission);
         Permission updatedPermission = permissionRepository.save(existingPermission);
-        return PermissionMapper.mapToPermissionDTO(updatedPermission);
+        return permissionMapper.maptoPermissionDTO(updatedPermission);
     }
 
     @Override
@@ -118,13 +120,13 @@ public class PermissionServiceImpl implements IPermissionService {
         Permission permission = permissionRepository.findById(permissionId)
                 .orElseThrow(() -> new RuntimeException("Permiso no encontrado"));
 
-        List<Role> roles = roleIds.isEmpty() ?
-                Collections.emptyList() :
-                roleRepository.findAllById(roleIds);
+        List<Role> roles = roleIds.isEmpty()
+                ? Collections.emptyList()
+                : roleRepository.findAllById(roleIds);
 
         permission.getRoles().addAll(roles);
         Permission updatedPermission = permissionRepository.save(permission);
-        return PermissionMapper.mapToPermissionDTO(updatedPermission);
+        return permissionMapper.maptoPermissionDTO(updatedPermission);
     }
 
     @Override
@@ -135,7 +137,6 @@ public class PermissionServiceImpl implements IPermissionService {
 
         permission.getRoles().removeIf(role -> roleIds.contains(role.getRoleId()));
         Permission updatedPermission = permissionRepository.save(permission);
-        return PermissionMapper.mapToPermissionDTO(updatedPermission);
+        return permissionMapper.maptoPermissionDTO(updatedPermission);
     }
 }
-

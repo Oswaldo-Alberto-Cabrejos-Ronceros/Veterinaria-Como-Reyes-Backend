@@ -18,11 +18,13 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
 
 
     private HeadquarterRepository headquarterRepository;
+    private HeadquarterMapper headquarterMapper;
     private FilterStatus filterStatus;
 
     @Autowired
-    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository, FilterStatus filterStatus){
+    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository, HeadquarterMapper headquarterMapper, FilterStatus filterStatus){
         this.headquarterRepository=headquarterRepository;
+        this.headquarterMapper=headquarterMapper;
         this.filterStatus=filterStatus;
     }
 
@@ -32,7 +34,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         filterStatus.activeFilterStatus(true);
         Headquarter hq = headquarterRepository.findByHeadquarterIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
-        return HeadquarterMapper.maptoHeadquarterDTO(hq);
+        return headquarterMapper.maptoHeadquarterDTO(hq);
     }
 
     @Transactional(readOnly = true)
@@ -41,7 +43,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         filterStatus.activeFilterStatus(true);
         return headquarterRepository.findAll()
                 .stream()
-                .map(HeadquarterMapper::maptoHeadquarterDTO)
+                .map(headquarterMapper::maptoHeadquarterDTO)
                 .collect(Collectors.toList());
     }
 
@@ -49,9 +51,9 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public HeadquarterDTO createHeadquarter(HeadquarterDTO dto) {
         filterStatus.activeFilterStatus(true);
-        Headquarter entity = HeadquarterMapper.maptoHeadquarter(dto);
+        Headquarter entity = headquarterMapper.maptoHeadquarter(dto);
         Headquarter saved = headquarterRepository.save(entity);
-        return HeadquarterMapper.maptoHeadquarterDTO(saved);
+        return headquarterMapper.maptoHeadquarterDTO(saved);
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         hq.setDepartment(dto.getDepartment());
 
         Headquarter updated = headquarterRepository.save(hq);
-        return HeadquarterMapper.maptoHeadquarterDTO(updated);
+        return headquarterMapper.maptoHeadquarterDTO(updated);
     }
 
     @Transactional

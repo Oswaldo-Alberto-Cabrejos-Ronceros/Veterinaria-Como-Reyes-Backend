@@ -16,11 +16,13 @@ import java.util.stream.Collectors;
 @Service
 public class SpecieServiceImpl implements ISpecieService {
 
-    private SpecieRepository specieRepository;
+    private final SpecieRepository specieRepository;
+    private final SpecieMapper specieMapper;
 
     @Autowired
-    public SpecieServiceImpl(SpecieRepository specieRepository){
+    public SpecieServiceImpl(SpecieRepository specieRepository, SpecieMapper specieMapper) {
         this.specieRepository=specieRepository;
+        this.specieMapper=specieMapper;
     }
 
     @Transactional(readOnly = true)

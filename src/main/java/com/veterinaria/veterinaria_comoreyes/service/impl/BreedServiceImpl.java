@@ -1,11 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.BreedDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.BreedMapper;
-import com.veterinaria.veterinaria_comoreyes.mapper.SpecieMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.BreedRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
@@ -23,60 +21,86 @@ public class BreedServiceImpl implements IBreedService {
     private final BreedRepository breedRepository;
     private final SpecieRepository specieRepository;
     private final FilterStatus filterStatus;
+    private final BreedMapper breedMapper;
 
     @Autowired
-    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository,FilterStatus filterStatus) {
+    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository, FilterStatus filterStatus, BreedMapper breedMapper) {
         this.breedRepository = breedRepository;
         this.specieRepository = specieRepository;
         this.filterStatus = filterStatus;
+        this.breedMapper = breedMapper;
     }
 
     @Transactional(readOnly = true)
     @Override
     public BreedDTO getBreedById(Long id) {
         filterStatus.activeFilterStatus(true);
-        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
-        return BreedMapper.maptoBreedDTO(breed);
+        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+        return breedMapper.maptoBreedDTO(breed);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<BreedDTO> getBreedsBySpecies(Long speciesId) {
         filterStatus.activeFilterStatus(true);
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(speciesId).orElseThrow( () -> new RuntimeException("Breed not found with id: " + speciesId));
-        return breedRepository.findBySpecie(specie).stream().map(BreedMapper::maptoBreedDTO).collect(Collectors.toList());
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(speciesId)
+                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + speciesId));
+        return breedRepository.findBySpecie(specie)
+                .stream()
+                .map(breedMapper::maptoBreedDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<BreedDTO> getAllBreeds() {
         filterStatus.activeFilterStatus(true);
-        return breedRepository.findAll().stream().map(BreedMapper::maptoBreedDTO).collect(Collectors.toList());
+        return breedRepository.findAll()
+                .stream()
+                .map(breedMapper::maptoBreedDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public BreedDTO createBreed(BreedDTO breedDTO) {
         filterStatus.activeFilterStatus(true);
-        Breed breedSave = breedRepository.save(BreedMapper.maptoBreed(breedDTO));
-        return BreedMapper.maptoBreedDTO(breedSave);
+        // Validar que la especie existe y está activa
+        Long specieId = breedDTO.getSpecie().getSpecieId();
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
+                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
+
+        Breed breed = breedMapper.maptoBreed(breedDTO);
+        breed.setSpecie(specie);
+        return breedMapper.maptoBreedDTO(breedRepository.save(breed));
     }
 
     @Transactional
     @Override
     public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
-        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+        filterStatus.activeFilterStatus(true);
+        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+
+        // Validar especie
+        Long specieId = breedDTO.getSpecie().getSpecieId();
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
+                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
+
         breed.setName(breedDTO.getName());
-        breed.setSpecie(breedDTO.getSpecie());
-        Breed breedUpdated = breedRepository.save(breed);
-        return BreedMapper.maptoBreedDTO(breedUpdated);
+        breed.setSpecie(specie);
+
+        return breedMapper.maptoBreedDTO(breedRepository.save(breed));
     }
 
     @Transactional
     @Override
     public void deleteBreed(Long id) {
-        Breed breed = breedRepository.findById(id).orElseThrow(() -> new RuntimeException("Breed not found with id:" + id));
-        breed.setStatus(false); // inactivo
+        filterStatus.activeFilterStatus(true);
+        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+        breed.setStatus(false);
         breedRepository.save(breed);
     }
 }
