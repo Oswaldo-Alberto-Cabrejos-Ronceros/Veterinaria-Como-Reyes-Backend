@@ -1,5 +1,7 @@
-/* para desarrollo
+
 package com.veterinaria.veterinaria_comoreyes.exception;
+import com.veterinaria.veterinaria_comoreyes.external.reniec.exception.ReniecDataMismatchException;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.AllArgsConstructor;
@@ -7,11 +9,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandle {
@@ -69,6 +74,16 @@ public class GlobalExceptionHandle {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessage());
     }
+    //Manejar la exception para AUTH
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorResponse> handleAuthException(AuthException ex) {
+        // Logueamos el error (opcional)
+        logger.error("AuthException: " + ex.getMessage());
+
+        // Retornamos el error con código de error y mensaje
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
 
     @Getter
     @Setter
@@ -77,4 +92,3 @@ public class GlobalExceptionHandle {
         private String message;
     }
 }
-*/

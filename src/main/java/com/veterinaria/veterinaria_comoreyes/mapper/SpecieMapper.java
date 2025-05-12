@@ -2,20 +2,16 @@ package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.dto.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
+import org.mapstruct.Mapper;
 
-public class SpecieMapper {
+import java.util.List;
 
-        public static SpecieDTO maptoSpecieDTO(Specie specie) {
-                return new SpecieDTO(
-                                specie.getSpecieId(),
-                                specie.getName(),
-                                specie.getImagePath());
-        }
+@Mapper(componentModel = "spring")
+public interface SpecieMapper {
 
-        public static Specie maptoSpecie(SpecieDTO specieDTO) {
-                return new Specie(
-                                specieDTO.getSpecieId(),
-                                specieDTO.getName(),
-                                specieDTO.getImagePath());
-        }
+        SpecieDTO mapToSpecieDTO(Specie specie);
+
+        Specie mapToSpecie(SpecieDTO specieDTO);
+
+        List<SpecieDTO> mapToSpecieDTOList(List<Specie> species);
 }

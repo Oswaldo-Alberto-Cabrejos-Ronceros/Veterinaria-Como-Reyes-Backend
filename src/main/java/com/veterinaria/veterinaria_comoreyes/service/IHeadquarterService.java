@@ -15,4 +15,7 @@ public interface IHeadquarterService {
     HeadquarterDTO updateHeadquarter(Long id, HeadquarterDTO headquarterDTO);
 
     void deleteHeadquarter(Long id);
+
+    // Validar si la sede existe y esta disponible
+    void validateHeadquarterAvailable(Long id);
 }

@@ -1,15 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.entity;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.ManyToAny;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Entity
 @SuperBuilder
-@Table(name = "headquarter_vet_service")
+@Table(name = "headquarter_service")
 @Filter(name  ="estadoActivo", condition = "estado = :estado")
 public class HeadquarterVetService extends EntityWithStatus{
 
@@ -30,12 +24,12 @@ public class HeadquarterVetService extends EntityWithStatus{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToAny(fetch = FetchType.LAZY)
-    @JoinColumn(name = "headquarter_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_headquarter")
     private Headquarter headquarter;
 
-    @ManyToAny(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_service")
     private VeterinaryService veterinaryService;
 
 }

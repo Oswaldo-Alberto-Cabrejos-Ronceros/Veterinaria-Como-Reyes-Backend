@@ -49,4 +49,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
                                           Pageable pageable);
 
     Employee findByEmployeeId(Long employeeId);
+
+
+    @Query("SELECT e FROM Employee e WHERE e.user = :user")
+    Employee findByUserForAuth(@Param("user") User user);
 }

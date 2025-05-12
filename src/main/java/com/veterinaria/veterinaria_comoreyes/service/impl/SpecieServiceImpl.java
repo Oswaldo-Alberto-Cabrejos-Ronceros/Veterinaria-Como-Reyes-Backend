@@ -12,6 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SpecieServiceImpl implements ISpecieService {
@@ -21,48 +27,54 @@ public class SpecieServiceImpl implements ISpecieService {
 
     @Autowired
     public SpecieServiceImpl(SpecieRepository specieRepository, SpecieMapper specieMapper) {
-        this.specieRepository=specieRepository;
-        this.specieMapper=specieMapper;
+        this.specieRepository = specieRepository;
+        this.specieMapper = specieMapper;
     }
 
     @Transactional(readOnly = true)
     @Override
     public SpecieDTO getSpecieById(Long id) {
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
-        return SpecieMapper.maptoSpecieDTO(specie);
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        return specieMapper.mapToSpecieDTO(specie);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<SpecieDTO> getAllSpecies() {
-        return specieRepository.findAll().stream().map(SpecieMapper::maptoSpecieDTO).collect(Collectors.toList());
+        return specieRepository.findAll().stream()
+                .map(specieMapper::mapToSpecieDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public SpecieDTO createSpecie(SpecieDTO specieDTO) {
-        Specie specie = SpecieMapper.maptoSpecie(specieDTO);
+        Specie specie = specieMapper.mapToSpecie(specieDTO);
         Specie savedSpecie = specieRepository.save(specie);
-        return SpecieMapper.maptoSpecieDTO(savedSpecie);
+        return specieMapper.mapToSpecieDTO(savedSpecie);
     }
 
     @Transactional
     @Override
     public SpecieDTO updateSpecie(Long id, SpecieDTO specieDTO) {
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
 
         specie.setName(specieDTO.getName());
         specie.setImagePath(specieDTO.getImagePath());
 
         Specie updated = specieRepository.save(specie);
-        return SpecieMapper.maptoSpecieDTO(updated);
+        return specieMapper.mapToSpecieDTO(updated);
     }
 
     @Transactional
     @Override
     public void deleteSpecie(Long id) {
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id).orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
-        specie.setStatus(false); // 0 = inactivo
+        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
+        specie.setStatus(false);
         specieRepository.save(specie);
     }
 }
+

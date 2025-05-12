@@ -11,7 +11,7 @@ import com.veterinaria.veterinaria_comoreyes.entity.VeterinaryService;
 
 public interface HeadquarterVetServiceRepository extends JpaRepository<HeadquarterVetService, Long> {
     Optional<HeadquarterVetService> findByIdAndStatusIsTrue(Long id);
-    boolean existsByHeadquarterAndVetService(Headquarter headquarter, VeterinaryService veterinaryService);
-    List<HeadquarterVetService> findByVetService(VeterinaryService veterinaryService);
+    boolean existsByHeadquarterAndVeterinaryService(Headquarter headquarter, VeterinaryService veterinaryService);
+    List<HeadquarterVetService> findByVeterinaryService(VeterinaryService veterinaryService);
     List<HeadquarterVetService> findByHeadquarter(Headquarter headquarter);
 }

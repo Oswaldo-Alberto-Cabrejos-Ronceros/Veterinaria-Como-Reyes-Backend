@@ -1,9 +1,10 @@
 package com.veterinaria.veterinaria_comoreyes.config;
 
-import com.veterinaria.veterinaria_comoreyes.security.auth.JwtAuthorizationFilter;
-import com.veterinaria.veterinaria_comoreyes.util.CookieUtil;
-import com.veterinaria.veterinaria_comoreyes.util.JwtTokenUtil;
+import com.veterinaria.veterinaria_comoreyes.security.auth.filter.JwtAuthorizationFilter;
+import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;
+import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,11 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
 
 
 @Configuration
@@ -27,22 +25,25 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final CookieUtil cookieUtil;
+    private final JwtCookieUtil jwtCookieUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
+
+    @Autowired
+    private CorsConfigurationSource corsConfigurationSource;
 
     public SecurityConfig(JwtTokenUtil jwtTokenUtil,
                           AuthenticationConfiguration authenticationConfiguration,
-                          CookieUtil cookieUtil) {
+                          JwtCookieUtil jwtCookieUtil) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.authenticationConfiguration = authenticationConfiguration;
-        this.cookieUtil = cookieUtil;
+        this.jwtCookieUtil = jwtCookieUtil;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // 0) Habilitar CORS con tu fuente de configuración
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
                 // 1) No necesitamos csrf porque usamos JWT en cookie
                 .csrf(csrf -> csrf.disable())
@@ -58,7 +59,7 @@ public class SecurityConfig {
 
                 // 4) Filtro de autorización: lee cookie “jwtToken” y valida
                 .addFilterBefore(
-                        new JwtAuthorizationFilter(jwtTokenUtil, cookieUtil),
+                        new JwtAuthorizationFilter(jwtTokenUtil, jwtCookieUtil),
                         UsernamePasswordAuthenticationFilter.class
                 )
 
@@ -79,89 +80,6 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("*")); // o "*" en Postman
-        config.setAllowCredentials(true);
-        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Set-Cookie"));
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
     }
-}
-
-
-
-
-
-
-    /*
-    private final JwtUtil jwtUtil;
-
-    public SecurityConfig(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
-
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,AuthenticationProvider authenticationProvider) throws Exception {
-        http.authenticationProvider(authenticationProvider);
-        return http.csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        httpRequest -> {
-                            httpRequest.requestMatchers("/auth/**").permitAll();
-                            //permision
-                            httpRequest.requestMatchers(                "/swagger-ui.html",
-                                    "/swagger-ui/**",
-                                    "/v3/api-docs/**").permitAll();
-                            httpRequest.requestMatchers("/api/**").permitAll();
-                            httpRequest.anyRequest().authenticated();
-                        }
-                ).exceptionHandling(
-                        exception -> exception.authenticationEntryPoint((request, response, authException) -> {
-                            response.setContentType("application/json");
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                            response.getWriter().write("{\"error\": \"UNAUTHORIZED\"}");
-                        }).accessDeniedHandler((equest, response, accessDeniedException) -> {
-                            response.setContentType("application/json");
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.getWriter().write("{\"error\": \"UNAUTHORIZED\"}");
-                        })
-                ).addFilterBefore(new JwtAuthFilter(jwtUtil), BasicAuthenticationFilter.class).build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider( UserDetailsServiceImpl userDetailsServiceImp) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder());
-        provider.setUserDetailsService(userDetailsServiceImp::loadUserByUsername);
-        return provider;
-    }
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration= new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173","https://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }*/
 

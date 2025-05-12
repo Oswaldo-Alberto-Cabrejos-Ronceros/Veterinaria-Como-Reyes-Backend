@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
+import com.veterinaria.veterinaria_comoreyes.exception.HeadquarterNotValidException;
 import com.veterinaria.veterinaria_comoreyes.mapper.HeadquarterMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
 @Service
 public class HeadquarterServiceImpl implements IHeadquarterService {
 
-
+    @Autowired
     private HeadquarterRepository headquarterRepository;
+    @Autowired
     private HeadquarterMapper headquarterMapper;
+    @Autowired
     private FilterStatus filterStatus;
 
     @Autowired
@@ -34,7 +37,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         filterStatus.activeFilterStatus(true);
         Headquarter hq = headquarterRepository.findByHeadquarterIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Headquarter not found with id: " + id));
-        return headquarterMapper.maptoHeadquarterDTO(hq);
+        return headquarterMapper.mapToHeadquarterDTO(hq);
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +46,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         filterStatus.activeFilterStatus(true);
         return headquarterRepository.findAll()
                 .stream()
-                .map(headquarterMapper::maptoHeadquarterDTO)
+                .map(headquarterMapper::mapToHeadquarterDTO)
                 .collect(Collectors.toList());
     }
 
@@ -51,9 +54,9 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public HeadquarterDTO createHeadquarter(HeadquarterDTO dto) {
         filterStatus.activeFilterStatus(true);
-        Headquarter entity = headquarterMapper.maptoHeadquarter(dto);
+        Headquarter entity = headquarterMapper.mapToHeadquarter(dto);
         Headquarter saved = headquarterRepository.save(entity);
-        return headquarterMapper.maptoHeadquarterDTO(saved);
+        return headquarterMapper.mapToHeadquarterDTO(saved);
     }
 
     @Transactional
@@ -71,7 +74,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         hq.setDepartment(dto.getDepartment());
 
         Headquarter updated = headquarterRepository.save(hq);
-        return headquarterMapper.maptoHeadquarterDTO(updated);
+        return headquarterMapper.mapToHeadquarterDTO(updated);
     }
 
     @Transactional
@@ -84,6 +87,15 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         hq.setStatus(false); // Desactivado
         headquarterRepository.save(hq);
 
+    }
+
+    // Validar si la sede existe y esta disponible
+    @Override
+    public void validateHeadquarterAvailable(Long id) {
+        boolean exist= headquarterRepository.existsByHeadquarterIdAndStatusIsTrue(id);
+        if(!exist){
+            throw new HeadquarterNotValidException("Sede no disponoble");
+        }
     }
 
 }

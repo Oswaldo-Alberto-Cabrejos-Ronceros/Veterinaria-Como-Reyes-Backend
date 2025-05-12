@@ -4,14 +4,19 @@ import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.ErrorCodes;
+import com.veterinaria.veterinaria_comoreyes.exception.PhoneAlreadyExistsException;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
+import com.veterinaria.veterinaria_comoreyes.external.reniec.service.IReniecService;
 import com.veterinaria.veterinaria_comoreyes.mapper.ClientMapper;
+import com.veterinaria.veterinaria_comoreyes.mapper.HeadquarterMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
+import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
+import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import com.veterinaria.veterinaria_comoreyes.util.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,34 +31,31 @@ public class ClientServiceImpl implements IClientService {
 
     private final ClientRepository clientRepository;
     private final IUserService userService;
-    private final PhoneUtil phoneUtil;
-    private final HeadquarterUtil headquarterUtil;
-    private final ReniecUtil reniecUtil;
-    private final HeadquarterRepository headquarterRepository;
+    private final IHeadquarterService headquarterService;
+    private final IReniecService reniecService;
     private final JwtTokenUtil jwtTokenUtil;
     private final ClientMapper clientMapper;
     private final UserMapper userMapper;
+    private final HeadquarterMapper headquarterMapper;
 
     @Autowired
     public ClientServiceImpl(
         ClientRepository clientRepository,
-        HeadquarterUtil headquarterUtil,
         IUserService userService,
-        PhoneUtil phoneUtil,
-        ReniecUtil reniecUtil,
-        HeadquarterRepository headquarterRepository,
+        IReniecService reniecService,
+        IHeadquarterService headquarterService,
         JwtTokenUtil jwtTokenUtil,
+        HeadquarterMapper headquarterMapper,
         ClientMapper clientMapper,
         UserMapper userMapper
     ) {
         this.clientRepository = clientRepository;
         this.userService = userService;
-        this.phoneUtil = phoneUtil;
-        this.headquarterUtil = headquarterUtil;
-        this.reniecUtil = reniecUtil;
-        this.headquarterRepository = headquarterRepository;
+        this.headquarterService = headquarterService;
+        this.reniecService = reniecService;
         this.jwtTokenUtil = jwtTokenUtil;
         this.clientMapper = clientMapper;
+        this.headquarterMapper = headquarterMapper;
         this.userMapper = userMapper;
     }
 
@@ -84,18 +86,26 @@ public class ClientServiceImpl implements IClientService {
             .collect(Collectors.toList());
     }
 
+    private void validatePhoneAvailable(String phone){
+        boolean exist = clientRepository.existsByPhone(phone);
+        if (exist) {
+            throw new PhoneAlreadyExistsException("El número de teléfono ya está registrado en otro empleado");
+        }
+    }
+
     @Transactional
     @Override
     public ClientDTO createClient(ClientDTO clientDTO) {
-        phoneUtil.validatePhoneAvailable(clientDTO.getPhone(), "cliente");
+
+        validatePhoneAvailable(clientDTO.getPhone());
 
         if (clientRepository.existsByDni(clientDTO.getDni())) {
             throw new RuntimeException("Cliente ya registrado con ese DNI: " + clientDTO.getDni());
         }
 
-        reniecUtil.validateData(clientDTO.getDni(), clientDTO.getName(), clientDTO.getLastName());
+        reniecService.validateIdentityReniec(clientDTO.getDni(), clientDTO.getName(), clientDTO.getLastName());
 
-        headquarterUtil.validateHeadquarterAvailable(clientDTO.getHeadquarter().getHeadquarterId());
+        headquarterService.validateHeadquarterAvailable(clientDTO.getHeadquarter().getHeadquarterId());
 
         if (clientDTO.getUser() != null) {
             UserDTO userDTO = new UserDTO();
@@ -117,15 +127,16 @@ public class ClientServiceImpl implements IClientService {
     public ClientDTO updateClient(Long clientId, ClientDTO clientDTO) {
         Client existingClient = clientRepository.findByClientId(clientId);
 
-        phoneUtil.validatePhoneAvailable(clientDTO.getPhone(), "cliente");
+        validatePhoneAvailable(clientDTO.getPhone());
+
         if (!existingClient.getDni().equals(clientDTO.getDni()) &&
                 clientRepository.existsByDni(clientDTO.getDni())) {
             throw new RuntimeException("Otro cliente ya registrado con el mismo DNI: " + clientDTO.getDni());
         } else {
-            reniecUtil.validateData(clientDTO.getDni(), clientDTO.getName(), clientDTO.getLastName());
+            reniecService.validateIdentityReniec(clientDTO.getDni(), clientDTO.getName(), clientDTO.getLastName());
         }
 
-        headquarterUtil.validateHeadquarterAvailable(clientDTO.getHeadquarter().getHeadquarterId());
+        headquarterService.validateHeadquarterAvailable(clientDTO.getHeadquarter().getHeadquarterId());
         existingClient.getHeadquarter().setHeadquarterId(clientDTO.getHeadquarter().getHeadquarterId());
 
         existingClient.setDni(clientDTO.getDni());
@@ -191,8 +202,9 @@ public class ClientServiceImpl implements IClientService {
         client.setAddress(data.getAddress());
         client.setPhone(data.getPhone());
 
-        headquarterUtil.validateHeadquarterAvailable(data.getHeadquarterId());
-        Headquarter newHeadquarter = headquarterRepository.findByHeadquarterId(data.getHeadquarterId());
+        headquarterService.validateHeadquarterAvailable(data.getHeadquarterId());
+        HeadquarterDTO hqDto = headquarterService.getHeadquarterById(data.getHeadquarterId());
+        Headquarter newHeadquarter = headquarterMapper.mapToHeadquarter(hqDto);
         client.setHeadquarter(newHeadquarter);
 
         clientRepository.save(client);
@@ -205,5 +217,15 @@ public class ClientServiceImpl implements IClientService {
 
         client.setBlockNote(blockNote);
         clientRepository.save(client);
+    }
+
+    //metodos para el auth
+    @Override
+    public Client getClientByUserForAuth(User user) {
+        Client client = clientRepository.findByUser(user);
+        if (client == null) {
+            throw new AuthException("Cliente no encontrado", ErrorCodes.INVALID_CREDENTIALS.getCode());
+        }
+        return client;
     }
 }

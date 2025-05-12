@@ -84,7 +84,7 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
                 .findByServiceIdAndStatusIsTrue(dto.getService().getServiceId())
                 .orElseThrow(() -> new RuntimeException("Servicio veterinario no encontrado"));
 
-        boolean exists = headquarterVetServiceRepository.existsByHeadquarterAndVetService(headquarter, service);
+        boolean exists = headquarterVetServiceRepository.existsByHeadquarterAndVeterinaryService(headquarter, service);
         if (exists) {
             throw new RuntimeException("La relación ya existe entre esta sede y servicio.");
         }

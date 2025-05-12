@@ -72,7 +72,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     public List<VeterinaryServiceDTO> getAllServicesBySpecie(Long specieId) {
         filterStatus.activeFilterStatus(true);
         SpecieDTO specieDTO = specieService.getSpecieById(specieId);
-        return veterinaryServiceRepository.findAllBySpecie(specieMapper.maptoSpecie(specieDTO)).stream()
+        return veterinaryServiceRepository.findAllBySpecie(specieMapper.mapToSpecie(specieDTO)).stream()
                 .map(veterinaryServiceMapper::mapToServiceDTO)
                 .toList();
     }

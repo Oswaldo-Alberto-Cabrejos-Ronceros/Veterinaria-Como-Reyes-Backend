@@ -34,7 +34,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         filterStatus.activeFilterStatus(true);
         PaymentMethod method = paymentMethodRepository.findByPaymentMethodIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("PaymentMethod not found with id: " + id));
-        return paymentMethodMapper.maptoPaymentMethodDTO(method);
+        return paymentMethodMapper.mapToPaymentMethodDTO(method);
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +42,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     public List<PaymentMethodDTO> getAllPaymentMethods() {
         filterStatus.activeFilterStatus(true);
         return paymentMethodRepository.findAll().stream()
-                .map(paymentMethodMapper::maptoPaymentMethodDTO)
+                .map(paymentMethodMapper::mapToPaymentMethodDTO)
                 .collect(Collectors.toList());
     }
 
@@ -50,9 +50,9 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     @Override
     public PaymentMethodDTO createPaymentMethod(PaymentMethodDTO dto) {
         filterStatus.activeFilterStatus(true);
-        PaymentMethod entity = paymentMethodMapper.maptoPaymentMethod(dto);
+        PaymentMethod entity = paymentMethodMapper.mapToPaymentMethod(dto);
         PaymentMethod saved = paymentMethodRepository.save(entity);
-        return paymentMethodMapper.maptoPaymentMethodDTO(saved);
+        return paymentMethodMapper.mapToPaymentMethodDTO(saved);
     }
 
     @Transactional
@@ -66,7 +66,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         existing.setDescription(dto.getDescription());
 
         PaymentMethod updated = paymentMethodRepository.save(existing);
-        return paymentMethodMapper.maptoPaymentMethodDTO(updated);
+        return paymentMethodMapper.mapToPaymentMethodDTO(updated);
     }
 
     @Transactional

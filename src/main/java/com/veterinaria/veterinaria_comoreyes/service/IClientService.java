@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
+import com.veterinaria.veterinaria_comoreyes.entity.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,5 +26,9 @@ public interface IClientService {
     // SERVICES OF CLIENT TO AS A USER
     MyInfoClientDTO myInfoAsClient(String Token, Long id);
     void updateInfoAsClient(String Token, Long id, DataUpdateAsClientDTO dataUpdateAsClientDTO);
+
+    // SERVICES OF CLIENT TO AS AUTH
+
+    Client getClientByUserForAuth(User user);
 
 }

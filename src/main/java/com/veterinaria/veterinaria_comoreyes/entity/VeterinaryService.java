@@ -18,7 +18,7 @@ import java.time.LocalTime;
 @SuperBuilder
 //para filtro
 @Filter(name = "statusActive", condition = "status = :status")
-public class VeterinaryService extends EntityWithStatus{
+public class    VeterinaryService extends EntityWithStatus{
     @Id
     @GeneratedValue
     private Long serviceId;

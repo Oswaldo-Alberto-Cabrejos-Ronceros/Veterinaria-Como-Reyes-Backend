@@ -2,11 +2,13 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
+import com.veterinaria.veterinaria_comoreyes.exception.EmailAlreadyExistsException;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.ErrorCodes;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.UserRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import com.veterinaria.veterinaria_comoreyes.util.EmailUtil;
-import com.veterinaria.veterinaria_comoreyes.util.PasswordUtil;
+import com.veterinaria.veterinaria_comoreyes.util.PasswordEncodeUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,15 +20,14 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
-    private final EmailUtil emailUtil;
-    private final PasswordUtil passwordUtil;
+    private final PasswordEncodeUtil passwordUtil;
     private final UserMapper userMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailUtil emailUtil, PasswordUtil passwordUtil, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncodeUtil passwordEncodeUtil, UserMapper userMapper) {
         this.userRepository = userRepository;
-        this.emailUtil = emailUtil;
-        this.passwordUtil = passwordUtil;
+
+        this.passwordUtil = passwordEncodeUtil;
         this.userMapper = userMapper;
     }
 
@@ -55,7 +56,9 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-        emailUtil.validateEmailAvailable(userDTO.getEmail());
+
+        //Validar que el email no este registrado con otro usuario
+        validateEmailForNewUser(userDTO.getEmail());
 
         User user = userMapper.maptoUser(userDTO);
         user.setPassword(passwordUtil.encodePassword(user.getPassword()));
@@ -99,5 +102,19 @@ public class UserServiceImpl implements IUserService {
 
         user.setPassword(passwordUtil.encodePassword(newPassword));
         userRepository.save(user);
+    }
+
+    @Override
+    public void validateEmailForNewUser(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("Ya existe un usuario registrado con el correo: " + email);
+        }
+    }
+
+    //Methods for user for Login
+    @Override
+    public User getUserByEmailForAuth(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthException("Credenciales inválidas", ErrorCodes.INVALID_CREDENTIALS.getCode()));
     }
 }

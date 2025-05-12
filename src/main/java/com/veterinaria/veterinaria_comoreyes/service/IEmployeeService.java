@@ -1,6 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.*;
+import com.veterinaria.veterinaria_comoreyes.entity.Employee;
+import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -44,4 +46,8 @@ public interface IEmployeeService {
 
     //permissos de un empleado considerando todos su roles
     List<String> getEmployeePermissions(Long employeeId);
+
+
+    // METODOS DE EMPLOYEE FOR AUTH
+    Employee getEmployeeByUserForAuth(User user);
 }

@@ -5,13 +5,18 @@ import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.ErrorCodes;
+import com.veterinaria.veterinaria_comoreyes.exception.PhoneAlreadyExistsException;
+import com.veterinaria.veterinaria_comoreyes.external.reniec.service.IReniecService;
 import com.veterinaria.veterinaria_comoreyes.mapper.EmployeeMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
+import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
+import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.service.IRoleService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import com.veterinaria.veterinaria_comoreyes.util.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,9 +32,8 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final IUserService userService;
-    private final PhoneUtil phoneUtil;
-    private final HeadquarterUtil headquarterUtil;
-    private final ReniecUtil reniecUtil;
+    private final IHeadquarterService headquarterService;
+    private final IReniecService reniecService;
     private final IRoleService roleService;
     private final JwtTokenUtil jwtTokenUtil;
     private final UserMapper userMapper;
@@ -38,18 +42,16 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Autowired
     public EmployeeServiceImpl(EmployeeRepository employeeRepository,
             IUserService userService,
-            PhoneUtil phoneUtil,
-            HeadquarterUtil headquarterUtil,
-            ReniecUtil reniecUtil,
+            IHeadquarterService headquarterService,
+            IReniecService reniecService,
             IRoleService roleService,
             JwtTokenUtil jwtTokenUtil,
             UserMapper userMapper,
             EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.userService = userService;
-        this.phoneUtil = phoneUtil;
-        this.headquarterUtil = headquarterUtil;
-        this.reniecUtil = reniecUtil;
+        this.headquarterService = headquarterService;
+        this.reniecService = reniecService;
         this.roleService = roleService;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userMapper = userMapper;
@@ -77,18 +79,20 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Transactional
     @Override
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
-        phoneUtil.validatePhoneAvailable(employeeDTO.getPhone(), "empleado");
+
+        validatePhoneAvailable(employeeDTO.getPhone());
 
         if (employeeRepository.existsByDni(employeeDTO.getDni())) {
             throw new RuntimeException("Ya existe un empleado con ese DNI: " + employeeDTO.getDni());
         }
 
-        reniecUtil.validateData(
+        //validate that name and last Name match with data of Reniec
+        reniecService.validateIdentityReniec(
                 employeeDTO.getDni(),
                 employeeDTO.getName(),
                 employeeDTO.getLastName());
 
-        headquarterUtil.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
+        headquarterService.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
 
         if (employeeDTO.getUser() != null) {
             UserDTO userDTO = new UserDTO();
@@ -112,22 +116,47 @@ public class EmployeeServiceImpl implements IEmployeeService {
         return employeeMapper.mapToEmployeeDTO(savedEmployee);
     }
 
+    private void validatePhoneAvailable(String phone) {
+         boolean exist = employeeRepository.existsByPhone(phone);
+        if (exist) {
+            throw new PhoneAlreadyExistsException("El número de teléfono ya está registrado en otro cliente");
+        }
+    }
+    private void validateDniAvailable(String dni) {
+        boolean exist = employeeRepository.existsByDni(dni);
+        if (exist) {
+            throw new RuntimeException("Ya existe otro empleado con ese DNI");
+        }
+    }
     @Transactional
     @Override
     public EmployeeDTO updateEmployee(Long employeeId, EmployeeDTO employeeDTO) {
+
+        //verificar si el cliente id ingresado existe
         Employee existingEmployee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
-        phoneUtil.validatePhoneAvailable(employeeDTO.getPhone(), "empleado");
-
-        if (!existingEmployee.getDni().equals(employeeDTO.getDni()) &&
-                employeeRepository.existsByDni(employeeDTO.getDni())) {
-            throw new RuntimeException("Ya existe otro empleado con ese DNI: " + employeeDTO.getDni());
+        //verificar si ha ingresado otro numero y lo validamos si es el caso
+        if (!existingEmployee.getPhone().equals(employeeDTO.getPhone())) {
+            validatePhoneAvailable(employeeDTO.getPhone());
         }
 
-        headquarterUtil.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
-        existingEmployee.getHeadquarter().setHeadquarterId(employeeDTO.getHeadquarter().getHeadquarterId());
+        //verificar si ha ingresado un dni distinto y lo validmos si es el caso
+        if (!existingEmployee.getDni().equals(employeeDTO.getDni())) {
 
+            //validar que no exista otro cliente con el nuevo dni
+            validateDniAvailable(employeeDTO.getDni());
+
+            //validate that name and last Name match with data of Reniec
+            reniecService.validateIdentityReniec(
+                    employeeDTO.getDni(),
+                    employeeDTO.getName(),
+                    employeeDTO.getLastName());
+        }
+
+        headquarterService.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
+
+        existingEmployee.getHeadquarter().setHeadquarterId(employeeDTO.getHeadquarter().getHeadquarterId());
         existingEmployee.setDni(employeeDTO.getDni());
         existingEmployee.setCmvp(employeeDTO.getCmvp());
         existingEmployee.setName(employeeDTO.getName());
@@ -248,5 +277,14 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 .map(Permission::getActionCode)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Employee getEmployeeByUserForAuth(User user) {
+        Employee employee = employeeRepository.findByUserForAuth(user);
+        if (employee == null) {
+            throw new AuthException("Empleado no encontrado", ErrorCodes.INVALID_CREDENTIALS.getCode());
+        }
+        return employee;
     }
 }
