@@ -39,4 +39,10 @@ public class UserController {
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
+
+
+    @PatchMapping("/{id}/newPassword")
+    public void newPassword(@PathVariable Long id) {
+
+    }
 }

@@ -16,14 +16,15 @@ import java.util.stream.Collectors;
 @Service
 public class CategoryServiceImpl implements ICategoryService {
 
-
-    private CategoryRepository categoryRepository;
-    private FilterStatus filterStatus;
+    private final CategoryRepository categoryRepository;
+    private final FilterStatus filterStatus;
+    private final CategoryMapper categoryMapper;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, FilterStatus filterStatus){
+    public CategoryServiceImpl(CategoryRepository categoryRepository, FilterStatus filterStatus, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.filterStatus = filterStatus;
+        this.categoryMapper = categoryMapper;
     }
 
     @Transactional(readOnly = true)
@@ -32,7 +33,7 @@ public class CategoryServiceImpl implements ICategoryService {
         filterStatus.activeFilterStatus(true);
         Category category = categoryRepository.findByCategoryIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
-        return CategoryMapper.maptoCategoryDTO(category);
+        return categoryMapper.maptoCategoryDTO(category);
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +41,7 @@ public class CategoryServiceImpl implements ICategoryService {
     public List<CategoryDTO> getAllCategories() {
         filterStatus.activeFilterStatus(true);
         return categoryRepository.findAll().stream()
-                .map(CategoryMapper::maptoCategoryDTO)
+                .map(categoryMapper::maptoCategoryDTO)
                 .collect(Collectors.toList());
     }
 
@@ -48,9 +49,8 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         filterStatus.activeFilterStatus(true);
-        Category category = CategoryMapper.maptoCategory(categoryDTO);
-        Category saved = categoryRepository.save(category);
-        return CategoryMapper.maptoCategoryDTO(saved);
+        Category category = categoryMapper.maptoCategory(categoryDTO);
+        return categoryMapper.maptoCategoryDTO(categoryRepository.save(category));
     }
 
     @Transactional
@@ -63,8 +63,7 @@ public class CategoryServiceImpl implements ICategoryService {
         existing.setName(categoryDTO.getName());
         existing.setDescription(categoryDTO.getDescription());
 
-        Category updated = categoryRepository.save(existing);
-        return CategoryMapper.maptoCategoryDTO(updated);
+        return categoryMapper.maptoCategoryDTO(categoryRepository.save(existing));
     }
 
     @Transactional

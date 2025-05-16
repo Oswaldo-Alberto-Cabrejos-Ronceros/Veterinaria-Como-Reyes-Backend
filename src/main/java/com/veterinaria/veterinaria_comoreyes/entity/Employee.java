@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +16,8 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Employee {
+@Filter(name = "statusActive", condition = "status = :status")
+public class Employee extends EntityWithStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
@@ -43,8 +45,6 @@ public class Employee {
     @Column(length = 255)
     private String dirImage;
 
-    private String mainRole;
-
     @ManyToOne
     @JoinColumn(name = "id_headquarter")
     private Headquarter headquarter;
@@ -52,9 +52,6 @@ public class Employee {
     @OneToOne
     @JoinColumn(name = "id_user")
     private User user;
-
-    @Column(nullable = false, columnDefinition = "NUMBER(1,0)")
-    private Byte status;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(

@@ -2,23 +2,16 @@ package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.dto.PaymentMethodDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentMethod;
+import org.mapstruct.Mapper;
 
-public class PaymentMethodMapper {
+import java.util.List;
 
-    public static PaymentMethodDTO maptoPaymentMethodDTO(PaymentMethod paymentMethod) {
-        return new PaymentMethodDTO(
-                paymentMethod.getPaymentMethodId(),
-                paymentMethod.getName(),
-                paymentMethod.getDescription()
-        );
-    }
+@Mapper(componentModel = "spring")
+public interface PaymentMethodMapper {
 
-    public static PaymentMethod maptoPaymentMethod(PaymentMethodDTO paymentMethodDTO) {
-        return new PaymentMethod(
-                paymentMethodDTO.getPaymentMethodId(),
-                paymentMethodDTO.getName(),
-                paymentMethodDTO.getDescription()
-        );
-    }
+    PaymentMethodDTO mapToPaymentMethodDTO(PaymentMethod paymentMethod);
 
+    PaymentMethod mapToPaymentMethod(PaymentMethodDTO paymentMethodDTO);
+
+    List<PaymentMethodDTO> mapToPaymentMethodDTOList(List<PaymentMethod> paymentMethods);
 }

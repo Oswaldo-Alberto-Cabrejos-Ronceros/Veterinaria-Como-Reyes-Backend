@@ -1,24 +1,14 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
-
+import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
 import com.veterinaria.veterinaria_comoreyes.dto.CategoryDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Category;
+import org.mapstruct.Mapper;
 
-public class CategoryMapper {
+@Mapper(config = GlobalMapperConfig.class)
+public interface CategoryMapper {
 
-    public static CategoryDTO maptoCategoryDTO(Category category) {
-        return new CategoryDTO(
-                category.getCategoryId(),
-                category.getName(),
-                category.getDescription()
-        );
-    }
+    CategoryDTO maptoCategoryDTO(Category category);
 
-    public static Category maptoCategory(CategoryDTO categoryDTO) {
-        return new Category(
-                categoryDTO.getCategoryId(),
-                categoryDTO.getName(),
-                categoryDTO.getDescription()
-        );
-    }
+    Category maptoCategory(CategoryDTO categoryDTO);
 }

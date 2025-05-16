@@ -29,8 +29,4 @@ public class UserDTO {
     @Pattern(regexp = "^[a-zA-Z0-9@#$%^&+=!_.-]*$", message = "La contraseña contiene caracteres inválidos")
     private String password;
 
-    @NotNull(message = "El estado es obligatorio")
-    @Min(value = 0, message = "El estado debe ser 0 o 1")
-    @Max(value = 1, message = "El estado debe ser 0 o 1")
-    private Byte status;
 }

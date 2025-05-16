@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter

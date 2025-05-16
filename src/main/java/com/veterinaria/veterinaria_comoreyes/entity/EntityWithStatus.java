@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,5 +21,7 @@ import org.hibernate.annotations.ParamDef;
 @Filter(name = "statusActive", condition = "status = :status")
 @MappedSuperclass
 public abstract class EntityWithStatus {
+
+    @Column(nullable = false)
     private Boolean status=true;
 }

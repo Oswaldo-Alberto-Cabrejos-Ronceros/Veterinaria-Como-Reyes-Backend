@@ -11,6 +11,8 @@ public interface IRoleService {
 
     List<RoleDTO> getAllRoles();
 
+ List<RoleDTO> getAllRolesAndStatusTrue();
+
     RoleDTO createRole(RoleDTO roleDTO);
 
     RoleDTO updateRole(Long id, RoleDTO roleDTO);

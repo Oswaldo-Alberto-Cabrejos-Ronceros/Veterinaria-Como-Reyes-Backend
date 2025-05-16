@@ -1,53 +1,69 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
+import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
+import com.veterinaria.veterinaria_comoreyes.security.auth.exception.ErrorCodes;
+import com.veterinaria.veterinaria_comoreyes.exception.PhoneAlreadyExistsException;
+import com.veterinaria.veterinaria_comoreyes.external.reniec.service.IReniecService;
 import com.veterinaria.veterinaria_comoreyes.mapper.EmployeeMapper;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.RoleRepository;
+import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
+import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.service.IRoleService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import com.veterinaria.veterinaria_comoreyes.util.HeadquarterUtil;
-import com.veterinaria.veterinaria_comoreyes.util.PhoneUtil;
-import com.veterinaria.veterinaria_comoreyes.util.ReniecUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements IEmployeeService {
 
-    @Autowired
     private final EmployeeRepository employeeRepository;
     private final IUserService userService;
-    private final PhoneUtil phoneUtil;
-    private final HeadquarterUtil headquarterUtil;
-    private final ReniecUtil reniecUtil;
+    private final IHeadquarterService headquarterService;
+    private final IReniecService reniecService;
     private final IRoleService roleService;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final UserMapper userMapper;
+    private final EmployeeMapper employeeMapper;
 
-    public EmployeeServiceImpl(EmployeeRepository employeeRepository, IUserService userService, PhoneUtil phoneUtil, HeadquarterUtil headquarterUtil, ReniecUtil reniecUtil, IRoleService roleService) {
+    @Autowired
+    public EmployeeServiceImpl(EmployeeRepository employeeRepository,
+            IUserService userService,
+            IHeadquarterService headquarterService,
+            IReniecService reniecService,
+            IRoleService roleService,
+            JwtTokenUtil jwtTokenUtil,
+            UserMapper userMapper,
+            EmployeeMapper employeeMapper) {
         this.employeeRepository = employeeRepository;
         this.userService = userService;
-        this.phoneUtil = phoneUtil;
-        this.headquarterUtil = headquarterUtil;
-        this.reniecUtil = reniecUtil;
+        this.headquarterService = headquarterService;
+        this.reniecService = reniecService;
         this.roleService = roleService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userMapper = userMapper;
+        this.employeeMapper = employeeMapper;
     }
 
     @Override
     public EmployeeDTO getEmployeeById(Long id) {
-        return null;
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
+        return employeeMapper.mapToEmployeeDTO(employee);
     }
 
     @Override
@@ -57,73 +73,91 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
-        return List.of();
+        List<Employee> employees = employeeRepository.findAll();
+        return employeeMapper.mapToEmployeeDTOList(employees);
     }
 
     @Transactional
     @Override
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
 
-        //validacines del telefono
-        phoneUtil.validatePhoneAvailable(employeeDTO.getPhone(), "empleado");
+        validatePhoneAvailable(employeeDTO.getPhone());
 
-        //Validar si hay otro dni registrado ya
         if (employeeRepository.existsByDni(employeeDTO.getDni())) {
             throw new RuntimeException("Ya existe un empleado con ese DNI: " + employeeDTO.getDni());
         }
 
-        //Validar Data con la Reniec ( los nombre y apellidos coincidan con el dni)
-        reniecUtil.validateData(
+        //validate that name and last Name match with data of Reniec
+        reniecService.validateIdentityReniec(
                 employeeDTO.getDni(),
                 employeeDTO.getName(),
-                employeeDTO.getLastName()
-        );
+                employeeDTO.getLastName());
 
-        //validar Sede
-        headquarterUtil.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
+        headquarterService.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
 
-        //Agregar Usuario si tiene credenciales
         if (employeeDTO.getUser() != null) {
             UserDTO userDTO = new UserDTO();
             userDTO.setType("E");
             userDTO.setEmail(employeeDTO.getUser().getEmail());
             userDTO.setPassword(employeeDTO.getUser().getPassword());
-            userDTO.setStatus((byte) 1);
 
             UserDTO savedUserDTO = userService.createUser(userDTO);
-            User savedUser = UserMapper.maptoUser(savedUserDTO);
+            User savedUser = userMapper.maptoUser(savedUserDTO); // USO CORRECTO
             employeeDTO.setUser(savedUser);
         }
 
-        //Mapeamos el empleadoDTO en la entidad empleado
-        Employee employee = EmployeeMapper.mapToEmployee(employeeDTO);
+        Employee employee = employeeMapper.mapToEmployee(employeeDTO);
 
-        // Procesar roles
         if (employeeDTO.getRoles() != null && !employeeDTO.getRoles().isEmpty()) {
             List<Role> roles = roleService.validateAndFetchRoles(employeeDTO.getRoles());
-            employee.setRoles(roles); // si usas mapping manual
+            employee.setRoles(roles);
         }
 
         Employee savedEmployee = employeeRepository.save(employee);
-        return EmployeeMapper.mapToEmployeeDTO(savedEmployee);
+        return employeeMapper.mapToEmployeeDTO(savedEmployee);
     }
 
+    private void validatePhoneAvailable(String phone) {
+         boolean exist = employeeRepository.existsByPhone(phone);
+        if (exist) {
+            throw new PhoneAlreadyExistsException("El número de teléfono ya está registrado en otro cliente");
+        }
+    }
+    private void validateDniAvailable(String dni) {
+        boolean exist = employeeRepository.existsByDni(dni);
+        if (exist) {
+            throw new RuntimeException("Ya existe otro empleado con ese DNI");
+        }
+    }
     @Transactional
     @Override
     public EmployeeDTO updateEmployee(Long employeeId, EmployeeDTO employeeDTO) {
+
+        //verificar si el cliente id ingresado existe
         Employee existingEmployee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
-        phoneUtil.validatePhoneAvailable(employeeDTO.getPhone(), "empleado");
-
-        if (!existingEmployee.getDni().equals(employeeDTO.getDni()) &&
-                employeeRepository.existsByDni(employeeDTO.getDni())) {
-            throw new RuntimeException("Ya existe otro empleado con ese DNI: " + employeeDTO.getDni());
+        //verificar si ha ingresado otro numero y lo validamos si es el caso
+        if (!existingEmployee.getPhone().equals(employeeDTO.getPhone())) {
+            validatePhoneAvailable(employeeDTO.getPhone());
         }
 
-        headquarterUtil.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
-        existingEmployee.getHeadquarter().setHeadquarterId(employeeDTO.getHeadquarter().getHeadquarterId());
+        //verificar si ha ingresado un dni distinto y lo validmos si es el caso
+        if (!existingEmployee.getDni().equals(employeeDTO.getDni())) {
 
+            //validar que no exista otro cliente con el nuevo dni
+            validateDniAvailable(employeeDTO.getDni());
+
+            //validate that name and last Name match with data of Reniec
+            reniecService.validateIdentityReniec(
+                    employeeDTO.getDni(),
+                    employeeDTO.getName(),
+                    employeeDTO.getLastName());
+        }
+
+        headquarterService.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
+
+        existingEmployee.getHeadquarter().setHeadquarterId(employeeDTO.getHeadquarter().getHeadquarterId());
         existingEmployee.setDni(employeeDTO.getDni());
         existingEmployee.setCmvp(employeeDTO.getCmvp());
         existingEmployee.setName(employeeDTO.getName());
@@ -132,18 +166,14 @@ public class EmployeeServiceImpl implements IEmployeeService {
         existingEmployee.setPhone(employeeDTO.getPhone());
         existingEmployee.setBirthDate(employeeDTO.getBirthDate());
         existingEmployee.setDirImage(employeeDTO.getDirImage());
-        existingEmployee.setStatus(employeeDTO.getStatus());
-
-        // Procesar roles solo si se proporcionan explícitamente
-
 
         Employee updatedEmployee = employeeRepository.save(existingEmployee);
-        return EmployeeMapper.mapToEmployeeDTO(updatedEmployee);
+        return employeeMapper.mapToEmployeeDTO(updatedEmployee);
     }
 
     @Override
     public void deleteEmployee(Long id) {
-        //logica para eliminar el empleado y tos las filas relacionadas a el
+        // lógica de eliminación si aplica
     }
 
     @Override
@@ -151,10 +181,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
 
-        employee.setStatus((byte) 0);
-
+        employee.setStatus(false);
         if (employee.getUser() != null) {
-            employee.getUser().setStatus((byte) 0);
+            employee.getUser().setStatus(false);
         }
 
         employeeRepository.save(employee);
@@ -164,19 +193,17 @@ public class EmployeeServiceImpl implements IEmployeeService {
     public EmployeeDTO getEmployeeByDni(String dni) {
         Employee employee = employeeRepository.findByDni(dni)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con DNI: " + dni));
-        return EmployeeMapper.mapToEmployeeDTO(employee);
+        return employeeMapper.mapToEmployeeDTO(employee);
     }
 
-    //DEBERIA FUNCIONAR CON EN PACTH para solo cambiar el estado
     @Override
     public void restoreEmployee(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
-        employee.setStatus((byte) 1);
-
+        employee.setStatus(true);
         if (employee.getUser() != null) {
-            employee.getUser().setStatus((byte) 1);
+            employee.getUser().setStatus(true);
         }
 
         employeeRepository.save(employee);
@@ -198,8 +225,98 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable) {
+    public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status,
+            Long headquarterId, Pageable pageable) {
         return employeeRepository.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
     }
-}
 
+    @Override
+    public MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id) {
+        Long employeeIdFromToken = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
+
+        if (!employeeIdFromToken.equals(id)) {
+            throw new RuntimeException("No tienes permiso para acceder a esta información.");
+        }
+
+        Employee employee = employeeRepository.findByEmployeeId(id);
+        if (employee == null) {
+            throw new RuntimeException("Empleado no encontrado con id: " + id);
+        }
+
+        MyInfoEmployeeDTO dto = new MyInfoEmployeeDTO();
+        dto.setEmployeeId(employee.getEmployeeId());
+        dto.setUserId(employee.getUser().getUserId());
+        dto.setDni(employee.getDni());
+        dto.setCmvp(employee.getCmvp());
+        dto.setNames(employee.getName());
+        dto.setLastNames(employee.getLastName());
+        dto.setAddress(employee.getAddress());
+        dto.setPhone(employee.getPhone());
+        dto.setBirthDate(employee.getBirthDate());
+        dto.setDirImage(employee.getDirImage());
+        dto.setHeadquarterName(employee.getHeadquarter().getName());
+
+        String mainRole = getMainRoleName(id);
+
+        dto.setMainRole(mainRole);
+
+        return dto;
+    }
+
+    @Override
+    public String getMainRoleName(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+
+        return employee.getRoles().stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
+                .min(Comparator.comparingInt(Role::getPosition))
+                .map(Role::getName)
+                .orElse("Sin rol");
+    }
+
+
+    /**
+    *   OBTENER TODOS LOS PERMISOS VINCULADOS A SUS ROLES DEL EMPLEDO ID PARA EL TOKEN
+     */
+    @Override
+    public List<String> getEmployeePermissions(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+
+        return employee.getRoles().stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
+                .flatMap(role -> role.getPermissions().stream()
+                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus())))
+                .map(Permission::getActionCode)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+    /**
+     *   OBTENER TODOS LOS PERMISOS VINCULADOS A SUS ROLES DEL EMPLEDO ID EN FORMATO DESEADO POR EL FRONT
+     */
+    @Override
+    public Map<String, List<String>> getGroupedPermissions(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+
+        return employee.getRoles().stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
+                .flatMap(role -> role.getPermissions().stream()
+                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus())))
+                .distinct()
+                .collect(Collectors.groupingBy(
+                        Permission::getModule,
+                        Collectors.mapping(Permission::getName, Collectors.toList())
+                ));
+    }
+
+    @Override
+    public Employee getEmployeeByUserForAuth(User user) {
+        Employee employee = employeeRepository.findByUserForAuth(user);
+        if (employee == null) {
+            throw new AuthException("Empleado no encontrado", ErrorCodes.INVALID_CREDENTIALS.getCode());
+        }
+        return employee;
+    }
+}

@@ -1,14 +1,14 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.*;
+import com.veterinaria.veterinaria_comoreyes.entity.Employee;
+import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 
 import java.util.List;
+import java.util.Map;
 
 public interface IEmployeeService {
     EmployeeDTO getEmployeeById(Long id);
@@ -43,4 +43,16 @@ public interface IEmployeeService {
     // Método para búsqueda personalizada
     Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
 
+    MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id);
+
+    String getMainRoleName(Long employeeId);
+
+    //permissos de un empleado considerando todos su roles
+    List<String> getEmployeePermissions(Long employeeId);
+
+
+    Map<String, List<String>> getGroupedPermissions(Long employeeId);
+
+    // METODOS DE EMPLOYEE FOR AUTH
+    Employee getEmployeeByUserForAuth(User user);
 }

@@ -15,11 +15,10 @@ public class EmployeeListDTO {
 
     Long employeeId;
     String dni;
+    String cmvp;
     String name;
     String lastName;
     String nameHeadquarter;
     String status;
-
-
 
 }

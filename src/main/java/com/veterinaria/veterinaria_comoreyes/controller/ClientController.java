@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +27,20 @@ public class ClientController {
         this.clientService = clientService;
     }
 
+    //Obtener info client
+    @PreAuthorize("hasAuthority('drop_client')")
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
+        ClientDTO client = clientService.getClientById(id);
+        return ResponseEntity.ok(client);
+    }
+
     @GetMapping("/search")
     public Page<ClientListDTO> searchClients(
             @RequestParam(required = false) String dni,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) Byte status,
+            @RequestParam(required = false) Boolean status,
             @RequestParam(required = false) Long headquarterId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
@@ -45,13 +54,6 @@ public class ClientController {
         return ResponseEntity.ok(createdClient);
     }
 
-    //Obtener info client
-    @GetMapping("/{id}")
-    public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
-        ClientDTO client = clientService.getClientById(id);
-        return ResponseEntity.ok(client);
-    }
-
     // Obtener todos los clientes
     @GetMapping
     public ResponseEntity<List<ClientDTO>> getAllClients() {
@@ -60,6 +62,7 @@ public class ClientController {
 
     // Update client
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('update_client')")
     public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @RequestBody ClientDTO clientDTO) {
         ClientDTO updatedClient = clientService.updateClient(id, clientDTO);
         return ResponseEntity.ok(updatedClient);

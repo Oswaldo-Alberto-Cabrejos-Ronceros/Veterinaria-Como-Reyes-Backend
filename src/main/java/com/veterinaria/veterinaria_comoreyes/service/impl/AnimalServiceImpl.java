@@ -23,52 +23,73 @@ public class AnimalServiceImpl implements IAnimalService {
     private final ClientRepository clientRepository;
     private final BreedRepository breedRepository;
     private final FilterStatus filterStatus;
+    private final AnimalMapper animalMapper;
 
     @Autowired
-    public AnimalServiceImpl(AnimalRepository animalRepository, ClientRepository clientRepository, BreedRepository breedRepository,FilterStatus filterStatus) {
+    public AnimalServiceImpl(
+            AnimalRepository animalRepository,
+            ClientRepository clientRepository,
+            BreedRepository breedRepository,
+            FilterStatus filterStatus,
+            AnimalMapper animalMapper
+    ) {
         this.animalRepository = animalRepository;
         this.clientRepository = clientRepository;
         this.breedRepository = breedRepository;
         this.filterStatus = filterStatus;
+        this.animalMapper = animalMapper;
     }
 
     @Transactional(readOnly = true)
     @Override
     public AnimalDTO getAnimalById(Long id) {
         filterStatus.activeFilterStatus(true);
-        return AnimalMapper.maptoAnimalDTO(animalRepository.findByAnimalIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id)));
+        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Animal not found with id: " + id));
+        return animalMapper.mapToAnimalDTO(animal);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<AnimalDTO> getAllAnimals() {
         filterStatus.activeFilterStatus(true);
-        return animalRepository.findAll().stream().map(AnimalMapper::maptoAnimalDTO).collect(Collectors.toList());
+        return animalRepository.findAll()
+                .stream()
+                .map(animalMapper::mapToAnimalDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<AnimalDTO> getAnimalsByClient(Long clientId) {
         filterStatus.activeFilterStatus(true);
-        Client client = clientRepository.findById(clientId).orElseThrow(()->new RuntimeException("Client not found with id:" + clientId));
-        return animalRepository.findByClient(client).stream().map(AnimalMapper::maptoAnimalDTO).collect(Collectors.toList());
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client not found with id: " + clientId));
+        return animalRepository.findByClient(client)
+                .stream()
+                .map(animalMapper::mapToAnimalDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public AnimalDTO createAnimal(AnimalDTO animalDTO) {
         filterStatus.activeFilterStatus(true);
-        //buscar cliente asociado
-        Animal animal = AnimalMapper.maptoAnimal(animalDTO);
-        return AnimalMapper.maptoAnimalDTO(animalRepository.save(animal));
+        // validar cliente
+        Long clientId = animalDTO.getClientId();
+        clientRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client not found with id: " + clientId));
+        Animal animal = animalMapper.mapToAnimal(animalDTO);
+        return animalMapper.mapToAnimalDTO(animalRepository.save(animal));
     }
 
     @Transactional
     @Override
     public AnimalDTO updateAnimal(Long id, AnimalDTO animalDTO) {
         filterStatus.activeFilterStatus(true);
-        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
-        //validar cliente
+        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Animal not found with id: " + id));
+
         animal.setName(animalDTO.getName());
         animal.setBreed(animalDTO.getBreed());
         animal.setGender(animalDTO.getGender());
@@ -76,15 +97,17 @@ public class AnimalServiceImpl implements IAnimalService {
         animal.setBirthDate(animalDTO.getBirthDate());
         animal.setWeight(animalDTO.getWeight());
         animal.setUrlImage(animalDTO.getUrlImage());
-        return AnimalMapper.maptoAnimalDTO(animalRepository.save(animal));
+
+        return animalMapper.mapToAnimalDTO(animalRepository.save(animal));
     }
 
     @Transactional
     @Override
     public void deleteAnimal(Long id) {
         filterStatus.activeFilterStatus(true);
-        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id).orElseThrow(()->new RuntimeException("Animal not found with id:" + id));
-        animal.setStatus(false); //inactivo
+        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Animal not found with id: " + id));
+        animal.setStatus(false); // inactivo
         animalRepository.save(animal);
     }
 }

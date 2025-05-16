@@ -1,22 +1,14 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
+import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
 import com.veterinaria.veterinaria_comoreyes.dto.BreedDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
+import org.mapstruct.Mapper;
 
-public class BreedMapper {
-    public static BreedDTO maptoBreedDTO(Breed breed){
-        return new BreedDTO(
-          breed.getBreedId(),
-          breed.getSpecie(),
-          breed.getName()
-        );
-    }
+@Mapper(config = GlobalMapperConfig.class)
+public interface BreedMapper {
 
-    public static Breed maptoBreed(BreedDTO breedDTO){
-        return new Breed(
-                breedDTO.getBreedId(),
-                breedDTO.getSpecie(),
-                breedDTO.getName()
-        );
-    }
+    BreedDTO maptoBreedDTO(Breed breed);
+
+    Breed maptoBreed(BreedDTO breedDTO);
 }

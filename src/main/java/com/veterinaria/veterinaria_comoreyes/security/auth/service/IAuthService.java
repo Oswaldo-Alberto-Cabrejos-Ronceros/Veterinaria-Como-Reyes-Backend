@@ -1,0 +1,14 @@
+package com.veterinaria.veterinaria_comoreyes.security.auth.service;
+
+import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
+import jakarta.servlet.http.HttpServletResponse;
+
+
+public interface IAuthService {
+
+
+    LoginResponseDTO authenticateEmployee(LoginRequestDTO loginRequest, HttpServletResponse response);
+
+    LoginResponseDTO authenticateClient(LoginRequestDTO loginRequest, HttpServletResponse response);
+}

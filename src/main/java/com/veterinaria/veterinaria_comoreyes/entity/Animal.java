@@ -26,7 +26,6 @@ public class Animal extends EntityWithStatus{
 
     private String name;
 
-
     private String gender;
 
     private float weight;

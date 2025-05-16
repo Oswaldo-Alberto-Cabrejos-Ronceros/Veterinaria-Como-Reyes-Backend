@@ -1,39 +1,14 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
+import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
 import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
-import jakarta.validation.constraints.Null;
-public class UserMapper {
+import org.mapstruct.Mapper;
 
-    // Método para mapear de User a UserDTO
-    public static UserDTO maptoUserDTO(User user) {
-        if (user == null) {
-            return null;
-        }
+@Mapper(config = GlobalMapperConfig.class)
+public interface UserMapper {
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(user.getUserId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setPassword(user.getPassword());
-        userDTO.setType(user.getType());
-        userDTO.setStatus(user.getStatus());
+    UserDTO maptoUserDTO(User user);
 
-        return userDTO;
-    }
-
-    // Método para mapear de UserDTO a User
-    public static User maptoUser(UserDTO userDTO) {
-        if (userDTO == null) {
-            return null;
-        }
-
-        User user = new User();
-        user.setUserId(userDTO.getUserId());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setType(userDTO.getType());
-        user.setStatus(userDTO.getStatus());
-
-        return user;
-    }
+    User maptoUser(UserDTO userDTO);
 }

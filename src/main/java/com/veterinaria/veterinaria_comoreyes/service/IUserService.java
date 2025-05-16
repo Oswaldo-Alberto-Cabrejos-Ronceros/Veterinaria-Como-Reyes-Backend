@@ -3,6 +3,8 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import java.util.List;
 
 import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.User;
+import org.hibernate.sql.exec.spi.StandardEntityInstanceResolver;
 
 public interface IUserService {
     
@@ -18,5 +20,11 @@ public interface IUserService {
 
     void deleteUser(Long id);
 
+
+    void updatePassword(Long id, String newPassword);
+
+    void validateEmailForNewUser(String email);
+
+    User getUserByEmailForAuth(String email);
 
 }
