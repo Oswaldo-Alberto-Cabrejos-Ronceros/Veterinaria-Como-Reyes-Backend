@@ -31,34 +31,21 @@ public class AuthController {
     @PostMapping("/login/employee")
     public ResponseEntity<LoginResponseDTO> loginEmployee(
             @RequestBody @Valid LoginRequestDTO request,
-            HttpServletResponse response) {
+                                HttpServletResponse response) {
+        // Llama al servicio, que ahora también recibe el response para setear la cookie
+        LoginResponseDTO dto = authService.authenticateEmployee(request, response);
 
-        // 1) Llama al servicio que ya genera el token y el DTO
-        LoginResponseDTO dto = authService.authenticateEmployee(request);
-
-        // 2) Extrae el token y ponlo en cookie
-        jwtCookieUtil.setJwtCookie(
-                response,
-                dto.token(),
-                jwtTokenUtil.getJwtExpirationMs() / 1000
-        );
-
-        // 3) Devuelve el DTO (sin el token en el body, o con él si lo quieres)
+        // Retorna solo el DTO (sin el token, ya está en la cookie)
         return ResponseEntity.ok(dto);
     }
+
 
     @PostMapping("/login/client")
     public ResponseEntity<LoginResponseDTO> loginClient(
             @RequestBody @Valid LoginRequestDTO request,
             HttpServletResponse response) {
 
-        LoginResponseDTO dto = authService.authenticateClient(request);
-
-        jwtCookieUtil.setJwtCookie(
-                response,
-                dto.token(),
-                jwtTokenUtil.getJwtExpirationMs() / 1000
-        );
+        LoginResponseDTO dto = authService.authenticateClient(request, response);
 
         return ResponseEntity.ok(dto);
     }

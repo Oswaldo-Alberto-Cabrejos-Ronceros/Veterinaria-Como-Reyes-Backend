@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 
 import java.util.List;
+import java.util.Map;
 
 public interface IEmployeeService {
     EmployeeDTO getEmployeeById(Long id);
@@ -44,9 +45,13 @@ public interface IEmployeeService {
 
     MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id);
 
+    String getMainRoleName(Long employeeId);
+
     //permissos de un empleado considerando todos su roles
     List<String> getEmployeePermissions(Long employeeId);
 
+
+    Map<String, List<String>> getGroupedPermissions(Long employeeId);
 
     // METODOS DE EMPLOYEE FOR AUTH
     Employee getEmployeeByUserForAuth(User user);

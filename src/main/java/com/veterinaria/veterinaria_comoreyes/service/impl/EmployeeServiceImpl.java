@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -255,16 +256,29 @@ public class EmployeeServiceImpl implements IEmployeeService {
         dto.setDirImage(employee.getDirImage());
         dto.setHeadquarterName(employee.getHeadquarter().getName());
 
-        String mainRole = employee.getRoles().stream()
-                .min(Comparator.comparingInt(Role::getPosition))
-                .map(Role::getName)
-                .orElse("Sin rol");
+        String mainRole = getMainRoleName(id);
 
         dto.setMainRole(mainRole);
 
         return dto;
     }
 
+    @Override
+    public String getMainRoleName(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+
+        return employee.getRoles().stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
+                .min(Comparator.comparingInt(Role::getPosition))
+                .map(Role::getName)
+                .orElse("Sin rol");
+    }
+
+
+    /**
+    *   OBTENER TODOS LOS PERMISOS VINCULADOS A SUS ROLES DEL EMPLEDO ID PARA EL TOKEN
+     */
     @Override
     public List<String> getEmployeePermissions(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -277,6 +291,24 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 .map(Permission::getActionCode)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+    /**
+     *   OBTENER TODOS LOS PERMISOS VINCULADOS A SUS ROLES DEL EMPLEDO ID EN FORMATO DESEADO POR EL FRONT
+     */
+    @Override
+    public Map<String, List<String>> getGroupedPermissions(Long employeeId) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+
+        return employee.getRoles().stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
+                .flatMap(role -> role.getPermissions().stream()
+                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus())))
+                .distinct()
+                .collect(Collectors.groupingBy(
+                        Permission::getModule,
+                        Collectors.mapping(Permission::getName, Collectors.toList())
+                ));
     }
 
     @Override

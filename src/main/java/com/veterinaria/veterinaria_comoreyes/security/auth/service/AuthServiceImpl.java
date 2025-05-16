@@ -7,11 +7,13 @@ import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
 import com.veterinaria.veterinaria_comoreyes.security.auth.exception.ErrorCodes;
+import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;
 import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import com.veterinaria.veterinaria_comoreyes.service.impl.EmployeeServiceImpl;
 import com.veterinaria.veterinaria_comoreyes.util.PasswordEncodeUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ public class AuthServiceImpl implements IAuthService {
     private final PasswordEncodeUtil passwordEncodeUtil;
     private final JwtTokenUtil jwtTokenUtil;
     private final EmployeeServiceImpl employeeService;
+    private final JwtCookieUtil jwtCookieUtil;
 
     @Autowired
     public AuthServiceImpl(
@@ -32,16 +35,18 @@ public class AuthServiceImpl implements IAuthService {
             IClientService clientService,
             PasswordEncodeUtil passwordEncodeUtil,
             JwtTokenUtil jwtTokenUtil,
+            JwtCookieUtil jwtCookieUtil,
             EmployeeServiceImpl employeeService) {
         this.userService = userService;
         this.clientService = clientService;
         this.passwordEncodeUtil = passwordEncodeUtil;
         this.jwtTokenUtil = jwtTokenUtil;
+        this.jwtCookieUtil = jwtCookieUtil;
         this.employeeService = employeeService;
     }
 
     @Override
-    public LoginResponseDTO authenticateEmployee(LoginRequestDTO loginRequest) {
+    public LoginResponseDTO authenticateEmployee(LoginRequestDTO loginRequest, HttpServletResponse response) {
         // 1. Buscar usuario por email
         User user = userService.getUserByEmailForAuth(loginRequest.email());
 
@@ -63,8 +68,14 @@ public class AuthServiceImpl implements IAuthService {
         // 5. Obtener datos del empleado
         Employee employee = employeeService.getEmployeeByUserForAuth(user);
 
-        // 6. Obtener permisos del empleado
+        // 6. Obtener permisos del empleado para el Spring
         Set<String> permissions = new HashSet<>(employeeService.getEmployeePermissions(employee.getEmployeeId()));
+
+        // Permisos agrupados para el front-end
+        Map<String, List<String>> groupedPermissions = employeeService.getGroupedPermissions(employee.getEmployeeId());
+
+        String rol = employeeService.getMainRoleName(employee.getEmployeeId());
+
 
         // 7. Generar token JWT
         String token = jwtTokenUtil.generateToken(
@@ -73,19 +84,23 @@ public class AuthServiceImpl implements IAuthService {
                 "E",
                 new ArrayList<>(permissions)
         );
+        // Guardar en cookie
+        jwtCookieUtil.setJwtCookie(response, token, jwtTokenUtil.getJwtExpirationMs() / 1000);
+
 
         // 8. Retornar respuesta con token y datos
         return new LoginResponseDTO(
-                token,
                 user.getUserId(),
                 employee.getEmployeeId(),
                 "E",
-                permissions
+                rol,
+                groupedPermissions
         );
     }
 
+
     @Override
-    public LoginResponseDTO authenticateClient(LoginRequestDTO loginRequest) {
+    public LoginResponseDTO authenticateClient(LoginRequestDTO loginRequest, HttpServletResponse response) {
         // 1. Buscar usuario por email
         User user = userService.getUserByEmailForAuth(loginRequest.email());
 
@@ -114,14 +129,19 @@ public class AuthServiceImpl implements IAuthService {
                 "C",
                 Collections.emptyList()
         );
+        // Guardar en cookie
+        jwtCookieUtil.setJwtCookie(response, token, jwtTokenUtil.getJwtExpirationMs() / 1000);
+
 
         // 7. Retornar respuesta con token y datos
         return new LoginResponseDTO(
-                token,
+
                 user.getUserId(),
                 client.getClientId(),
                 "C",
-                Collections.emptySet()
+                "Cliente",
+                null
         );
     }
+
 }
