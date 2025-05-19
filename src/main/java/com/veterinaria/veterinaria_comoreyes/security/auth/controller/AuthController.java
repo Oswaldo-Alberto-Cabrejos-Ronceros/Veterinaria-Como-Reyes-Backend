@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.service.IAuthService;
@@ -46,6 +47,16 @@ public class AuthController {
             HttpServletResponse response) {
 
         LoginResponseDTO dto = authService.authenticateClient(request, response);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/login/register")
+    public ResponseEntity<LoginResponseDTO> register(
+            @RequestBody @Valid ClientDTO clientDTO,
+            HttpServletResponse response) {
+
+        LoginResponseDTO dto = authService.registerClient(clientDTO, response);
 
         return ResponseEntity.ok(dto);
     }

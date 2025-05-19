@@ -56,10 +56,10 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     @Override
     public UserDTO createUser(UserDTO userDTO) {
-
+        /*
         //Validar que el email no este registrado con otro usuario
         validateEmailForNewUser(userDTO.getEmail());
-
+        */
         User user = userMapper.maptoUser(userDTO);
         user.setPassword(passwordUtil.encodePassword(user.getPassword()));
         user.setStatus(true);

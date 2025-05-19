@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.config;
+package com.veterinaria.veterinaria_comoreyes.security.auth.config;
 
 import com.veterinaria.veterinaria_comoreyes.security.auth.filter.JwtAuthorizationFilter;
 import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;

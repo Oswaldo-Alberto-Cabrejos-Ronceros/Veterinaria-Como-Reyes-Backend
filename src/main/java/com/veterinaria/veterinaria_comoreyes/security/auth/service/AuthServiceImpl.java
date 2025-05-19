@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.service;
 
+import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
@@ -143,5 +144,34 @@ public class AuthServiceImpl implements IAuthService {
                 null
         );
     }
+
+    @Override
+    public LoginResponseDTO registerClient(ClientDTO clientDTO, HttpServletResponse response) {
+
+        ClientDTO client = clientService.createClient(clientDTO);
+
+        // 6. Generar token JWT (clientes no tienen permisos)
+        String token = jwtTokenUtil.generateToken(
+                client.getUser().getUserId(),
+                client.getClientId(),
+                "C",
+                Collections.emptyList()
+        );
+        // Guardar en cookie
+        jwtCookieUtil.setJwtCookie(response, token, jwtTokenUtil.getJwtExpirationMs() / 1000);
+
+
+        // 7. Retornar respuesta con token y datos
+        return new LoginResponseDTO(
+
+                client.getUser().getUserId(),
+                client.getClientId(),
+                "C",
+                "Cliente",
+                null
+        );
+
+    }
+
 
 }
