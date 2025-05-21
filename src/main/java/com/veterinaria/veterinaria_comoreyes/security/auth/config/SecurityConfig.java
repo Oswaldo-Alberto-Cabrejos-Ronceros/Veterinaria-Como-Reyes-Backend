@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.security.auth.config;
 import com.veterinaria.veterinaria_comoreyes.security.auth.filter.JwtAuthorizationFilter;
 import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;
 import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
+import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -33,7 +35,8 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtTokenUtil jwtTokenUtil,
                           AuthenticationConfiguration authenticationConfiguration,
-                          JwtCookieUtil jwtCookieUtil) {
+                          JwtCookieUtil jwtCookieUtil,
+                          IUserService userService) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtCookieUtil = jwtCookieUtil;
@@ -59,7 +62,8 @@ public class SecurityConfig {
 
                 // 4) Filtro de autorización: lee cookie “jwtToken” y valida
                 .addFilterBefore(
-                        new JwtAuthorizationFilter(jwtTokenUtil, jwtCookieUtil),
+                        new JwtAuthorizationFilter(jwtTokenUtil,
+                                                   jwtCookieUtil),
                         UsernamePasswordAuthenticationFilter.class
                 )
 

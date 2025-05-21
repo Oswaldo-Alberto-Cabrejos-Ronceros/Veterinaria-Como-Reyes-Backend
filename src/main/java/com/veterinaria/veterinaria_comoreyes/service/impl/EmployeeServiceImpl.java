@@ -68,7 +68,14 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public EmployeeDTO getEmployeeByUser(UserDTO userDTO) {
-        return null;
+
+        Employee employee = employeeRepository
+                .findByUser(userDTO)
+                .orElseThrow(() ->
+                        new RuntimeException("Empleado no encontrado para el usuario ID: " + userDTO.getUserId())
+                );
+
+        return employeeMapper.mapToEmployeeDTO(employee);
     }
 
     @Override
@@ -272,43 +279,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 .filter(role -> Boolean.TRUE.equals(role.getStatus()))
                 .min(Comparator.comparingInt(Role::getPosition))
                 .map(Role::getName)
-                .orElse("Sin rol");
-    }
-
-
-    /**
-    *   OBTENER TODOS LOS PERMISOS VINCULADOS A SUS ROLES DEL EMPLEDO ID PARA EL TOKEN
-     */
-    @Override
-    public List<String> getEmployeePermissions(Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
-
-        return employee.getRoles().stream()
-                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
-                .flatMap(role -> role.getPermissions().stream()
-                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus())))
-                .map(Permission::getActionCode)
-                .distinct()
-                .collect(Collectors.toList());
-    }
-    /**
-     *   OBTENER TODOS LOS PERMISOS VINCULADOS A SUS ROLES DEL EMPLEDO ID EN FORMATO DESEADO POR EL FRONT
-     */
-    @Override
-    public Map<String, List<String>> getGroupedPermissions(Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
-
-        return employee.getRoles().stream()
-                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
-                .flatMap(role -> role.getPermissions().stream()
-                        .filter(permission -> Boolean.TRUE.equals(permission.getStatus())))
-                .distinct()
-                .collect(Collectors.groupingBy(
-                        Permission::getModule,
-                        Collectors.mapping(Permission::getName, Collectors.toList())
-                ));
+                .orElse("Sin Rol");
     }
 
     @Override

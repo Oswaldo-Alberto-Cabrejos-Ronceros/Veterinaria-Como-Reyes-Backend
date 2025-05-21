@@ -3,16 +3,15 @@ package com.veterinaria.veterinaria_comoreyes.security.auth.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.security.auth.models.CustomUserDetails;
 import com.veterinaria.veterinaria_comoreyes.security.auth.service.IAuthService;
 import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;
 import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -58,6 +57,21 @@ public class AuthController {
 
         LoginResponseDTO dto = authService.registerClient(clientDTO, response);
 
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/role/{roleId}")
+    public ResponseEntity<LoginResponseDTO> selectEmployeeRole(
+            @CookieValue("jwtToken") String token,
+            @PathVariable Long roleId,
+            HttpServletResponse response
+    ) {
+        // customUserDetails contiene getUserId()
+        LoginResponseDTO dto = authService.selectEmployeeRoleInAuth(
+                token,
+                roleId,
+                response
+        );
         return ResponseEntity.ok(dto);
     }
 }

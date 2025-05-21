@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.repository;
 
 import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    Optional<Employee> findByUser(User user);
+    Optional<Employee> findByUser(UserDTO user);
 
     boolean existsByPhone(String phone);
 

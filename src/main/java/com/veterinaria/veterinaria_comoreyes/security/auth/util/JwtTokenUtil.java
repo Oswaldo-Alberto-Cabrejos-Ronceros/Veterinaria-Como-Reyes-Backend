@@ -35,11 +35,11 @@ public class JwtTokenUtil {
         return jwtExpirationMs;
     }
 
-    public String generateToken(Long userId, Long entityId, String type, List<String> permissions) {
+    public String generateToken(Long userId, Long entityId, String roleName, List<String> permissions) {
         return Jwts.builder()
                 .setSubject(userId.toString())
                 .claim("entityId", entityId)
-                .claim("type", type)
+                .claim("roleName", roleName)
                 .claim("perms", permissions)
                 .setAudience("your-audience") // Add this line
                 .setIssuedAt(new Date())
@@ -79,5 +79,10 @@ public class JwtTokenUtil {
     public Long getEntityIdFromJwt(String token) {
         Claims claims = parseToken(token);
         return claims.get("entityId", Long.class);
+    }
+
+    public Long getUserIdFromJwt(String token) {
+        Claims claims = parseToken(token);
+        return Long.valueOf(claims.getSubject());
     }
 }

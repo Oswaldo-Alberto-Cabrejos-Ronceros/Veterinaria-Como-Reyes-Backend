@@ -98,4 +98,16 @@ public class RoleServiceImpl implements IRoleService {
 
         return roles;
     }
+
+    //Obtener la cantidad de roles activos que tiebne un empleadoId (using in Auth)
+    @Override
+    public long countActiveRolesForEmployee(Long employeeId) {
+        return roleRepository.countByEmployeesEmployeeIdAndStatusTrue(employeeId);
+    }
+
+    //Obtener la info de los roles activos de un empleadoId
+    @Override
+    public List<Role> getActiveRolesForEmployee(Long employeeId) {
+        return roleRepository.findByEmployeesEmployeeIdAndStatusTrue(employeeId);
+    }
 }

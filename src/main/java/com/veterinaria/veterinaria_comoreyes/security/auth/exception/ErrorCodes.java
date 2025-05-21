@@ -5,7 +5,8 @@ public enum ErrorCodes {
     ACCOUNT_DISABLED("AUTH-002"),
     USER_NOT_FOUND("AUTH-003"),
     INVALID_TOKEN("AUTH-004"),
-    TOKEN_EXPIRED("AUTH-005");
+    TOKEN_EXPIRED("AUTH-005"),
+    INVALID_ROLE("AUTH-006");
 
     private final String code;
 

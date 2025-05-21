@@ -1,6 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.Role;
+import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
@@ -13,8 +16,11 @@ import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import com.veterinaria.veterinaria_comoreyes.service.impl.EmployeeServiceImpl;
+import com.veterinaria.veterinaria_comoreyes.service.impl.PermissionServiceImpl;
+import com.veterinaria.veterinaria_comoreyes.service.impl.RoleServiceImpl;
 import com.veterinaria.veterinaria_comoreyes.util.PasswordEncodeUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +35,9 @@ public class AuthServiceImpl implements IAuthService {
     private final JwtTokenUtil jwtTokenUtil;
     private final EmployeeServiceImpl employeeService;
     private final JwtCookieUtil jwtCookieUtil;
+    private final PermissionServiceImpl permissionService;
+    private final RoleServiceImpl roleService;
+    private final UserMapper userMapper;
 
     @Autowired
     public AuthServiceImpl(
@@ -37,13 +46,19 @@ public class AuthServiceImpl implements IAuthService {
             PasswordEncodeUtil passwordEncodeUtil,
             JwtTokenUtil jwtTokenUtil,
             JwtCookieUtil jwtCookieUtil,
-            EmployeeServiceImpl employeeService) {
+            EmployeeServiceImpl employeeService,
+            PermissionServiceImpl permissionService,
+            RoleServiceImpl roleService,
+            UserMapper userMapper) {
         this.userService = userService;
         this.clientService = clientService;
         this.passwordEncodeUtil = passwordEncodeUtil;
         this.jwtTokenUtil = jwtTokenUtil;
         this.jwtCookieUtil = jwtCookieUtil;
         this.employeeService = employeeService;
+        this.permissionService = permissionService;
+        this.roleService = roleService;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -69,21 +84,39 @@ public class AuthServiceImpl implements IAuthService {
         // 5. Obtener datos del empleado
         Employee employee = employeeService.getEmployeeByUserForAuth(user);
 
-        // 6. Obtener permisos del empleado para el Spring
-        Set<String> permissions = new HashSet<>(employeeService.getEmployeePermissions(employee.getEmployeeId()));
 
-        // Permisos agrupados para el front-end
-        Map<String, List<String>> groupedPermissions = employeeService.getGroupedPermissions(employee.getEmployeeId());
+        // 6. Decidir rol y permisos iniciales
+        String nameRole;
+        List<String> permissionsInToken;
+        Map<String, List<String>> groupedPermissions = new HashMap<>();
 
-        String rol = employeeService.getMainRoleName(employee.getEmployeeId());
+        // 7. Obtener cantidad de roles asignados al empleado
+        Long cantidadDeRoles =roleService.countActiveRolesForEmployee(employee.getEmployeeId());
+
+        // 8. verificar si tiene 1 rol asignado
+        if (cantidadDeRoles == 1) {
+            List<Role> rolesActive = roleService.getActiveRolesForEmployee(employee.getEmployeeId());
+            // Sólo un rol: lo asignamos directo
+            Role role = rolesActive.get(0);
+            nameRole= role.getName();
+
+            // Usamos permissionService para traer actionCode y agrupados
+            permissionsInToken = permissionService.permissionsByRoleId(role.getRoleId());
+            groupedPermissions = permissionService.getGroupedPermissionsByRoleId(role.getRoleId());
+        } else {
+            // 0 ó ≥2 roles: token sin rol ni permisos, front deberá pedir selección
+            nameRole = null;
+            permissionsInToken = Collections.emptyList();
+            groupedPermissions =null;
+        }
 
 
-        // 7. Generar token JWT
+        // 9. Generar token JWT
         String token = jwtTokenUtil.generateToken(
                 user.getUserId(),
                 employee.getEmployeeId(),
-                "E",
-                new ArrayList<>(permissions)
+                nameRole,
+                new ArrayList<>(permissionsInToken)
         );
         // Guardar en cookie
         jwtCookieUtil.setJwtCookie(response, token, jwtTokenUtil.getJwtExpirationMs() / 1000);
@@ -93,8 +126,7 @@ public class AuthServiceImpl implements IAuthService {
         return new LoginResponseDTO(
                 user.getUserId(),
                 employee.getEmployeeId(),
-                "E",
-                rol,
+                nameRole,
                 groupedPermissions
         );
     }
@@ -139,7 +171,6 @@ public class AuthServiceImpl implements IAuthService {
 
                 user.getUserId(),
                 client.getClientId(),
-                "C",
                 "Cliente",
                 null
         );
@@ -166,12 +197,61 @@ public class AuthServiceImpl implements IAuthService {
 
                 client.getUser().getUserId(),
                 client.getClientId(),
-                "C",
                 "Cliente",
                 null
         );
 
     }
 
+    @Transactional
+    @Override
+    public LoginResponseDTO selectEmployeeRoleInAuth(
+            String token,
+            Long roleId,
+            HttpServletResponse response
+    ) {
+        Long userId = jwtTokenUtil.getUserIdFromJwt(token);
+
+        // 1. Obtener al user y al employee
+        UserDTO userDTO = userService.getUserById(userId);
+        User user = userMapper.maptoUser(userDTO);
+
+        Employee emp = employeeService.getEmployeeByUserForAuth(user);
+
+        // 2. Obtener permisos (action_code) de ese rol par el spring
+        List<String> permisos = permissionService.permissionsByRoleId(roleId);
+
+        //3. obtener el nombre del Rol escogido
+        String nameRole = emp.getRoles().stream()
+                .filter(r -> r.getRoleId().equals(roleId))
+                .findFirst()
+                .orElseThrow(() -> new AuthException(
+                        "Rol no asignado al empleado",
+                        ErrorCodes.INVALID_ROLE.getCode()
+                ))
+                .getName();
+
+        // 4. Generar nuevo token con el rol escogido y sus permisos correspondientes
+        String newToken = jwtTokenUtil.generateToken(
+                user.getUserId(),
+                emp.getEmployeeId(),
+                nameRole,
+                permisos
+        );
+
+        // 5. Reemplazar cookie
+        jwtCookieUtil.setJwtCookie(response, newToken, jwtTokenUtil.getJwtExpirationMs() / 1000);
+
+        // 6. Agrupar permisos para el front
+        Map<String, List<String>> permissionsInGruop = permissionService.getGroupedPermissionsByRoleId(roleId);
+
+        // 7. Devolver DTO con el nuevo rol y permisos
+        return new LoginResponseDTO(
+                user.getUserId(),
+                emp.getEmployeeId(),
+                nameRole,
+                permissionsInGruop
+        );
+    }
 
 }
