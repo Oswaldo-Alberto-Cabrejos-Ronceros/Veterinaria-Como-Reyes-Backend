@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.util;
 
 import com.veterinaria.veterinaria_comoreyes.util.CookieUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,7 @@ public class JwtCookieUtil extends CookieUtil {
     public Optional<String> getTokenFromCookies(HttpServletRequest request) {
         return getCookieValue(request, JWT_COOKIE_NAME);
     }
+
 }
 
 

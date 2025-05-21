@@ -254,4 +254,11 @@ public class AuthServiceImpl implements IAuthService {
         );
     }
 
+    @Override
+    public void logout(HttpServletResponse response) {
+        // Aquí eliminamos la cookie JWT
+        jwtCookieUtil.deleteJwtCookie(response);
+        // Si tienes cache o tokens en Redis, aquí también limpiarías (si aplica)
+    }
+
 }

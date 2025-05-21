@@ -21,4 +21,6 @@ public interface IAuthService {
             Long roleId,
             HttpServletResponse response
     );
+
+    void logout(HttpServletResponse response);
 }

@@ -13,19 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final IAuthService authService;
-    private final JwtCookieUtil jwtCookieUtil;
-    private final JwtTokenUtil jwtTokenUtil;
 
-    public AuthController(IAuthService authService,
-                          JwtCookieUtil jwtCookieUtil,
-                          JwtTokenUtil jwtTokenUtil) {
+    public AuthController(IAuthService authService) {
         this.authService = authService;
-        this.jwtCookieUtil= jwtCookieUtil;
-        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @PostMapping("/login/employee")
@@ -73,5 +69,11 @@ public class AuthController {
                 response
         );
         return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.ok().body(Map.of("message", "Sesión cerrada correctamente"));
     }
 }
