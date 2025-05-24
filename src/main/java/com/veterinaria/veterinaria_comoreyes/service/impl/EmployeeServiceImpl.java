@@ -87,7 +87,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Transactional
     @Override
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
-        /*
+
         validatePhoneAvailable(employeeDTO.getPhone());
 
         if (employeeRepository.existsByDni(employeeDTO.getDni())) {
@@ -101,7 +101,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 employeeDTO.getLastName());
 
         headquarterService.validateHeadquarterAvailable(employeeDTO.getHeadquarter().getHeadquarterId());
-        */
+
         if (employeeDTO.getUser() != null) {
             UserDTO userDTO = new UserDTO();
             userDTO.setType("E");

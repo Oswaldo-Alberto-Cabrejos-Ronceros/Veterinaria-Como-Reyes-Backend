@@ -1,17 +1,20 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.util;
-
 import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
 import com.veterinaria.veterinaria_comoreyes.security.auth.exception.ErrorCodes;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
+
+
 
 @Component
 public class JwtTokenUtil {
@@ -22,12 +25,13 @@ public class JwtTokenUtil {
     @Value("${jwt.expiration}")
     private int jwtExpirationMs;
 
-    private Key key;
+    private SecretKey key;
 
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
+
 
     public int getJwtExpirationMs() {
         return jwtExpirationMs;
@@ -35,15 +39,15 @@ public class JwtTokenUtil {
 
     public String generateToken(Long userId, Long entityId, String roleName, List<String> permissions) {
         return Jwts.builder()
-                .setSubject(userId.toString())
+                .subject(userId.toString())
                 .claim("entityId", entityId)
                 .claim("roleName", roleName)
                 .claim("perms", permissions)
                 .claim("type", "access")
-                .setAudience("your-audience")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS512)
+                .audience().add("your-audience").and()
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(key, Jwts.SIG.HS512)
                 .compact();
     }
 
@@ -53,22 +57,22 @@ public class JwtTokenUtil {
         Date newExpiration = new Date(now.getTime() + jwtExpirationMs);
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(claims.getSubject())
+                .claims(claims)
+                .subject(claims.getSubject())
                 .claim("type", "access")
-                .setIssuedAt(now)
-                .setExpiration(newExpiration)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .issuedAt(now)
+                .expiration(newExpiration)
+                .signWith(key, Jwts.SIG.HS512)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .requireAudience("your-audience")
-                    .setSigningKey(key)
+            Jwts.parser()
+                    .verifyWith(key)
+                    .require("aud", "your-audience") // ← Validación directa
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -77,11 +81,11 @@ public class JwtTokenUtil {
 
     public Claims parseToken(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
+            return Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (ExpiredJwtException e) {
             throw new AuthException("Token expirado", ErrorCodes.TOKEN_EXPIRED.getCode());
         } catch (JwtException e) {
@@ -92,28 +96,30 @@ public class JwtTokenUtil {
     public Long getUserIdFromJwt(String token) {
         return Long.valueOf(parseToken(token).getSubject());
     }
+
     public Long getEntityIdFromJwt(String token) {
         Claims claims = parseToken(token);
         return claims.get("entityId", Long.class);
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
+
     public Date getExpirationDateFromToken(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
+            return Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getExpiration();
         } catch (ExpiredJwtException e) {
-            return e.getClaims().getExpiration(); // Aún así retorna la fecha de expiración
+            return e.getClaims().getExpiration();
         }
     }
 }

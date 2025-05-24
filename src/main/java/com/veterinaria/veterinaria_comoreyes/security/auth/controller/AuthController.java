@@ -3,16 +3,10 @@ package com.veterinaria.veterinaria_comoreyes.security.auth.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
-import com.veterinaria.veterinaria_comoreyes.security.auth.models.CustomUserDetails;
 import com.veterinaria.veterinaria_comoreyes.security.auth.service.IAuthService;
-import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;
-import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -78,9 +72,4 @@ public class AuthController {
         return ResponseEntity.ok().body(Map.of("message", "Sesión cerrada correctamente"));
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshJwtToken(HttpServletRequest request, HttpServletResponse response) {
-        authService.refreshToken(request, response);
-        return ResponseEntity.ok("Token refrescado correctamente");
-    }
 }

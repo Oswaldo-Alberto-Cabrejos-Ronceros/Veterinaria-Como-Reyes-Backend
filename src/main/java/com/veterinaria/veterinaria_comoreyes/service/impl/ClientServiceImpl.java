@@ -97,7 +97,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public ClientDTO createClient(ClientDTO clientDTO) {
 
-        /*
+
         validatePhoneAvailable(clientDTO.getPhone());
 
         if (clientRepository.existsByDni(clientDTO.getDni())) {
@@ -107,7 +107,7 @@ public class ClientServiceImpl implements IClientService {
         reniecService.validateIdentityReniec(clientDTO.getDni(), clientDTO.getName(), clientDTO.getLastName());
 
         headquarterService.validateHeadquarterAvailable(clientDTO.getHeadquarter().getHeadquarterId());
-        */
+
         System.out.println("Client ID antes de guardar: " + clientDTO.getClientId());
         if (clientDTO.getUser() != null) {
             UserDTO userDTO = new UserDTO();

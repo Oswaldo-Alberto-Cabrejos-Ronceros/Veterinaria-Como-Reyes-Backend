@@ -11,6 +11,14 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 @Component
 public class JwtRefreshTokenUtil {
@@ -21,38 +29,34 @@ public class JwtRefreshTokenUtil {
     @Value("${jwt.refresh.expiration}")
     private int REFRESH_EXPIRATION;
 
-    /**
-     * COODINAR EL TIEMPO SI ES MAYOR A 24 DIAS EN MS MEJRO LONG SI No INT
-     */
     public int getRefreshExpirationMs() {
         return REFRESH_EXPIRATION;
     }
 
-    private Key key;
+    private SecretKey key;
 
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(refreshSecret.getBytes(StandardCharsets.UTF_8));
     }
 
-
     public String generateRefreshToken(Long userId) {
         return Jwts.builder()
-                .setSubject(userId.toString())
+                .subject(userId.toString())  // == .setSubject()
                 .claim("type", "refresh")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-                .signWith(key)
+                .issuedAt(new Date())        // == .setIssuedAt()
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))  // == .setExpiration()
+                .signWith(key)               // Algoritmo implícito (HS256)
                 .compact();
     }
 
     public boolean validateRefreshToken(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();  // == .getBody()
             return "refresh".equals(claims.get("type"));
         } catch (JwtException e) {
             return false;
@@ -60,11 +64,11 @@ public class JwtRefreshTokenUtil {
     }
 
     public Long getUserIdFromToken(String token) {
-        return Long.valueOf(Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Long.valueOf(Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .getSubject());
     }
 }
