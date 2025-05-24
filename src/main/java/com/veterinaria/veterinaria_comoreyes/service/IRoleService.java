@@ -21,4 +21,7 @@ public interface IRoleService {
 
     List<Role> validateAndFetchRoles(List<RoleDTO> roleDTOs);
 
+    long countActiveRolesForEmployee(Long employeeId);
+
+    List<Role> getActiveRolesForEmployee(Long employeeId);
 }

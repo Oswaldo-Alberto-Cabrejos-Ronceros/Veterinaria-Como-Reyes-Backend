@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionServiceImpl implements IPermissionService {
@@ -139,4 +141,32 @@ public class PermissionServiceImpl implements IPermissionService {
         Permission updatedPermission = permissionRepository.save(permission);
         return permissionMapper.maptoPermissionDTO(updatedPermission);
     }
+
+    //Obtener todos los permisos(action_code) activos de un rolId
+    @Override
+    public List<String> permissionsByRoleId(Long roleId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + roleId));
+
+        return permissionRepository
+                .findByRolesRoleIdAndStatusTrue(roleId)
+                .stream()
+                .map(Permission::getActionCode)
+                .collect(Collectors.toList());
+    }
+
+    //Obtener todos los (name) de los permisos en el formato deseado para el front-end
+    @Override
+    public Map<String, List<String>> getGroupedPermissionsByRoleId(Long roleId) {
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + roleId));
+
+        return role.getPermissions().stream()
+                .filter(permission -> Boolean.TRUE.equals(permission.getStatus()))
+                .collect(Collectors.groupingBy(
+                        Permission::getModule,
+                        Collectors.mapping(Permission::getName, Collectors.toList())
+                ));
+    }
+
 }

@@ -1,31 +1,23 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.service.IAuthService;
-import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtCookieUtil;
-import com.veterinaria.veterinaria_comoreyes.security.auth.util.JwtTokenUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final IAuthService authService;
-    private final JwtCookieUtil jwtCookieUtil;
-    private final JwtTokenUtil jwtTokenUtil;
 
-    public AuthController(IAuthService authService,
-                          JwtCookieUtil jwtCookieUtil,
-                          JwtTokenUtil jwtTokenUtil) {
+    public AuthController(IAuthService authService) {
         this.authService = authService;
-        this.jwtCookieUtil= jwtCookieUtil;
-        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     @PostMapping("/login/employee")
@@ -49,4 +41,35 @@ public class AuthController {
 
         return ResponseEntity.ok(dto);
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<LoginResponseDTO> register(
+            @RequestBody @Valid ClientDTO clientDTO,
+            HttpServletResponse response) {
+
+        LoginResponseDTO dto = authService.registerClient(clientDTO, response);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/role/{roleId}")
+    public ResponseEntity<LoginResponseDTO> selectEmployeeRole(
+            @CookieValue("jwtToken") String token,
+            @PathVariable Long roleId,
+            HttpServletResponse response
+    ) {
+        LoginResponseDTO dto = authService.selectEmployeeRoleInAuth(
+                token,
+                roleId,
+                response
+        );
+        return ResponseEntity.ok(dto);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.ok().body(Map.of("message", "Sesión cerrada correctamente"));
+    }
+
 }

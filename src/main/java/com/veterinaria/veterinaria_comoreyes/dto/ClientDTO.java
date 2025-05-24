@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class ClientDTO {
 
-    private long clientId;
+    private Long clientId;
 
     // en ClientDTO
     @NotBlank @Size(min=8, max=8) @Pattern(regexp = "\\d{8}")
@@ -43,7 +43,7 @@ public class ClientDTO {
     private LocalDate birthDate;
 
     @NotBlank(message = "La direccion de imagen es obligatoria")
-    private String dirImage="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgpnmY-O9iz09Jka-vGvK2Lv-U-pL3H18CfA&s";
+    private String dirImage="user.webp";
 
     @NotNull(message = "La sede es obligatoria")
     private Headquarter headquarter;

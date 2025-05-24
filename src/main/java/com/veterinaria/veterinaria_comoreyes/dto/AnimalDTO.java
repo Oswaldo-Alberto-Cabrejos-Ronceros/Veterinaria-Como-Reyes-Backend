@@ -4,6 +4,7 @@ package com.veterinaria.veterinaria_comoreyes.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "DTO para animales")
 public class AnimalDTO {
 
     private Long animalId;

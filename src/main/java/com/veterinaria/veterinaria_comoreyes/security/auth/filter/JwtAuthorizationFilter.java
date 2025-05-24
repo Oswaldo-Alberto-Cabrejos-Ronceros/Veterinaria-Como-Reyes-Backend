@@ -42,8 +42,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     return (h != null && h.startsWith("Bearer ")) ? h.substring(7) : null;
                 });
 
-        System.out.println(">> JWT token desde cookie/header: " + token);
-
         if (token != null && jwtTokenUtil.validateToken(token)) {
             Claims claims = jwtTokenUtil.parseToken(token);
 
