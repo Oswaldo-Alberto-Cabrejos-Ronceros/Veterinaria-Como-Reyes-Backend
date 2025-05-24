@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.security.auth.service;
 import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 
@@ -23,4 +24,6 @@ public interface IAuthService {
     );
 
     void logout(HttpServletResponse response);
+
+    void refreshToken(HttpServletRequest request, HttpServletResponse response);
 }

@@ -5,7 +5,6 @@ import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.mapper.AnimalMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.AnimalRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.BreedRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
@@ -21,7 +20,6 @@ public class AnimalServiceImpl implements IAnimalService {
 
     private final AnimalRepository animalRepository;
     private final ClientRepository clientRepository;
-    private final BreedRepository breedRepository;
     private final FilterStatus filterStatus;
     private final AnimalMapper animalMapper;
 
@@ -29,13 +27,11 @@ public class AnimalServiceImpl implements IAnimalService {
     public AnimalServiceImpl(
             AnimalRepository animalRepository,
             ClientRepository clientRepository,
-            BreedRepository breedRepository,
             FilterStatus filterStatus,
             AnimalMapper animalMapper
     ) {
         this.animalRepository = animalRepository;
         this.clientRepository = clientRepository;
-        this.breedRepository = breedRepository;
         this.filterStatus = filterStatus;
         this.animalMapper = animalMapper;
     }

@@ -8,10 +8,10 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-
 
 @Component
 public class JwtTokenUtil {
@@ -26,11 +26,9 @@ public class JwtTokenUtil {
 
     @PostConstruct
     public void init() {
-        // Usar Keys.secretKeyFor para generar una clave segura para HS512
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Método para obtener el tiempo de expiración
     public int getJwtExpirationMs() {
         return jwtExpirationMs;
     }
@@ -41,20 +39,49 @@ public class JwtTokenUtil {
                 .claim("entityId", entityId)
                 .claim("roleName", roleName)
                 .claim("perms", permissions)
-                .setAudience("your-audience") // Add this line
+                .claim("type", "access")
+                .setAudience("your-audience")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
+    public String refreshToken(String token) {
+        Claims claims = extractAllClaims(token);
+        Date now = new Date();
+        Date newExpiration = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(claims.getSubject())
+                .claim("type", "access")
+                .setIssuedAt(now)
+                .setExpiration(newExpiration)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .requireAudience("your-audience")
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     public Claims parseToken(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(key) // Usar la clave para verificar la firma
+                    .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(token) // Parsear el token
-                    .getBody(); // Obtener las reclamaciones
+                    .parseClaimsJws(token)
+                    .getBody();
         } catch (ExpiredJwtException e) {
             throw new AuthException("Token expirado", ErrorCodes.TOKEN_EXPIRED.getCode());
         } catch (JwtException e) {
@@ -62,27 +89,31 @@ public class JwtTokenUtil {
         }
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder()
-                    .requireAudience("your-audience") // <-- THIS LINE HERE
-                    .setSigningKey(key) // Verificar la firma
-                    .build()
-                    .parseClaimsJws(token); // Intentar parsear el token
-            return true; // Si no lanza excepciones, el token es válido
-        } catch (JwtException | IllegalArgumentException e) {
-            return false; // Si hay una excepción, el token no es válido
-        }
+    public Long getUserIdFromJwt(String token) {
+        return Long.valueOf(parseToken(token).getSubject());
     }
-
-    // EXTRAER EL ID DEL TOKEN PARA CONFIRMAR IDENTIDAD IN ACTIONS
     public Long getEntityIdFromJwt(String token) {
         Claims claims = parseToken(token);
         return claims.get("entityId", Long.class);
     }
 
-    public Long getUserIdFromJwt(String token) {
-        Claims claims = parseToken(token);
-        return Long.valueOf(claims.getSubject());
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+    public Date getExpirationDateFromToken(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims().getExpiration(); // Aún así retorna la fecha de expiración
+        }
     }
 }
