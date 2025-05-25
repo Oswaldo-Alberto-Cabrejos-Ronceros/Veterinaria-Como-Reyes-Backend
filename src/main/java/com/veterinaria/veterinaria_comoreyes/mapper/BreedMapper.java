@@ -5,7 +5,8 @@ import com.veterinaria.veterinaria_comoreyes.dto.BreedDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import org.mapstruct.Mapper;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class,
+        componentModel = "spring")
 public interface BreedMapper {
 
     BreedDTO maptoBreedDTO(Breed breed);

@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class,componentModel = "spring")
 public interface RoleMapper {
 
     RoleDTO mapToRoleDTO(Role role);

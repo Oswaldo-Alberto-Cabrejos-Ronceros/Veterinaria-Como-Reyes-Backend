@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(config = GlobalMapperConfig.class, uses = {VeterinaryServiceMapper.class})
+@Mapper(config = GlobalMapperConfig.class, uses = {VeterinaryServiceMapper.class},componentModel = "spring")
 public interface HeadquarterVetServiceMapper {
 
     @Mapping(source = "headquarter.headquarterId", target = "headquarterId")
