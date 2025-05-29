@@ -16,8 +16,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @Entity
 @SuperBuilder
-@Table(name = "headquarter_service")
-@Filter(name  ="estadoActivo", condition = "estado = :estado")
+@Filter(name  ="statusActive", condition = "status = :status")
 public class HeadquarterVetService extends EntityWithStatus{
 
     @Id

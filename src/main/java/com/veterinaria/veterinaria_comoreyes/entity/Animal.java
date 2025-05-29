@@ -10,14 +10,13 @@ import org.hibernate.annotations.Filter;
 
 import java.time.LocalDate;
 
-@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-//para filtro
 @Filter(name = "statusActive", condition = "status = :status")
+@Entity
 public class Animal extends EntityWithStatus{
 
     @Id
