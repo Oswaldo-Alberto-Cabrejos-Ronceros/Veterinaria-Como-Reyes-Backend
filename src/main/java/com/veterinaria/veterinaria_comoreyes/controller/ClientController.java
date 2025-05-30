@@ -27,8 +27,8 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    //Obtener info client
-     //@PreAuthorize("hasAuthority('drop_client')")
+    //Obtener info client -> lista de permisos
+     @PreAuthorize("hasAuthority('drop_client')")
     @GetMapping("/{id}")
     public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
         ClientDTO client = clientService.getClientById(id);

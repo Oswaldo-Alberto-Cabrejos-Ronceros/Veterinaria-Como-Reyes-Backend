@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class HeadquarterDTO {
 
-    private long headquarterId;
+    private Long headquarterId;
 
     @NotBlank(message = "El nombre clave de la sede es obligatoria")
     @Size(max = 40, message = "El nombre de la sede no puede tener más de 40 caracteres")

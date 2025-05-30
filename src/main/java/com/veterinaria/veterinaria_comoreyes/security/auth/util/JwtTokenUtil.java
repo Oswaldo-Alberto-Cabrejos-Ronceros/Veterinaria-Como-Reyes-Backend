@@ -51,21 +51,6 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public String refreshToken(String token) {
-        Claims claims = extractAllClaims(token);
-        Date now = new Date();
-        Date newExpiration = new Date(now.getTime() + jwtExpirationMs);
-
-        return Jwts.builder()
-                .claims(claims)
-                .subject(claims.getSubject())
-                .claim("type", "access")
-                .issuedAt(now)
-                .expiration(newExpiration)
-                .signWith(key, Jwts.SIG.HS512)
-                .compact();
-    }
-
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
@@ -121,5 +106,19 @@ public class JwtTokenUtil {
         } catch (ExpiredJwtException e) {
             return e.getClaims().getExpiration();
         }
+    }
+    public String refreshToken(String token) {
+        Claims claims = extractAllClaims(token);
+        Date now = new Date();
+        Date newExpiration = new Date(now.getTime() + jwtExpirationMs);
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(claims.getSubject())
+                .claim("type", "access")
+                .issuedAt(now)
+                .expiration(newExpiration)
+                .signWith(key, Jwts.SIG.HS512)
+                .compact();
     }
 }

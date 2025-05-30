@@ -103,7 +103,6 @@ public class AuthServiceImpl implements IAuthService {
         // 5. Obtener datos del empleado
         Employee employee = employeeService.getEmployeeByUserForAuth(user);
 
-
         // 6. Decidir rol y permisos iniciales
         String nameRole;
         List<String> permissionsInToken;
@@ -123,8 +122,9 @@ public class AuthServiceImpl implements IAuthService {
             permissionsInToken = permissionService.permissionsByRoleId(role.getRoleId());
             groupedPermissions = permissionService.getGroupedPermissionsByRoleId(role.getRoleId());
         } else {
-            // 0 ó ≥2 roles: token sin rol ni permisos, front deberá pedir selección
-            nameRole = null;
+            // 0 ó ≥2 roles: token con el rol de mayor jerarquia
+
+            nameRole = employeeService.getMainRoleName(employee.getEmployeeId());
             permissionsInToken = Collections.emptyList();
             groupedPermissions =null;
         }

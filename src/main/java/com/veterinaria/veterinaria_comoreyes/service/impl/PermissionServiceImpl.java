@@ -169,4 +169,17 @@ public class PermissionServiceImpl implements IPermissionService {
                 ));
     }
 
+    public Map<String, List<String>> getGroupedPermissionsByRoleName(String roleName) {
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con nombre: " + roleName));
+
+        return role.getPermissions().stream()
+                .filter(permission -> Boolean.TRUE.equals(permission.getStatus()))
+                .collect(Collectors.groupingBy(
+                        Permission::getModule,
+                        Collectors.mapping(Permission::getName, Collectors.toList())
+                ));
+    }
+
+
 }
