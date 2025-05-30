@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Transactional
     @Override
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
-
+        filterStatus.activeFilterStatus(true);
         Category category = categoryMapper.maptoCategory(categoryDTO);
         return categoryMapper.maptoCategoryDTO(categoryRepository.save(category));
     }
