@@ -5,7 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.VeterinaryService;
 import org.mapstruct.Mapper;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class,componentModel = "spring")
 public interface VeterinaryServiceMapper {
 
     VeterinaryServiceDTO mapToServiceDTO(VeterinaryService veterinaryService);

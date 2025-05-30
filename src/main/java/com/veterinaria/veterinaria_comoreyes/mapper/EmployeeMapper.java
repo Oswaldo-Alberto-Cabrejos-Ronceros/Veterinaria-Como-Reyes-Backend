@@ -8,7 +8,8 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(config = GlobalMapperConfig.class, uses = {RoleMapper.class})
+@Mapper(config = GlobalMapperConfig.class, uses = {RoleMapper.class},
+        componentModel = "spring")
 public interface EmployeeMapper {
 
     @Mapping(source = "roles", target = "roles")

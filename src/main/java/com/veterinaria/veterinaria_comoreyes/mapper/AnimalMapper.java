@@ -8,7 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class,
+        componentModel = "spring")
 public interface AnimalMapper {
 
     @Mapping(source = "clientId", target = "client", qualifiedByName = "mapClient")

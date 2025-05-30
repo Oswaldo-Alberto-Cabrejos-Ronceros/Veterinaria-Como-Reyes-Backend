@@ -5,7 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.mapstruct.Mapper;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class,componentModel = "spring")
 public interface UserMapper {
 
     UserDTO maptoUserDTO(User user);

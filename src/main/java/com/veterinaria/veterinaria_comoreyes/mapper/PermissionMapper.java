@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(config = GlobalMapperConfig.class)
+@Mapper(config = GlobalMapperConfig.class,componentModel = "spring")
 public interface PermissionMapper {
 
     PermissionDTO maptoPermissionDTO(Permission permission);
