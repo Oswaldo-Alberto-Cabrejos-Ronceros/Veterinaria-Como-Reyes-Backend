@@ -66,7 +66,6 @@ public class BreedServiceImpl implements IBreedService {
     @Override
     public BreedDTO createBreed(BreedDTO breedDTO) {
         filterStatus.activeFilterStatus(true);
-        // Validar que la especie existe y está activa
         Long specieId = breedDTO.getSpecie().getSpecieId();
         Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
                 .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));

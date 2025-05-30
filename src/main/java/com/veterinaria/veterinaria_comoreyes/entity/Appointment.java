@@ -27,6 +27,7 @@ public class Appointment{
 
     private LocalDateTime creationDate;
 
+    @Column(name = "comentario")
     private String comment;
 
     private String cancellationNote;
@@ -36,14 +37,14 @@ public class Appointment{
     private StatusAppointment statusAppointment;
 
     @ManyToOne
-    @JoinColumn(name = "id_headquarter_vetService")
+    @JoinColumn(name = "id")
     private HeadquarterVetService headquarterVetService;
 
     @ManyToOne
-    @JoinColumn(name = "id_empleado")
+    @JoinColumn(name = "empleado_id")
     private Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "id_animal")
+    @JoinColumn(name = "animal_id")
     private Animal animal;
 }

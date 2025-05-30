@@ -9,5 +9,4 @@ public class VeterinariaComoreyesApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(VeterinariaComoreyesApplication.class, args);
 	}
-
 }

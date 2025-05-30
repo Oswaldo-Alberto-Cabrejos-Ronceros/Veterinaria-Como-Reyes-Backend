@@ -11,7 +11,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/headquarters")
 public class HeadquarterController {
-    /*
 
     @Autowired
     private IHeadquarterService headquarterService;
@@ -39,5 +38,5 @@ public class HeadquarterController {
     @DeleteMapping("/{id}")
     public void deleteHeadquarter(@PathVariable Long id) {
         headquarterService.deleteHeadquarter(id);
-    }*/
+    }
 }
