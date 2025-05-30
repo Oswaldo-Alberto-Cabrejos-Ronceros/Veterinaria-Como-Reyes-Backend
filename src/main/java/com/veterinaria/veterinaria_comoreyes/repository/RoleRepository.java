@@ -22,4 +22,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
      * Recupera la lista de roles con status=true para un empleado.
      */
     List<Role> findByEmployeesEmployeeIdAndStatusTrue(Long employeeId);
+    Optional<Role> findByName(String nameRole);
 }

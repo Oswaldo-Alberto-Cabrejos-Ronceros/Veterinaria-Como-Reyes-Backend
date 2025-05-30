@@ -31,7 +31,7 @@ public class VeterinaryServiceDTO {
     private float price;
 
 
-    private LocalTime duration;
+    private Integer duration;
 
     @NotNull
     private String dirImage;

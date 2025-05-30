@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Headquarter;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -6,13 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ HeadquarterDTO of Headquarter(entity):
+ To add or update the entire entity
+ */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class HeadquarterDTO {
 
-    private long headquarterId;
+    private Long headquarterId;
 
     @NotBlank(message = "El nombre clave de la sede es obligatoria")
     @Size(max = 40, message = "El nombre de la sede no puede tener más de 40 caracteres")

@@ -20,9 +20,12 @@ import org.hibernate.annotations.Filter;
 //para filtro
 @Filter(name = "statusActive", condition = "status = :status")
 public class Category extends EntityWithStatus {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
+
     private String name;
+
     private String description;
 }

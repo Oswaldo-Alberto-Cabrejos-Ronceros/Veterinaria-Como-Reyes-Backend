@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/api/client/**",
                                 "/api-docs/**",
                                 "/swagger-ui-custom.html",
                                 "/swagger-ui/**",
@@ -59,7 +60,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/proxy/**",
                                 "/actuator/**",
-                                "/api/auth/**"
+                                "/api/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -83,6 +84,5 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-
-    }
+}
 

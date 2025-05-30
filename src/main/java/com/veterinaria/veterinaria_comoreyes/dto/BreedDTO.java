@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BreedDTO {
 
-    private long breedId;
+    private Long breedId;
 
     @NotNull
     private Specie specie;

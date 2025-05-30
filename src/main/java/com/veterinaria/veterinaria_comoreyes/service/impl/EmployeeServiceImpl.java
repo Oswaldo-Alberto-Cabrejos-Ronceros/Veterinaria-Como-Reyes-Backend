@@ -239,7 +239,8 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id) {
-        Long employeeIdFromToken = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
+
+        Long employeeIdFromToken =jwtTokenUtil.getEntityIdFromJwt(token);
 
         if (!employeeIdFromToken.equals(id)) {
             throw new RuntimeException("No tienes permiso para acceder a esta información.");
@@ -279,7 +280,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
                 .filter(role -> Boolean.TRUE.equals(role.getStatus()))
                 .min(Comparator.comparingInt(Role::getPosition))
                 .map(Role::getName)
-                .orElse("Sin Rol");
+                .orElse(null);
     }
 
     @Override

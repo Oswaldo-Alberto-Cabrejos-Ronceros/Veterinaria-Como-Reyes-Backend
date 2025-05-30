@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 public class PaymentMethodDTO {
 
-    private long paymentMethodId;
+    private Long paymentMethodId;
 
     @NotBlank(message = "El nombre del método de pago es obligatorio")
     @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres")

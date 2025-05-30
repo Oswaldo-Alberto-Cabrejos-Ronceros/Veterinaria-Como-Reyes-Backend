@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CategoryDTO {
 
-    private long categoryId;
+    private Long categoryId;
 
     @NotBlank(message = "El nombre de la categoría es obligatorio")
     @Size(max = 100, message = "El nombre no puede tener más de 100 caracteres")
@@ -20,4 +20,6 @@ public class CategoryDTO {
 
     @Size(max = 255, message = "La descripción no puede tener más de 255 caracteres")
     private String description;
+
+    private boolean status;
 }

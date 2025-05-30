@@ -16,7 +16,7 @@ public class MyInfoClientDTO {
     private String names;
     private String LastNames;
     private String phone;
-    private String headquarterName;
+    private String headquarterName; // agregar en arreglo en name sede y id
     private String role= "cliente";
 }
 
