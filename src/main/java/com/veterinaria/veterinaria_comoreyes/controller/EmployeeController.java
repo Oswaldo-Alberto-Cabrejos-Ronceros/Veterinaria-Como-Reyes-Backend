@@ -1,10 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.MyInfoClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.MyInfoEmployeeDTO;
-import com.veterinaria.veterinaria_comoreyes.mapper.EmployeeMapper;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.MyInfoEmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

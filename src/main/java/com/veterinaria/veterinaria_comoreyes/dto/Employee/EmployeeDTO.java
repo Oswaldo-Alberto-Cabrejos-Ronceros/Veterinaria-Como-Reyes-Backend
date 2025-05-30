@@ -1,7 +1,7 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Employee;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
-import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 
 import java.util.List;
 

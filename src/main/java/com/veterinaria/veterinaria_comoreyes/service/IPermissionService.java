@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.PermissionDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Permission.PermissionDTO;
 
 import java.util.List;
 import java.util.Map;

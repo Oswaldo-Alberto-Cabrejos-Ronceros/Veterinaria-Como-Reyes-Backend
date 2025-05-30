@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.RoleDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 
 

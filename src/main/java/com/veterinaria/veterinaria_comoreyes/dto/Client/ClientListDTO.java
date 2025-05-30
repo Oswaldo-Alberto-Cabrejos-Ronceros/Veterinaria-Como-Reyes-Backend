@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Client;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

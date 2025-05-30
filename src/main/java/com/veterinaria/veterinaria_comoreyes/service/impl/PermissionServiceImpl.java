@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.PermissionDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Permission.PermissionDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.mapper.PermissionMapper;

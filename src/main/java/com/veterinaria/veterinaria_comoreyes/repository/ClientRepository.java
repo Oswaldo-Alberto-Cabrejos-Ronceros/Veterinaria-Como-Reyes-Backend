@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.repository;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.springframework.data.domain.Page;

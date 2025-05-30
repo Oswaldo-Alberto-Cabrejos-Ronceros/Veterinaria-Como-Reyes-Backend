@@ -1,5 +1,5 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
-import com.veterinaria.veterinaria_comoreyes.dto.PermissionDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Permission.PermissionDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPermissionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

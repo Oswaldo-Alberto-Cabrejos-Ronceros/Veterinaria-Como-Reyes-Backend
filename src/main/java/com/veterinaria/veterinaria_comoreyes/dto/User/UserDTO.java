@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.User;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

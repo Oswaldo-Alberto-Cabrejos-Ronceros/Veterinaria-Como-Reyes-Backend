@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Payment_Method;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

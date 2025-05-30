@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.security.auth.service.IAuthService;

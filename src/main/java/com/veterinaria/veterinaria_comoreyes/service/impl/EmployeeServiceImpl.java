@@ -1,8 +1,10 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.*;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.MyInfoEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
-import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import com.veterinaria.veterinaria_comoreyes.security.auth.exception.AuthException;
@@ -25,8 +27,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class EmployeeServiceImpl implements IEmployeeService {
@@ -233,7 +233,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
     @Override
     public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status,
-            Long headquarterId, Pageable pageable) {
+                                                 Long headquarterId, Pageable pageable) {
         return employeeRepository.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
     }
 

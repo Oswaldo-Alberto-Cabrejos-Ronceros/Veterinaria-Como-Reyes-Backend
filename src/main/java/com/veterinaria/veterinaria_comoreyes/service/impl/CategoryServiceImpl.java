@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.CategoryDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Category;
 import com.veterinaria.veterinaria_comoreyes.mapper.CategoryMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.CategoryRepository;

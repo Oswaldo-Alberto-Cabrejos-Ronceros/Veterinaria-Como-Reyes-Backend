@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

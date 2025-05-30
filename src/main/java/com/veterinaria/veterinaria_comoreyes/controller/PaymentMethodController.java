@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.PaymentMethodDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentMethodService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

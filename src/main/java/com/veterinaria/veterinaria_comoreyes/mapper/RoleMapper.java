@@ -1,7 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
-import com.veterinaria.veterinaria_comoreyes.dto.RoleDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import org.mapstruct.Mapper;
 

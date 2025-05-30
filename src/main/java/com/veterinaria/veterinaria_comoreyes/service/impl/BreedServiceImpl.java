@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.BreedMapper;

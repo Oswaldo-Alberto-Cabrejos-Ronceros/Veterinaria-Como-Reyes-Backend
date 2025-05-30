@@ -1,7 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.security.auth.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.mapper.UserMapper;
 import com.veterinaria.veterinaria_comoreyes.security.auth.dto.LoginRequestDTO;

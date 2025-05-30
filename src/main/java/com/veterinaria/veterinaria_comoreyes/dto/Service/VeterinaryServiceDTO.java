@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Service;
 
 import com.veterinaria.veterinaria_comoreyes.entity.Category;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalTime;
 
 @Getter
 @Setter

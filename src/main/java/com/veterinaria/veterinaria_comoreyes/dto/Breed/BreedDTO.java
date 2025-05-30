@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Breed;
 
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import jakarta.validation.constraints.*;
