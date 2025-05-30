@@ -24,7 +24,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByEmployeeIdAndStatusTrue(Long id);
 
 
-    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO(" +
+    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO(" +
             "e.employeeId, " +
             "e.dni, " +
             "e.cmvp,"+

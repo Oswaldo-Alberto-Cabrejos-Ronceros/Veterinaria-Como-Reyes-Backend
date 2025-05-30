@@ -19,7 +19,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     boolean existsByDni(String dni);
 
-    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO(c.clientId, c.dni, c.name, c.lastName, c.headquarter.name,CASE WHEN c.status = true THEN 'Activo' ELSE 'Bloqueado' END) " +
+    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO(c.clientId, c.dni, c.name, c.lastName, c.headquarter.name,CASE WHEN c.status = true THEN 'Activo' ELSE 'Bloqueado' END) " +
             "FROM Client c WHERE " +
             "(:dni IS NULL OR c.dni = :dni) AND " +
             "(:name IS NULL OR c.name LIKE %:name%) AND " +

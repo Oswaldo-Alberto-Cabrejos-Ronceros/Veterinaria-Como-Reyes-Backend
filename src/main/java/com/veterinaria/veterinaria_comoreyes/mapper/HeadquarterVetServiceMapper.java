@@ -1,7 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
-import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterVetServiceDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.entity.HeadquarterVetService;
 import org.mapstruct.Mapper;

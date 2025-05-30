@@ -3,7 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.veterinaria.veterinaria_comoreyes.dto.HeadquarterVetServiceDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
 
 public interface IHeadquarterVetServiceService {
 
