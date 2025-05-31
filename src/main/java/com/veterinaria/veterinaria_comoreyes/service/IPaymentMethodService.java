@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.PaymentMethodDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodDTO;
 
 import java.util.List;
 

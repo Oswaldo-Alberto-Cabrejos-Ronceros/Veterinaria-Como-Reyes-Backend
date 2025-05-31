@@ -1,7 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
-import com.veterinaria.veterinaria_comoreyes.dto.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import org.mapstruct.Mapper;
 

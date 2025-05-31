@@ -1,10 +1,12 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

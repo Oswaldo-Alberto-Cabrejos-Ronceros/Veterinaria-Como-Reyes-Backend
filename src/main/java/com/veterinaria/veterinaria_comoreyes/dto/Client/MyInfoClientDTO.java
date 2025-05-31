@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Client;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class MyInfoClientDTO {
     private String names;
     private String LastNames;
     private String phone;
-    private String headquarterName;
+    private String headquarterName; // agregar en arreglo en name sede y id
     private String role= "cliente";
 }
 

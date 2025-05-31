@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;

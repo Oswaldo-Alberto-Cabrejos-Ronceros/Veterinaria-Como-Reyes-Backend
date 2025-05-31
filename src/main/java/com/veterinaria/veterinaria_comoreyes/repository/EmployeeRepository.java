@@ -1,11 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.repository;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
-import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
-import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
@@ -28,7 +24,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByEmployeeIdAndStatusTrue(Long id);
 
 
-    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.EmployeeListDTO(" +
+    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO(" +
             "e.employeeId, " +
             "e.dni, " +
             "e.cmvp,"+

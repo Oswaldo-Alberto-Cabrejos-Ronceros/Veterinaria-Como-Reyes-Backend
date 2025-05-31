@@ -1,8 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.mapper;
 
 import com.veterinaria.veterinaria_comoreyes.config.GlobalMapperConfig;
-import com.veterinaria.veterinaria_comoreyes.dto.AppointmentRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.AppointmentResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Appointment;
 import org.mapstruct.*;
 

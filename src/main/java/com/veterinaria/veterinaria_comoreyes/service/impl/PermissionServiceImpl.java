@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.PermissionDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Permission.PermissionDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Permission;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.mapper.PermissionMapper;
@@ -168,5 +168,18 @@ public class PermissionServiceImpl implements IPermissionService {
                         Collectors.mapping(Permission::getName, Collectors.toList())
                 ));
     }
+
+    public Map<String, List<String>> getGroupedPermissionsByRoleName(String roleName) {
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado con nombre: " + roleName));
+
+        return role.getPermissions().stream()
+                .filter(permission -> Boolean.TRUE.equals(permission.getStatus()))
+                .collect(Collectors.groupingBy(
+                        Permission::getModule,
+                        Collectors.mapping(Permission::getName, Collectors.toList())
+                ));
+    }
+
 
 }

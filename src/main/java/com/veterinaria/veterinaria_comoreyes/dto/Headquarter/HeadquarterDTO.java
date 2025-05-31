@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Headquarter;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ HeadquarterDTO of Headquarter(entity):
+ To add or update the entire entity
+ */
 @Getter
 @Setter
 @NoArgsConstructor

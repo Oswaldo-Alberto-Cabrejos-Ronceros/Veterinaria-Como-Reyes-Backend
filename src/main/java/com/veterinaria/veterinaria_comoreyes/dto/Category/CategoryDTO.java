@@ -1,4 +1,4 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Category;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -20,4 +20,6 @@ public class CategoryDTO {
 
     @Size(max = 255, message = "La descripción no puede tener más de 255 caracteres")
     private String description;
+
+    private boolean status;
 }

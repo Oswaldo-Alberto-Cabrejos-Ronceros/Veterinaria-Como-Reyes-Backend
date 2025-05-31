@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

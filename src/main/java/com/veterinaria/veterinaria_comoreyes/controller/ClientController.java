@@ -1,9 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.DataUpdateAsClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.MyInfoClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.DataUpdateAsClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.MyInfoClientDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +27,8 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    //Obtener info client
-     //@PreAuthorize("hasAuthority('drop_client')")
+    //Obtener info client -> lista de permisos
+     @PreAuthorize("hasAuthority('drop_client')")
     @GetMapping("/{id}")
     public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
         ClientDTO client = clientService.getClientById(id);

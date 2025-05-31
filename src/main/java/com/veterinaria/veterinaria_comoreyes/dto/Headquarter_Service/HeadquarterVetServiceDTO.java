@@ -1,5 +1,6 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Service.VeterinaryServiceDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

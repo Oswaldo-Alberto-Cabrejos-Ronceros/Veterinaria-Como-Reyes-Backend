@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.AnimalDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.mapper.AnimalMapper;
@@ -70,12 +70,12 @@ public class AnimalServiceImpl implements IAnimalService {
     @Transactional
     @Override
     public AnimalDTO createAnimal(AnimalDTO animalDTO) {
-        filterStatus.activeFilterStatus(true);
         // validar cliente
         Long clientId = animalDTO.getClientId();
         clientRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Client not found with id: " + clientId));
         Animal animal = animalMapper.mapToAnimal(animalDTO);
+        animal.setStatus(true);
         return animalMapper.mapToAnimalDTO(animalRepository.save(animal));
     }
 

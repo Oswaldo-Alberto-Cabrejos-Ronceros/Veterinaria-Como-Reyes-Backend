@@ -1,9 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.AppointmentRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.AppointmentResponseDTO;
-
 import java.util.List;
+
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 
 public interface IAppointmentService {
     AppointmentResponseDTO createAppointment(AppointmentRequestDTO dto);

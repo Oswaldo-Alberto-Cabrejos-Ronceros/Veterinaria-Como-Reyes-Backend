@@ -1,7 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.AppointmentRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.AppointmentResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.mapper.AppointmentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;

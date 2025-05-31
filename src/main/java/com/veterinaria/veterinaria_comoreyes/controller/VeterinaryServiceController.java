@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryServiceDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Service.VeterinaryServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

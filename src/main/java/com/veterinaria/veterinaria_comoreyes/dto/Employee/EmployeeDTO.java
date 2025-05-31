@@ -1,7 +1,7 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Employee;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
-import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -44,7 +44,7 @@ public class EmployeeDTO {
 
     private LocalDate birthDate;
 
-    private String dirImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgpnmY-O9iz09Jka-vGvK2Lv-U-pL3H18CfA&s";
+    private String dirImage = "user.webp";
 
     @NotNull(message = "La sede es obligatoria")
     private Headquarter headquarter;

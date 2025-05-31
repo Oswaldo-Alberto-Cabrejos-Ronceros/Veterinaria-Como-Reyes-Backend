@@ -36,9 +36,11 @@ public class Animal extends EntityWithStatus{
     private String urlImage;
 
     @ManyToOne
+    @JoinColumn(name = "breed_id")
     private Breed breed;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
 
 }

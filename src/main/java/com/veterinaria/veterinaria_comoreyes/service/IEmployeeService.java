@@ -1,6 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.*;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.MyInfoEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.springframework.data.domain.Page;
@@ -8,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 
 
 import java.util.List;
-import java.util.Map;
 
 public interface IEmployeeService {
     EmployeeDTO getEmployeeById(Long id);

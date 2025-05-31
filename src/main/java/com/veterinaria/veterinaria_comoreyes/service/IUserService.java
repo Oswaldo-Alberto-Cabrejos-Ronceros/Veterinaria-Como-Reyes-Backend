@@ -2,9 +2,8 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import java.util.List;
 
-import com.veterinaria.veterinaria_comoreyes.dto.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
-import org.hibernate.sql.exec.spi.StandardEntityInstanceResolver;
 
 public interface IUserService {
     

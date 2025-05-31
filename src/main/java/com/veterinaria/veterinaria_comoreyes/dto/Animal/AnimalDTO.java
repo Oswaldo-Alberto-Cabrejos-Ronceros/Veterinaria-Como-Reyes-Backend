@@ -1,11 +1,9 @@
-package com.veterinaria.veterinaria_comoreyes.dto;
+package com.veterinaria.veterinaria_comoreyes.dto.Animal;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
-import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

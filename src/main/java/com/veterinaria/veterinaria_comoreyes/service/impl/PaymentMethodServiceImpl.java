@@ -1,6 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.PaymentMethodDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentMethod;
 import com.veterinaria.veterinaria_comoreyes.mapper.PaymentMethodMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.PaymentMethodRepository;
