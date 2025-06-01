@@ -29,13 +29,11 @@ public class AppointmentRequestDTO {
     @Size(max = 255)
     private String cancellationNote;
 
-    @NotNull(message = "El estado de la cita es obligatorio")
     private StatusAppointment statusAppointment;
 
     @NotNull(message = "El ID del servicio veterinario es obligatorio")
     private Long headquarterVetServiceId;
 
-    @NotNull(message = "El ID del empleado asignado es obligatorio")
     private Long assignedEmployeeId;
 
     @NotNull(message = "El ID del animal es obligatorio")

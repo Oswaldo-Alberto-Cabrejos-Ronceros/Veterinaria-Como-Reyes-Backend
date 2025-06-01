@@ -24,10 +24,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
-                                  AppointmentMapper appointmentMapper,
-                                  HeadquarterVetServiceRepository headquarterVetServiceRepository,
-                                  AnimalRepository animalRepository,
-                                  EmployeeRepository employeeRepository) {
+            AppointmentMapper appointmentMapper,
+            HeadquarterVetServiceRepository headquarterVetServiceRepository,
+            AnimalRepository animalRepository,
+            EmployeeRepository employeeRepository) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.headquarterVetServiceRepository = headquarterVetServiceRepository;
@@ -56,7 +56,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointment.setAnimal(animal);
         appointment.setEmployee(employee);
         appointment.setCreationDate(java.time.LocalDateTime.now());
-        appointment.setStatusAppointment(StatusAppointment.PROGRAMADA); // ✅ Estado inicial
+        appointment.setStatusAppointment(StatusAppointment.PROGRAMADA);
 
         return appointmentMapper.toResponseDTO(appointmentRepository.save(appointment));
     }

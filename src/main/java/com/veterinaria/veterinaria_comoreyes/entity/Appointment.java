@@ -37,7 +37,7 @@ public class Appointment{
     private StatusAppointment statusAppointment;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "headquarter_vetservice_id")
     private HeadquarterVetService headquarterVetService;
 
     @ManyToOne
