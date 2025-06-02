@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.MyInfoEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.nMyInfoEmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
@@ -45,7 +46,7 @@ public interface IEmployeeService {
     // Método para búsqueda personalizada
     Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
 
-    MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id);
+    nMyInfoEmployeeDTO myInfoAsEmployee(Long id);
 
     String getMainRoleName(Long employeeId);
 

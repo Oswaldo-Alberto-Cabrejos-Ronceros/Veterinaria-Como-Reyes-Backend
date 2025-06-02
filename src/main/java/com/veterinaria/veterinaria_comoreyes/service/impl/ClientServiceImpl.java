@@ -1,11 +1,10 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.DataUpdateAsClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.MyInfoClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.*;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterBasicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserEmailDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
@@ -180,27 +179,6 @@ public class ClientServiceImpl implements IClientService {
     }
 
     @Override
-    public MyInfoClientDTO myInfoAsClient(String token, Long id) {
-        Long clientIdFromToken = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
-        if (!clientIdFromToken.equals(id)) {
-            throw new RuntimeException("No tienes permiso para acceder a esta información.");
-        }
-
-        Client client = clientRepository.findByClientId(id);
-
-        MyInfoClientDTO dto = new MyInfoClientDTO();
-        dto.setClientId(client.getClientId());
-        dto.setUserId(client.getUser().getUserId());
-        dto.setDni(client.getDni());
-        dto.setNames(client.getName());
-        dto.setLastNames(client.getLastName());
-        dto.setPhone(client.getPhone());
-        dto.setHeadquarterName(client.getHeadquarter().getName());
-
-        return dto;
-    }
-
-    @Override
     public void updateInfoAsClient(String token, Long id, DataUpdateAsClientDTO data) {
         Long clientId = Long.valueOf(jwtTokenUtil.getEntityIdFromJwt(token));
         if (!clientId.equals(id)) {
@@ -238,5 +216,44 @@ public class ClientServiceImpl implements IClientService {
             throw new AuthException("Cliente no encontrado", ErrorCodes.INVALID_CREDENTIALS.getCode());
         }
         return client;
+    }
+
+    /***************************************************************
+     * Metodos solo para el CLient
+     ****************************************************************/
+
+    @Override
+    public nMyInfoClientDTO getMyInfoAsClient(Long id){
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
+
+        //creamos y intoducimos los datos necesarios en user (id y name)
+        HeadquarterBasicDTO headquarterBasicDTO = new HeadquarterBasicDTO();
+        headquarterBasicDTO.setId(client.getHeadquarter().getHeadquarterId());
+        headquarterBasicDTO.setName(client.getHeadquarter().getName());
+
+        //creamos el myInfo y le introducimos los valores
+        nMyInfoClientDTO dto = new nMyInfoClientDTO();
+
+        dto.setClientId(client.getClientId());
+        dto.setHeadquarter(headquarterBasicDTO);
+        dto.setDni(client.getDni());
+        dto.setNames(client.getName());
+        dto.setLastNames(client.getLastName());
+        dto.setAddress(client.getAddress());
+        dto.setPhone(client.getPhone());
+
+        //verificamos que tenga usuario
+        if (client.getUser() == null) {
+            dto.setUser(null);
+        }else{
+            //creamos y intoducimos los datos necesarios en user (id y email)
+            UserEmailDTO userEmailDTO = new UserEmailDTO();
+            userEmailDTO.setId(client.getUser().getUserId());
+            userEmailDTO.setEmail(client.getUser().getEmail());
+            dto.setUser(userEmailDTO);
+        }
+
+        return dto;
     }
 }

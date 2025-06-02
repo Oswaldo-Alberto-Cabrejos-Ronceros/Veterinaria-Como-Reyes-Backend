@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.MyInfoEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.nMyInfoEmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -88,10 +89,10 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}/myInfo")
-    public ResponseEntity<MyInfoEmployeeDTO> getEmployeeMyInfo(@PathVariable Long id,
-                                                               @CookieValue("accessToken") String token) {
-        MyInfoEmployeeDTO myInfoEmployee = employeeService.myInfoAsEmployee(token,id);
+    public ResponseEntity<nMyInfoEmployeeDTO> getEmployeeMyInfo(@PathVariable Long id) {
+        nMyInfoEmployeeDTO myInfoEmployee = employeeService.myInfoAsEmployee(id);
         return ResponseEntity.ok(myInfoEmployee);
+
     }
 
 
