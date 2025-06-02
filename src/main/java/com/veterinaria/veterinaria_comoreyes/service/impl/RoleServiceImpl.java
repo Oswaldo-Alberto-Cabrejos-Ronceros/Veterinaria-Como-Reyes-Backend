@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleBasicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.mapper.RoleMapper;
@@ -98,6 +99,21 @@ public class RoleServiceImpl implements IRoleService {
 
         return roles;
     }
+    @Override
+    public List<RoleBasicDTO> filterRolesStatusActive(List<Role> roles) {
+        List<RoleBasicDTO> rolesActives = roles.stream()
+                .filter(role -> Boolean.TRUE.equals(role.getStatus()))
+                .map(role -> {
+                    RoleBasicDTO dto = new RoleBasicDTO();
+                    dto.setId(role.getRoleId());
+                    dto.setName(role.getName());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return rolesActives.isEmpty() ? null : rolesActives;
+    }
+
 
     //Obtener la cantidad de roles activos que tiebne un empleadoId (using in Auth)
     @Override

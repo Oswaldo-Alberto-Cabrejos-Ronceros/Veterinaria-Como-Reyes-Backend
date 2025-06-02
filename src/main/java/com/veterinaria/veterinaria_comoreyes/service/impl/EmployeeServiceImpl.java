@@ -2,8 +2,11 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Employee.MyInfoEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.nMyInfoEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterBasicDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleBasicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.User.UserEmailDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
@@ -25,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -236,39 +240,50 @@ public class EmployeeServiceImpl implements IEmployeeService {
                                                  Long headquarterId, Pageable pageable) {
         return employeeRepository.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
     }
-
+    /******************************************
+     * Services user-employee
+     * ****************************************/
     @Override
-    public MyInfoEmployeeDTO myInfoAsEmployee(String token, Long id) {
-
-        Long employeeIdFromToken =jwtTokenUtil.getEntityIdFromJwt(token);
-
-        if (!employeeIdFromToken.equals(id)) {
-            throw new RuntimeException("No tienes permiso para acceder a esta información.");
-        }
+    public nMyInfoEmployeeDTO myInfoAsEmployee(Long id) {
 
         Employee employee = employeeRepository.findByEmployeeId(id);
         if (employee == null) {
             throw new RuntimeException("Empleado no encontrado con id: " + id);
         }
 
-        MyInfoEmployeeDTO dto = new MyInfoEmployeeDTO();
-        dto.setEmployeeId(employee.getEmployeeId());
-        dto.setUserId(employee.getUser().getUserId());
-        dto.setDni(employee.getDni());
-        dto.setCmvp(employee.getCmvp());
-        dto.setNames(employee.getName());
-        dto.setLastNames(employee.getLastName());
-        dto.setAddress(employee.getAddress());
-        dto.setPhone(employee.getPhone());
-        dto.setBirthDate(employee.getBirthDate());
-        dto.setDirImage(employee.getDirImage());
-        dto.setHeadquarterName(employee.getHeadquarter().getName());
+        nMyInfoEmployeeDTO infoEmployeeDTO = new nMyInfoEmployeeDTO();
+        infoEmployeeDTO.setEmployeeId(employee.getEmployeeId());
+        infoEmployeeDTO.setNames(employee.getName());
+        infoEmployeeDTO.setLastNames(employee.getLastName());
+        infoEmployeeDTO.setDni(employee.getDni());
+        infoEmployeeDTO.setPhone(employee.getPhone());
+        infoEmployeeDTO.setCmvp(employee.getCmvp());
+        infoEmployeeDTO.setAddress(employee.getAddress());
+        infoEmployeeDTO.setDirImage(employee.getDirImage());
+        infoEmployeeDTO.setBirthDate(employee.getBirthDate());
 
-        String mainRole = getMainRoleName(id);
+        if (employee.getUser() != null) {
+            UserEmailDTO user = new UserEmailDTO();
+            user.setEmail(employee.getUser().getEmail());
+            user.setId(employee.getUser().getUserId());
+            infoEmployeeDTO.setUser(user);
+        }
+        /*else{
+            infoEmployeeDTO.setUser(null);
+        }*/
 
-        dto.setMainRole(mainRole);
-
-        return dto;
+        if (employee.getRoles() != null) {
+            List<RoleBasicDTO> roles = new ArrayList<RoleBasicDTO>();
+            roles = roleService.filterRolesStatusActive(employee.getRoles());
+            infoEmployeeDTO.setRoles(roles);
+        }
+        if(employee.getHeadquarter() != null) {
+            HeadquarterBasicDTO headquarterBasic = new HeadquarterBasicDTO();
+            headquarterBasic.setId(employee.getHeadquarter().getHeadquarterId());
+            headquarterBasic.setName(employee.getHeadquarter().getName());
+            infoEmployeeDTO.setHeadquarter(headquarterBasic);
+        }
+        return infoEmployeeDTO;
     }
 
     @Override
