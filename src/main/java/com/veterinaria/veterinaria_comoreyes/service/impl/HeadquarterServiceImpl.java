@@ -1,9 +1,13 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeInfoPublicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.exception.HeadquarterNotValidException;
 import com.veterinaria.veterinaria_comoreyes.mapper.HeadquarterMapper;
+import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
@@ -24,11 +28,14 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Autowired
     private FilterStatus filterStatus;
 
+    private EmployeeRepository employeeRepository;
+
     @Autowired
-    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository, HeadquarterMapper headquarterMapper, FilterStatus filterStatus){
+    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository,EmployeeRepository employeeRepository, HeadquarterMapper headquarterMapper, FilterStatus filterStatus){
         this.headquarterRepository=headquarterRepository;
         this.headquarterMapper=headquarterMapper;
         this.filterStatus=filterStatus;
+        this.employeeRepository=employeeRepository;
     }
 
     @Transactional(readOnly = true)
@@ -98,4 +105,22 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         }
     }
 
+    @Override
+    public List<HeadquarterEmployeesDTO> getAllActiveHeadquartersWithActiveEmployees() {
+        // Buscar todas las sedes activas
+        List<Headquarter> headquarters = headquarterRepository.findAllByStatusTrue();
+
+        // Mapear cada sede con sus empleados activos
+        return headquarters.stream().map(hq -> {
+            // Buscar empleados activos para cada sede
+            List<Employee> activeEmployees = employeeRepository.findByHeadquarter_HeadquarterIdAndStatusTrue(hq.getHeadquarterId());
+
+            // Mapear empleados a DTO
+            List<EmployeeInfoPublicDTO> employeeInfoList = activeEmployees.stream()
+                    .map(emp -> new EmployeeInfoPublicDTO(emp.getName() + " " + emp.getLastName(), emp.getDirImage()))
+                    .toList();
+
+            return new HeadquarterEmployeesDTO(hq.getName(), employeeInfoList);
+        }).toList();
+    }
 }

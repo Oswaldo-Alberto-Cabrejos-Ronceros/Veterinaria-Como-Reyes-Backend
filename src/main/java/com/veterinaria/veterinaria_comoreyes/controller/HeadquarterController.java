@@ -2,7 +2,9 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import java.util.List;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
@@ -40,5 +42,11 @@ public class HeadquarterController {
     @DeleteMapping("/{id}")
     public void deleteHeadquarter(@PathVariable Long id) {
         headquarterService.deleteHeadquarter(id);
+    }
+
+    @GetMapping("/employees")
+    public ResponseEntity<List<HeadquarterEmployeesDTO>> getAllActiveHeadquartersWithActiveEmployees() {
+        List<HeadquarterEmployeesDTO> dtos = headquarterService.getAllActiveHeadquartersWithActiveEmployees();
+        return ResponseEntity.ok(dtos);
     }
 }
