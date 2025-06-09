@@ -37,5 +37,6 @@ public class AppointmentResponseDTO {
     private EmployeeDTO assignedEmployee;
 
     private AnimalDTO animal;
+
 }
 

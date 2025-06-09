@@ -239,4 +239,11 @@ public class ClientServiceImpl implements IClientService {
         }
         return client;
     }
+    @Override
+    public void validateClientExistsAndStatus(Long clientId) {
+        boolean exist = clientRepository.existsByClientIdAndStatusIsTrue(clientId);
+        if (!exist) {
+            throw new RuntimeException("Cliente Bloqueado");
+        }
+    }
 }

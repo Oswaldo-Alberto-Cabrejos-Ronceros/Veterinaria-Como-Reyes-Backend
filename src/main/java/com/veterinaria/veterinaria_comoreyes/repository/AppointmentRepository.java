@@ -5,6 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> findByScheduleDateTimeBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
 
     // Validar si ya existe una cita programada para un animal en una fecha/hora
-    boolean existsByAnimalAndScheduleDateTimeAndStatusAppointment(Animal animal, LocalDateTime scheduleDateTime, StatusAppointment statusAppointment);
+    Boolean existsByAnimalAndScheduleDateTimeAndStatusAppointment(Animal animal, LocalDateTime scheduleDateTime, StatusAppointment statusAppointment);
 
+    @Query("""
+            SELECT CASE WHEN (
+                    SELECT COUNT(a) FROM Appointment a
+                    WHERE a.headquarterVetService.id = :headquarterServiceId
+                    AND a.scheduleDateTime = :scheduleDateTime
+                    AND a.statusAppointment IN ('PROGRAMADA', 'CONFIRMADA')
+                ) < (
+                    SELECT hvs.veterinaryService.simultaneousCapacity FROM HeadquarterVetService hvs WHERE hvs.id = :headquarterServiceId
+                )
+                THEN true ELSE false END
+                             """)
+    Boolean isAppointmentSlotAvailable(LocalDateTime scheduleDateTime,Long headquarterServiceId);
 }

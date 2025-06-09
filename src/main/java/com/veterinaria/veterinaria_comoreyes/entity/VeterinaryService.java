@@ -34,6 +34,8 @@ public class    VeterinaryService extends EntityWithStatus{
 
     private String dirImage;
 
+    private Long simultaneousCapacity;
+
     @ManyToOne
     @JoinColumn(name = "id_specie")
     private Specie specie;

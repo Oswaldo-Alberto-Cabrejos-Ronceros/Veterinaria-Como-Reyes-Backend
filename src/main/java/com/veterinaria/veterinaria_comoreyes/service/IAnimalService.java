@@ -18,4 +18,9 @@ public interface IAnimalService {
 
     void deleteAnimal(Long id);
 
+    void validateAnimalExistAndStatus(Long id);
+
+    void validateClientExistAndStatusForAnimalId(Long id);
+
+    String findSpecieNameByAnimalId(Long id);
 }

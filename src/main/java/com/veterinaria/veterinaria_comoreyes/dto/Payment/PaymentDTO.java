@@ -25,7 +25,7 @@ public class PaymentDTO {
     @Positive(message = "El monto debe ser mayor a 0")
     private Double amount;
 
-    @NotNull(message = "La fecha y hora del pago es obligatoria")
+    @Positive(message = "La fecha y hora del pago es obligatoria")
     @PastOrPresent(message = "La fecha de pago no puede estar en el futuro")
     @JsonFormat(pattern = "dd/MM/yyyy'T'HH:mm:ss")
     private LocalDateTime paymentDateTime;

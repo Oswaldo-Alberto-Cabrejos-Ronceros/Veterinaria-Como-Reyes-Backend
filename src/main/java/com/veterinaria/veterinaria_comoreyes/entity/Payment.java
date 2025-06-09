@@ -2,14 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.entity;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,20 +22,30 @@ public class Payment {
     private Long paymentId;
 
     private Double amount;
+
     private LocalDateTime paymentDateTime;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "care_id")
     private Care care;
 
     @ManyToOne
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
+
+    private LocalDateTime creationDate;
+
+    @PrePersist
+    public void prePersist() {
+        if (creationDate == null) {
+            creationDate = LocalDateTime.now();
+        }
+    }
 }

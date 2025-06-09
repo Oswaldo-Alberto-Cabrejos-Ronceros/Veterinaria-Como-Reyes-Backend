@@ -7,6 +7,7 @@
     import com.veterinaria.veterinaria_comoreyes.repository.AnimalRepository;
     import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
     import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
+    import com.veterinaria.veterinaria_comoreyes.service.IClientService;
     import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
@@ -22,18 +23,20 @@
         private final ClientRepository clientRepository;
         private final FilterStatus filterStatus;
         private final AnimalMapper animalMapper;
+        private final IClientService clientService;
 
         @Autowired
         public AnimalServiceImpl(
                 AnimalRepository animalRepository,
                 ClientRepository clientRepository,
                 FilterStatus filterStatus,
-                AnimalMapper animalMapper
+                AnimalMapper animalMapper, IClientService clientService
         ) {
             this.animalRepository = animalRepository;
             this.clientRepository = clientRepository;
             this.filterStatus = filterStatus;
             this.animalMapper = animalMapper;
+            this.clientService = clientService;
         }
 
         @Transactional(readOnly = true)
@@ -106,4 +109,25 @@
             animal.setStatus(false); // inactivo
             animalRepository.save(animal);
         }
+        @Override
+        public void validateAnimalExistAndStatus(Long id) {
+            boolean exist = animalRepository.existsByAnimalIdAndStatusIsTrue(id);
+            if (!exist) {
+                throw new RuntimeException("Animal muerto");
+            }
+        }
+
+        @Override
+        public void validateClientExistAndStatusForAnimalId(Long animalId) {
+            Long clientId = animalRepository.clientIdForAnimalId(animalId);
+            clientService.validateClientExistsAndStatus(clientId);
+        }
+
+        @Override
+        public String findSpecieNameByAnimalId(Long id) {
+            return animalRepository.findSpecieNameByAnimalId(id)
+                    .orElseThrow(() -> new RuntimeException("No se obtuvo el nombre de especie relacionada con el animal"));
+        }
+
+
     }

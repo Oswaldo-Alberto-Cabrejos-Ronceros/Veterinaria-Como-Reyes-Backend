@@ -78,4 +78,13 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         method.setStatus(false); // Inactivar
         paymentMethodRepository.save(method);
     }
+
+    @Override
+    public void validePaymentMethod(Long id){
+        boolean exist = paymentMethodRepository.existsByPaymentMethodIdAndStatusIsTrue(id);
+        if (!exist) {
+            throw new RuntimeException("No disponible este metodo de pago");
+        }
+
+    }
 }

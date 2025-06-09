@@ -18,6 +18,8 @@ public class PaymentMethod extends EntityWithStatus{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentMethodId;
+
     private String name;
+
     private String description;
 }

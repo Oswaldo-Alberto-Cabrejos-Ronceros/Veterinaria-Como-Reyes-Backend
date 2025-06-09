@@ -34,4 +34,5 @@ public interface IClientService {
 
     Client getClientByUserForAuth(User user);
 
+    void validateClientExistsAndStatus(Long clientId);
 }

@@ -122,4 +122,26 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
         headquarterVetService.setStatus(false); // Cambia el estado a inactivo
         headquarterVetServiceRepository.save(headquarterVetService);
     }
+
+    @Override
+    public void validateHeadquarterVetService(Long id) {
+        boolean exist = headquarterVetServiceRepository.existsByIdAndStatusIsTrue(id);
+        if (!exist) {
+            throw new RuntimeException("No disponible este servicio en esta sede");
+        }
+    }
+
+    @Override
+    public String nameService(Long id) {
+        return headquarterVetServiceRepository.findServiceNameById(id)
+                .orElseThrow(() -> new RuntimeException("Nombre del servicio no encontrado"));
+    }
+
+    @Override
+    public Double priceService(Long id){
+        return headquarterVetServiceRepository.findServicePriceById(id)
+                .orElseThrow(() -> new RuntimeException("Nombre del servicio no encontrado"));
+    }
+
+
 }

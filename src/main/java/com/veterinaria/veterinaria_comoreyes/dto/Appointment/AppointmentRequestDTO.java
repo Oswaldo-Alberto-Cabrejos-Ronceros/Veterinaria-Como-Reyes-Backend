@@ -26,8 +26,9 @@ public class AppointmentRequestDTO {
     @Size(max = 255)
     private String comment;
 
+
     @Size(max = 255)
-    private String cancellationNote;
+    private String cancellationNote =null;
 
     private StatusAppointment statusAppointment;
 
@@ -38,4 +39,7 @@ public class AppointmentRequestDTO {
 
     @NotNull(message = "El ID del animal es obligatorio")
     private Long animalId;
+
+    @NotNull(message = "El metodo de pago es obligatorio")
+    private Long paymentMethodId;
 }
