@@ -4,8 +4,10 @@ import com.veterinaria.veterinaria_comoreyes.entity.Appointment;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
+import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,4 +45,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                 THEN true ELSE false END
                              """)
     Boolean isAppointmentSlotAvailable(LocalDateTime scheduleDateTime,Long headquarterServiceId);
+
 }

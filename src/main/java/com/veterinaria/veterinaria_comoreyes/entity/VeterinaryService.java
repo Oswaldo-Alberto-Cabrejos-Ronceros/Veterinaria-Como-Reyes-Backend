@@ -28,7 +28,7 @@ public class    VeterinaryService extends EntityWithStatus{
 
     private String description;
 
-    private float price;
+    private Double price;
 
     private Integer duration;
 

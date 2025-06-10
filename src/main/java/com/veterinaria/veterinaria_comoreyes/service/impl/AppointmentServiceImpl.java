@@ -4,6 +4,8 @@ import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestD
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
+import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
+import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import com.veterinaria.veterinaria_comoreyes.mapper.AppointmentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;
 import com.veterinaria.veterinaria_comoreyes.service.*;
@@ -27,13 +29,14 @@ public class AppointmentServiceImpl implements IAppointmentService {
     private final AnimalRepository animalRepository;
     private final EmployeeRepository employeeRepository;
     private final IPaymentMethodService paymentMethodService;
+    private final PaymentRepository paymentRepository;
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
                                   AppointmentMapper appointmentMapper,
                                   HeadquarterVetServiceRepository headquarterVetServiceRepository, IHeadquarterVetServiceService headquarterVetServiceService, IPaymentService paymentService, IAnimalService animalService,
                                   AnimalRepository animalRepository,
-                                  EmployeeRepository employeeRepository, IPaymentMethodService paymentMethodService) {
+                                  EmployeeRepository employeeRepository, IPaymentMethodService paymentMethodService, PaymentRepository paymentRepository) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.headquarterVetServiceRepository = headquarterVetServiceRepository;
@@ -43,6 +46,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
         this.animalRepository = animalRepository;
         this.employeeRepository = employeeRepository;
         this.paymentMethodService = paymentMethodService;
+        this.paymentRepository = paymentRepository;
     }
 
     public void validateSpeciesOfAnimalWithService(Long animalId, Long headquarterServiceId) {
@@ -105,10 +109,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointment.setCreationDate(LocalDateTime.now());
         appointment.setStatusAppointment(StatusAppointment.PROGRAMADA);
 
-        // Persistir y retornar
+        // Persistir
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
         Double priceService = headquarterVetServiceService.priceService(dto.getHeadquarterVetServiceId());
-        // Crear el PaymentDTO
+        // Crear el OrderPaymentDTO
         PaymentDTO paymentDTO = new PaymentDTO();
         paymentDTO.setAppointmentId(savedAppointment.getAppointmentId());
         paymentDTO.setPaymentMethodId(dto.getPaymentMethodId());
@@ -122,6 +127,34 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         return appointmentMapper.toResponseDTO(savedAppointment);
 
+    }
+    @Override
+    public UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment){
+        Payment payment = paymentRepository.findByAppointment_AppointmentIdAndStatus(idAppoinment, "PENDIENTE")
+                .orElseThrow(() -> new ResourceNotFoundException("No hay pago pendiente para esta cita"));
+
+        // Armar el DTO a partir de las relaciones:
+        String title = payment.getAppointment()
+                .getHeadquarterVetService()
+                .getVeterinaryService()
+                .getName();
+
+        Long idOrderPayment = payment.getPaymentId();
+        Integer quantity = 1; // Asumimos 1
+        Double unitPrice = payment.getAppointment()
+                .getHeadquarterVetService()
+                .getVeterinaryService()
+                .getPrice()
+                ;
+
+        // Construir y devolver el DTO
+        UserBuyerDTO userBuyerDTO = new UserBuyerDTO();
+        userBuyerDTO.setTitle(title);
+        userBuyerDTO.setIdOrderPayment(idOrderPayment);
+        userBuyerDTO.setQuantity(quantity);
+        userBuyerDTO.setUnitPrice(unitPrice);
+
+        return userBuyerDTO;
     }
 
 

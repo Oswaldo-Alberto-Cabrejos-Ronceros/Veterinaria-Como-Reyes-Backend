@@ -4,9 +4,12 @@ import java.util.List;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 
 public interface IAppointmentService {
     AppointmentResponseDTO createAppointment(AppointmentRequestDTO dto);
+
+    UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment);
 
     AppointmentResponseDTO getAppointmentById(Long id);
 
