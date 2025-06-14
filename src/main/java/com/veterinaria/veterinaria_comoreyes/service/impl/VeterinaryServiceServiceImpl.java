@@ -90,8 +90,8 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Transactional
     @Override
     public VeterinaryServiceDTO createService(VeterinaryServiceDTO veterinaryServiceDTO) {
-        filterStatus.activeFilterStatus(true);
         VeterinaryService service = veterinaryServiceMapper.mapToService(veterinaryServiceDTO);
+        service.setStatus(true);
         VeterinaryService saved = veterinaryServiceRepository.save(service);
         return veterinaryServiceMapper.mapToServiceDTO(saved);
     }
@@ -99,7 +99,6 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Transactional
     @Override
     public VeterinaryServiceDTO updateService(Long id, VeterinaryServiceDTO dto) {
-        filterStatus.activeFilterStatus(true);
         VeterinaryService service = veterinaryServiceRepository.findByServiceIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Veterinary Service Not Found with id:" + id));
 
@@ -117,7 +116,6 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Transactional
     @Override
     public void deleteService(Long id) {
-        filterStatus.activeFilterStatus(true);
         VeterinaryService service = veterinaryServiceRepository.findByServiceIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Veterinary Service Not Found with id:" + id));
         service.setStatus(false);

@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserDTO {
 
-    private long userId;
+    private Long userId;
 
     @NotBlank(message = "El tipo de usuario es obligatorio")
     @Size(max = 30, message = "El tipo no puede tener más de 30 caracteres")

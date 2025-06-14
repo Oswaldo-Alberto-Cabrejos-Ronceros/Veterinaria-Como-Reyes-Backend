@@ -65,13 +65,13 @@ public class BreedServiceImpl implements IBreedService {
     @Transactional
     @Override
     public BreedDTO createBreed(BreedDTO breedDTO) {
-        filterStatus.activeFilterStatus(true);
-        // Validar que la especie existe y está activa
         Long specieId = breedDTO.getSpecie().getSpecieId();
+
         Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
                 .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
 
         Breed breed = breedMapper.maptoBreed(breedDTO);
+        breed.setStatus(true);
         breed.setSpecie(specie);
         return breedMapper.maptoBreedDTO(breedRepository.save(breed));
     }
@@ -79,7 +79,6 @@ public class BreedServiceImpl implements IBreedService {
     @Transactional
     @Override
     public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
-        filterStatus.activeFilterStatus(true);
         Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
 
@@ -97,7 +96,6 @@ public class BreedServiceImpl implements IBreedService {
     @Transactional
     @Override
     public void deleteBreed(Long id) {
-        filterStatus.activeFilterStatus(true);
         Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
         breed.setStatus(false);

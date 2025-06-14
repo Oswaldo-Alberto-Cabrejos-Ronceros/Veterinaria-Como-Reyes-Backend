@@ -28,11 +28,13 @@ public class    VeterinaryService extends EntityWithStatus{
 
     private String description;
 
-    private float price;
+    private Double price;
 
     private Integer duration;
 
     private String dirImage;
+
+    private Long simultaneousCapacity;
 
     @ManyToOne
     @JoinColumn(name = "id_specie")

@@ -17,7 +17,9 @@ import lombok.Setter;
 public class PaymentMethod extends EntityWithStatus{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long paymentMethodId;
+    private Long paymentMethodId;
+
     private String name;
+
     private String description;
 }

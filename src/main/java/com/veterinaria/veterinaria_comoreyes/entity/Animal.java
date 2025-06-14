@@ -10,14 +10,13 @@ import org.hibernate.annotations.Filter;
 
 import java.time.LocalDate;
 
-@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-//para filtro
 @Filter(name = "statusActive", condition = "status = :status")
+@Entity
 public class Animal extends EntityWithStatus{
 
     @Id
@@ -37,9 +36,11 @@ public class Animal extends EntityWithStatus{
     private String urlImage;
 
     @ManyToOne
+    @JoinColumn(name = "breed_id")
     private Breed breed;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
 
 }

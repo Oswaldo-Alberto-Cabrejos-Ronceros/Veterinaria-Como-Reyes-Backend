@@ -14,4 +14,6 @@ public interface IPaymentMethodService {
     PaymentMethodDTO updatePaymentMethod(Long id, PaymentMethodDTO paymentMethodDTO);
 
     void deletePaymentMethod(Long id);
+
+    void validePaymentMethod(Long id);
 }

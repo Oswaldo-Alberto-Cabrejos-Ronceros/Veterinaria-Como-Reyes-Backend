@@ -31,6 +31,8 @@ public class VeterinaryServiceDTO {
 
     private Integer duration;
 
+    private Long simultaneousCapacity;
+
     @NotNull
     private String dirImage;
 

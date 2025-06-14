@@ -19,4 +19,11 @@ public interface IHeadquarterVetServiceService {
 
     void deleteHeadquarterVetService(Long id);
 
+    void validateHeadquarterVetService(Long id);
+
+    String nameService(Long id);
+
+    String nameSpecie(Long id);
+
+    Double priceService(Long id);
 }

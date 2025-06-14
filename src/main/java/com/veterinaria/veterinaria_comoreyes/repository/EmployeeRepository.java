@@ -10,7 +10,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+
+import java.util.List;
 import java.util.Optional;
+
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByUser(UserDTO user);
@@ -22,6 +25,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByDni(String dni);
 
     Optional<Employee> findByEmployeeIdAndStatusTrue(Long id);
+
+    List<Employee> findByHeadquarter_HeadquarterIdAndStatusTrue(Long headquarterId);
 
 
     @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO(" +
