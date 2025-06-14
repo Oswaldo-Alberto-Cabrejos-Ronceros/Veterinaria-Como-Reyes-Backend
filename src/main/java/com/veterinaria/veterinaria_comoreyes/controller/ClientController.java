@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.DataUpdateAsClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.MyInfoClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.*;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,14 +80,6 @@ public class ClientController {
         return ResponseEntity.noContent().build();
     }
 
-    // client information for the profile
-    @GetMapping("/{id}/my-info")
-    public ResponseEntity<MyInfoClientDTO> myInfoAsClient(@PathVariable Long id,
-                                                        @CookieValue("accessToken") String token) {
-        MyInfoClientDTO myInfoClientDTO = clientService.myInfoAsClient(token, id);
-        return ResponseEntity.ok(myInfoClientDTO);
-    }
-
     //update my information as a client
     @PutMapping("/{id}/update-my-info")
     public ResponseEntity<String> updateClient( @PathVariable Long id,
@@ -106,4 +95,17 @@ public class ClientController {
         clientService.updateBlockNote(id, lockNote);
         return ResponseEntity.ok("Comentario actualizada correctamente");
     }
+
+    /******************************************
+     * Controllers user-client
+     * ****************************************/
+
+    // client information for the profile
+    @GetMapping("/{id}/my-info")
+    public ResponseEntity<nMyInfoClientDTO> myInfoAsClient(@PathVariable Long id) {
+        nMyInfoClientDTO myInfoClientDTO = clientService.getMyInfoAsClient(id);
+        return ResponseEntity.ok(myInfoClientDTO);
+    }
+
+
 }

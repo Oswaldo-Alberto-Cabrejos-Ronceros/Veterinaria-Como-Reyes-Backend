@@ -12,6 +12,15 @@ import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 
 import jakarta.validation.Valid;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
+import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+
 @RestController
 @RequestMapping("/api/headquarters")
 public class HeadquarterController {

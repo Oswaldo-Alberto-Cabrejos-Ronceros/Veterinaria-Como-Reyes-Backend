@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.DataUpdateAsClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Client.MyInfoClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.*;
 import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
@@ -27,7 +24,6 @@ public interface IClientService {
 
 
     // SERVICES OF CLIENT TO AS A USER
-    MyInfoClientDTO myInfoAsClient(String Token, Long id);
     void updateInfoAsClient(String Token, Long id, DataUpdateAsClientDTO dataUpdateAsClientDTO);
 
     // SERVICES OF CLIENT TO AS AUTH
@@ -35,4 +31,7 @@ public interface IClientService {
     Client getClientByUserForAuth(User user);
 
     void validateClientExistsAndStatus(Long clientId);
+
+    nMyInfoClientDTO getMyInfoAsClient(Long id);
+
 }
