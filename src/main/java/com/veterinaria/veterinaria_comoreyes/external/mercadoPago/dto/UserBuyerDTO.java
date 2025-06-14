@@ -23,5 +23,4 @@ public class UserBuyerDTO {
     //precio del servicio x unidad
     private Double unitPrice;
 
-
 }

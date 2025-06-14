@@ -30,7 +30,6 @@ public class MerPagoServiceImpl implements IMerPagoService {
         this.careService = careService;
     }
 
-
     @Override
     public String createPreference(UserBuyerDTO userBuyerDTO) {
         if (userBuyerDTO == null) {
