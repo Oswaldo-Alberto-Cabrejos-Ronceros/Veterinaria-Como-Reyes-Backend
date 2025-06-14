@@ -136,6 +136,11 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
         return headquarterVetServiceRepository.findServiceNameById(id)
                 .orElseThrow(() -> new RuntimeException("Nombre del servicio no encontrado"));
     }
+    @Override
+    public String nameSpecie(Long id) {
+        return headquarterVetServiceRepository.findSpecieNameById(id)
+                .orElseThrow(() -> new RuntimeException("Nombre de la especie no encontrado"));
+    }
 
     @Override
     public Double priceService(Long id){

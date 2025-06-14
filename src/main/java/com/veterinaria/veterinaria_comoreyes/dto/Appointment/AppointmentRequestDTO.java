@@ -30,8 +30,6 @@ public class AppointmentRequestDTO {
     @Size(max = 255)
     private String cancellationNote =null;
 
-    private StatusAppointment statusAppointment;
-
     @NotNull(message = "El ID del servicio veterinario es obligatorio")
     private Long headquarterVetServiceId;
 

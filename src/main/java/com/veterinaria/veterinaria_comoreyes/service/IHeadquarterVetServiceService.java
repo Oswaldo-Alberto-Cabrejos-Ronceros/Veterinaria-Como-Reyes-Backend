@@ -23,5 +23,7 @@ public interface IHeadquarterVetServiceService {
 
     String nameService(Long id);
 
+    String nameSpecie(Long id);
+
     Double priceService(Long id);
 }

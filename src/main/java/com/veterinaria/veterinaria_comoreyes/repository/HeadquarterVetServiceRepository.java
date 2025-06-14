@@ -25,4 +25,7 @@ public interface HeadquarterVetServiceRepository extends JpaRepository<Headquart
 
     @Query("SELECT hs.veterinaryService.price FROM HeadquarterVetService hs WHERE hs.id = :id")
     Optional<Double>  findServicePriceById(Long id);
+
+    @Query("SELECT hs.veterinaryService.specie.specieId FROM HeadquarterVetService hs WHERE hs.id = :id")
+    Optional<String>  findSpecieNameById(Long id);
 }

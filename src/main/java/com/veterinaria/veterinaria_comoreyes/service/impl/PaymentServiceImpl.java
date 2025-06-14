@@ -50,6 +50,8 @@ public class PaymentServiceImpl implements IPaymentService {
             Care care = careRepository.findById(dto.getCareId())
                     .orElseThrow(() -> new RuntimeException("Atención no encontrada"));
             payment.setCare(care);
+        }else{
+            payment.setCare(null);
         }
 
         PaymentMethod method = paymentMethodRepository.findById(dto.getPaymentMethodId())

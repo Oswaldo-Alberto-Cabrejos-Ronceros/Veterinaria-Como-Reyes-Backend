@@ -37,8 +37,7 @@ public class PaymentDTO {
     private Long appointmentId;
 
     // Opcional, pero si se envía, debe ser válido
-    @Positive(message = "El ID de atención debe ser mayor a 0")
-    private Long careId;
+    private Long careId = null;
 
     @NotNull(message = "El método de pago es obligatorio")
     private Long paymentMethodId;

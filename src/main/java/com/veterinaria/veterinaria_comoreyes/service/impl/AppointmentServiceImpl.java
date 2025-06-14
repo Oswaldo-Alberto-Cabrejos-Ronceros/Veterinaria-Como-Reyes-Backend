@@ -50,9 +50,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     public void validateSpeciesOfAnimalWithService(Long animalId, Long headquarterServiceId) {
-        String nameSpecieOfAnimal =headquarterVetServiceService.nameService(headquarterServiceId);
-        String nameSpecieOfService =animalService.findSpecieNameByAnimalId(animalId);
-        if (!nameSpecieOfAnimal.equalsIgnoreCase(nameSpecieOfService)) {
+        String nameSpecieOfService =headquarterVetServiceService.nameSpecie(headquarterServiceId);
+        String nameSpecieOfAnimal =animalService.findSpecieNameByAnimalId(animalId);
+        if (nameSpecieOfAnimal.equalsIgnoreCase(nameSpecieOfService)) {
             throw new RuntimeException("Este animal no puede ser seleccionado con este servicio porque su especie no coincide.");
         }
     }
@@ -126,8 +126,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
         paymentService.createPayment(paymentDTO);
 
         return appointmentMapper.toResponseDTO(savedAppointment);
-
     }
+
     @Override
     public UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment){
         Payment payment = paymentRepository.findByAppointment_AppointmentIdAndStatus(idAppoinment, "PENDIENTE")
@@ -209,6 +209,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     public void deleteAppointment(Long id) {
         Appointment appointment = appointmentRepository.findByAppointmentId(id)
                 .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
         appointment.setStatusAppointment(StatusAppointment.CANCELADA);
         appointmentRepository.save(appointment);
     }
