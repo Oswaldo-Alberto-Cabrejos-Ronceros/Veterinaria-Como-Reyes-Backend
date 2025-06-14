@@ -223,44 +223,44 @@ public class ClientServiceImpl implements IClientService {
         if (!exist) {
             throw new RuntimeException("Cliente Bloqueado");
         }
-
-    /***************************************************************
-     * Metodos solo para el CLient
-     ****************************************************************/
-
-    @Override
-    public nMyInfoClientDTO getMyInfoAsClient(Long id){
-        Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
-
-        //creamos y intoducimos los datos necesarios en user (id y name)
-        HeadquarterBasicDTO headquarterBasicDTO = new HeadquarterBasicDTO();
-        headquarterBasicDTO.setId(client.getHeadquarter().getHeadquarterId());
-        headquarterBasicDTO.setName(client.getHeadquarter().getName());
-
-        //creamos el myInfo y le introducimos los valores
-        nMyInfoClientDTO dto = new nMyInfoClientDTO();
-
-        dto.setClientId(client.getClientId());
-        dto.setHeadquarter(headquarterBasicDTO);
-        dto.setDni(client.getDni());
-        dto.setNames(client.getName());
-        dto.setLastNames(client.getLastName());
-        dto.setAddress(client.getAddress());
-        dto.setPhone(client.getPhone());
-
-        //verificamos que tenga usuario
-        if (client.getUser() == null) {
-            dto.setUser(null);
-        }else{
-            //creamos y intoducimos los datos necesarios en user (id y email)
-            UserEmailDTO userEmailDTO = new UserEmailDTO();
-            userEmailDTO.setId(client.getUser().getUserId());
-            userEmailDTO.setEmail(client.getUser().getEmail());
-            dto.setUser(userEmailDTO);
-        }
-
-        return dto;
-
     }
+
+        /***************************************************************
+         * Metodos solo para el CLient
+         ****************************************************************/
+        @Override
+        public nMyInfoClientDTO getMyInfoAsClient(Long id){
+            Client client = clientRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
+
+            //creamos y intoducimos los datos necesarios en user (id y name)
+            HeadquarterBasicDTO headquarterBasicDTO = new HeadquarterBasicDTO();
+            headquarterBasicDTO.setId(client.getHeadquarter().getHeadquarterId());
+            headquarterBasicDTO.setName(client.getHeadquarter().getName());
+
+            //creamos el myInfo y le introducimos los valores
+            nMyInfoClientDTO dto = new nMyInfoClientDTO();
+
+            dto.setClientId(client.getClientId());
+            dto.setHeadquarter(headquarterBasicDTO);
+            dto.setDni(client.getDni());
+            dto.setNames(client.getName());
+            dto.setLastNames(client.getLastName());
+            dto.setAddress(client.getAddress());
+            dto.setPhone(client.getPhone());
+
+            //verificamos que tenga usuario
+            if (client.getUser() == null) {
+                dto.setUser(null);
+            } else {
+                //creamos y intoducimos los datos necesarios en user (id y email)
+                UserEmailDTO userEmailDTO = new UserEmailDTO();
+                userEmailDTO.setId(client.getUser().getUserId());
+                userEmailDTO.setEmail(client.getUser().getEmail());
+                dto.setUser(userEmailDTO);
+            }
+
+            return dto;
+            }
+
 }
