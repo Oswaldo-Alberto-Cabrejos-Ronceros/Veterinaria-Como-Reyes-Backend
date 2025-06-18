@@ -26,7 +26,7 @@ public class SpecieServiceImpl implements ISpecieService {
     private final FilterStatus filterStatus;
 
     @Autowired
-    private RedisTemplate<String, List<SpecieDTO>> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     public SpecieServiceImpl(SpecieRepository specieRepository, SpecieMapper specieMapper, FilterStatus filterStatus) {
@@ -90,22 +90,21 @@ public class SpecieServiceImpl implements ISpecieService {
         filterStatus.activeFilterStatus(true);
         String redisKey = "species:page=" + page + ":size=" + size;
 
-        // Verificar si existe en Redis
-        List<SpecieDTO> cached = redisTemplate.opsForValue().get(redisKey);
+        @SuppressWarnings("unchecked")
+        List<SpecieDTO> cached = (List<SpecieDTO>) redisTemplate.opsForValue().get(redisKey);
+
         if (cached != null) {
             return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
         }
 
-        // Si no existe, consultar a la BD
         Page<Specie> speciePage = specieRepository.findAll(PageRequest.of(page, size));
         List<SpecieDTO> dtoList = speciePage.getContent()
                 .stream()
                 .map(specieMapper::mapToSpecieDTO)
                 .collect(Collectors.toList());
 
-        // Guardar en Redis
         redisTemplate.opsForValue().set(redisKey, dtoList);
-
         return new PageImpl<>(dtoList, speciePage.getPageable(), speciePage.getTotalElements());
     }
+
 }

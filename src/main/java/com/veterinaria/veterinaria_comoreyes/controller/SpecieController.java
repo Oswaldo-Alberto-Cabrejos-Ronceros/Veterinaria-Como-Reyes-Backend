@@ -44,7 +44,7 @@ public class SpecieController {
     @GetMapping("/paginated")
     public Page<SpecieDTO> getPaginatedSpecies(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+            @RequestParam(defaultValue = "10") int size) {
         return specieService.getAllSpeciesPaginated(page, size);
     }
 }
