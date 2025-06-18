@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  oracle-db:
+    image: gvenzl/oracle-free:23-slim
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PASSWORD: system123
+    volumes:
+      - ./init-user.sql:/container-entrypoint-initdb.d/init-user.sql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "echo 'SELECT 1 FROM DUAL;' | sqlplus -s system/system123@localhost:1521/FREE"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  veterinaria-backend:
+    build: .
+    container_name: veterinaria-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/FREE
+      SPRING_DATASOURCE_USERNAME: VETERINARYADMIN
+      SPRING_DATASOURCE_PASSWORD: diego5461
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    depends_on:
+      - oracle-db
+      - redis
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
