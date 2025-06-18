@@ -1,6 +1,5 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.SpecieMapper;
@@ -9,6 +8,10 @@ import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,9 @@ public class SpecieServiceImpl implements ISpecieService {
     private final SpecieRepository specieRepository;
     private final SpecieMapper specieMapper;
     private final FilterStatus filterStatus;
+
+    @Autowired
+    private RedisTemplate<String, List<SpecieDTO>> redisTemplate;
 
     @Autowired
     public SpecieServiceImpl(SpecieRepository specieRepository, SpecieMapper specieMapper, FilterStatus filterStatus) {
@@ -77,5 +83,29 @@ public class SpecieServiceImpl implements ISpecieService {
         specie.setStatus(false);
         specieRepository.save(specie);
     }
-}
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<SpecieDTO> getAllSpeciesPaginated(int page, int size) {
+        filterStatus.activeFilterStatus(true);
+        String redisKey = "species:page=" + page + ":size=" + size;
+
+        // Verificar si existe en Redis
+        List<SpecieDTO> cached = redisTemplate.opsForValue().get(redisKey);
+        if (cached != null) {
+            return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
+        }
+
+        // Si no existe, consultar a la BD
+        Page<Specie> speciePage = specieRepository.findAll(PageRequest.of(page, size));
+        List<SpecieDTO> dtoList = speciePage.getContent()
+                .stream()
+                .map(specieMapper::mapToSpecieDTO)
+                .collect(Collectors.toList());
+
+        // Guardar en Redis
+        redisTemplate.opsForValue().set(redisKey, dtoList);
+
+        return new PageImpl<>(dtoList, speciePage.getPageable(), speciePage.getTotalElements());
+    }
+}
