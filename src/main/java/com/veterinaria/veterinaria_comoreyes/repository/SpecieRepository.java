@@ -12,6 +12,7 @@ public interface SpecieRepository extends JpaRepository<Specie, Long> {
 
     Optional<Specie> findBySpecieIdAndStatusIsTrue(Long id);
 
-    Page<Specie> findAll(Pageable pageable);
+    Page<Specie> findAllByStatusTrue(Pageable pageable);
 
 }
+    

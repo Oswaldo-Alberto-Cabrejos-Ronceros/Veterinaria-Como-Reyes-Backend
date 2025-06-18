@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   oracle-db:
     image: gvenzl/oracle-free:23-slim
@@ -7,6 +9,7 @@ services:
     environment:
       ORACLE_PASSWORD: system123
     volumes:
+      - oracle-data:/opt/oracle/oradata
       - ./init-user.sql:/container-entrypoint-initdb.d/init-user.sql
     healthcheck:
       test:
@@ -41,3 +44,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+
+volumes:
+  oracle-data:

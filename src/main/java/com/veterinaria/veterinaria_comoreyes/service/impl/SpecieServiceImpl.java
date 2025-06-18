@@ -87,19 +87,20 @@ public class SpecieServiceImpl implements ISpecieService {
     @Override
     @Transactional(readOnly = true)
     public Page<SpecieDTO> getAllSpeciesPaginated(int page, int size) {
-        filterStatus.activeFilterStatus(true);
         String redisKey = "species:page=" + page + ":size=" + size;
 
         @SuppressWarnings("unchecked")
         List<SpecieDTO> cached = (List<SpecieDTO>) redisTemplate.opsForValue().get(redisKey);
 
-        if (cached != null) {
+        if (cached != null && !cached.isEmpty()) {
+            System.out.println("[REDIS HIT] Clave encontrada: " + redisKey + " | Elementos: " + cached.size());
             return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
         }
 
-        Page<Specie> speciePage = specieRepository.findAll(PageRequest.of(page, size));
-        List<SpecieDTO> dtoList = speciePage.getContent()
-                .stream()
+        System.out.println("🔁 [REDIS MISS] Consultando base de datos para: " + redisKey);
+        Page<Specie> speciePage = specieRepository.findAllByStatusTrue(PageRequest.of(page, size));
+
+        List<SpecieDTO> dtoList = speciePage.getContent().stream()
                 .map(specieMapper::mapToSpecieDTO)
                 .collect(Collectors.toList());
 
