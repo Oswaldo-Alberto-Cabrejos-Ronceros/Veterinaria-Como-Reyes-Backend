@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.AnimalInfoForClientDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,10 +30,12 @@ public class AnimalController {
     }
 
 
+    /*
     @GetMapping("/client/{id}")
     public ResponseEntity<List<AnimalDTO>> getAnimalByClientId(@PathVariable Long id) {
         return ResponseEntity.ok().body(animalService.getAnimalsByClient(id));
     }
+    */
 
     @PostMapping
     public ResponseEntity<AnimalDTO> createAnimal(@RequestBody AnimalDTO animalDTO) {
@@ -48,6 +51,11 @@ public class AnimalController {
     public ResponseEntity<?> deleteAnimal(@PathVariable Long id) {
         animalService.deleteAnimal(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/client/{id}")
+    public ResponseEntity<List<AnimalInfoForClientDTO>> getAnimalsByClientId(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(animalService.getAnimalsByClientId(id));
     }
 
 }

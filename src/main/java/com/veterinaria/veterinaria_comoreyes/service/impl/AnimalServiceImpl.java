@@ -1,6 +1,7 @@
     package com.veterinaria.veterinaria_comoreyes.service.impl;
 
     import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
+    import com.veterinaria.veterinaria_comoreyes.dto.Employee.AnimalInfoForClientDTO;
     import com.veterinaria.veterinaria_comoreyes.entity.Animal;
     import com.veterinaria.veterinaria_comoreyes.entity.Client;
     import com.veterinaria.veterinaria_comoreyes.mapper.AnimalMapper;
@@ -129,5 +130,20 @@
                     .orElseThrow(() -> new RuntimeException("No se obtuvo el nombre de especie relacionada con el animal"));
         }
 
+        @Override
+        public List<AnimalInfoForClientDTO> getAnimalsByClientId(Long clientId) {
+            List<Object[]> rows = animalRepository.findAnimalInfoRawByClientId(clientId);
+
+            return rows.stream().map(row -> new AnimalInfoForClientDTO(
+                    ((Number) row[0]).longValue(),         // animal_id
+                    row[1].toString(),                     // birth_date
+                    row[2].toString(),                     // gender
+                    row[3].toString(),                     // name
+                    row[4].toString(),                     // url_image
+                    row[5] != null ? ((Number) row[5]).doubleValue() : null, // weight
+                    row[6].toString(),                     // breed_name
+                    row[7].toString()                      // species_name
+            )).toList();
+        }
 
     }
