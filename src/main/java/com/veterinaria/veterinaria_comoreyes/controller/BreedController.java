@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +49,14 @@ public class BreedController {
     public ResponseEntity<?> deleteBreed(@PathVariable Long id) {
         breedService.deleteBreed(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-specie")
+    public Page<BreedDTO> getBreedsBySpecie(
+            @RequestParam Long specieId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return breedService.getBreedsBySpeciePaginated(specieId, page, size);
     }
 
 }

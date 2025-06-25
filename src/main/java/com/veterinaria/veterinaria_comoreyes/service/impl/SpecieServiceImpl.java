@@ -97,7 +97,7 @@ public class SpecieServiceImpl implements ISpecieService {
             return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
         }
 
-        System.out.println("🔁 [REDIS MISS] Consultando base de datos para: " + redisKey);
+        System.out.println("[REDIS MISS] Consultando base de datos para: " + redisKey);
         Page<Specie> speciePage = specieRepository.findAllByStatusTrue(PageRequest.of(page, size));
 
         List<SpecieDTO> dtoList = speciePage.getContent().stream()

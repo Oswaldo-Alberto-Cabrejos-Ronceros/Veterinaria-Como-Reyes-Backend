@@ -9,6 +9,10 @@ import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +22,17 @@ import java.util.stream.Collectors;
 @Service
 public class BreedServiceImpl implements IBreedService {
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final BreedRepository breedRepository;
     private final SpecieRepository specieRepository;
     private final FilterStatus filterStatus;
     private final BreedMapper breedMapper;
 
     @Autowired
-    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository, FilterStatus filterStatus, BreedMapper breedMapper) {
+    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository,
+            FilterStatus filterStatus, BreedMapper breedMapper) {
         this.breedRepository = breedRepository;
         this.specieRepository = specieRepository;
         this.filterStatus = filterStatus;
@@ -100,5 +108,30 @@ public class BreedServiceImpl implements IBreedService {
                 .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
         breed.setStatus(false);
         breedRepository.save(breed);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<BreedDTO> getBreedsBySpeciePaginated(Long specieId, int page, int size) {
+        String redisKey = "breeds:specie=" + specieId + ":page=" + page + ":size=" + size;
+
+        @SuppressWarnings("unchecked")
+        List<BreedDTO> cached = (List<BreedDTO>) redisTemplate.opsForValue().get(redisKey);
+
+        if (cached != null && !cached.isEmpty()) {
+            System.out.println("[REDIS HIT] " + redisKey);
+            return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
+        }
+
+        System.out.println("[REDIS MISS] " + redisKey);
+        Page<Breed> breeds = breedRepository
+                .findAllBySpecie_SpecieIdAndStatusTrue(specieId, PageRequest.of(page, size));
+
+        List<BreedDTO> dtoList = breeds.getContent().stream()
+                .map(breedMapper::maptoBreedDTO)
+                .collect(Collectors.toList());
+
+        redisTemplate.opsForValue().set(redisKey, dtoList);
+        return new PageImpl<>(dtoList, breeds.getPageable(), breeds.getTotalElements());
     }
 }
