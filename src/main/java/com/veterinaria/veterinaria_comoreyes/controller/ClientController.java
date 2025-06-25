@@ -25,7 +25,7 @@ public class ClientController {
     }
 
     //Obtener info client -> lista de permisos
-     @PreAuthorize("hasAuthority('drop_client')")
+    /*@PreAuthorize("hasAuthority('drop_client')")*/
     @GetMapping("/{id}")
     public ResponseEntity<ClientDTO> getClientById( @PathVariable Long id) {
         ClientDTO client = clientService.getClientById(id);
@@ -58,8 +58,8 @@ public class ClientController {
     }
 
     // Update client
+    //@PreAuthorize("hasAuthority('update_client')")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('update_client')")
     public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @RequestBody ClientDTO clientDTO) {
         ClientDTO updatedClient = clientService.updateClient(id, clientDTO);
         return ResponseEntity.ok(updatedClient);
@@ -106,6 +106,4 @@ public class ClientController {
         nMyInfoClientDTO myInfoClientDTO = clientService.getMyInfoAsClient(id);
         return ResponseEntity.ok(myInfoClientDTO);
     }
-
-
 }

@@ -2,9 +2,12 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.BasicServiceForAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.TimesForTurnDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,5 +52,33 @@ public class AppointmentController {
     @PatchMapping("/{id}/complete")
     public AppointmentResponseDTO completeAppointment(@PathVariable Long id) {
         return appointmentService.completeAppointment(id);
+    }
+
+    @GetMapping("/available-times")
+    public ResponseEntity<List<TimesForTurnDTO>> getAvailableTimes(
+            @RequestParam("headquarterVetServiceId") Long headquarterVetServiceId,
+            @RequestParam("date") String date) {
+
+        List<TimesForTurnDTO> availableTimes = appointmentService.getAvailableTimesForTurn(headquarterVetServiceId, date);
+
+        if (availableTimes.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 No Content si no hay horarios
+        }
+
+        return ResponseEntity.ok(availableTimes); // 200 OK con la lista
+    }
+
+    @GetMapping("/services")
+    public ResponseEntity<List<BasicServiceForAppointmentDTO>> getServicesByHeadquarterAndSpecies(
+            @RequestParam Long headquarterId,
+            @RequestParam Long speciesId) {
+
+        List<BasicServiceForAppointmentDTO> services =
+                appointmentService.getServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+
+        if (services.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(services);
     }
 }

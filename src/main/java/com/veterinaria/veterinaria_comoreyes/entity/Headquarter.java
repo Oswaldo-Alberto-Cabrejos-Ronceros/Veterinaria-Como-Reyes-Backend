@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -44,5 +45,9 @@ public class Headquarter extends EntityWithStatus {
 
     @Column(length = 50)
     private String department;
+
+    private LocalTime startTime;
+
+    private LocalTime endTime;
 
 }
