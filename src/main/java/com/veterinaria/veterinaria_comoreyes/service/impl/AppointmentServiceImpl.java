@@ -1,7 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -230,4 +230,37 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return appointmentMapper.toResponseDTO(appointmentRepository.save(appointment));
     }
 
+    @Override
+    public List<TimesForTurnDTO> getAvailableTimesForTurn(Long headquarterVetServiceId, String date) {
+        List<FormatTimeDTO> allTimes = appointmentRepository.timesAvailableForServiceAndDate(headquarterVetServiceId, date);
+
+        List<FormatTimeDTO> manana = new ArrayList<>();
+        List<FormatTimeDTO> tarde = new ArrayList<>();
+        List<FormatTimeDTO> noche = new ArrayList<>();
+
+        for (FormatTimeDTO dto : allTimes) {
+            String time = dto.getTime(); // Ejemplo: "09:20"
+            int hour = Integer.parseInt(time.split(":")[0]);
+
+            if (hour >= 9 && hour < 12) {
+                manana.add(dto);
+            } else if (hour >= 12 && hour < 17) {
+                tarde.add(dto);
+            } else if (hour >= 17) {
+                noche.add(dto);
+            }
+        }
+
+        List<TimesForTurnDTO> result = new ArrayList<>();
+        if (!manana.isEmpty()) result.add(new TimesForTurnDTO("MAÑANA", manana));
+        if (!tarde.isEmpty()) result.add(new TimesForTurnDTO("TARDE", tarde));
+        if (!noche.isEmpty()) result.add(new TimesForTurnDTO("NOCHE", noche));
+
+        return result;
+    }
+
+    @Override
+    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
+        return appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+    }
 }

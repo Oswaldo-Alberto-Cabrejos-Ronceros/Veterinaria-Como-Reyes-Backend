@@ -26,7 +26,6 @@ public class AppointmentRequestDTO {
     @Size(max = 255)
     private String comment;
 
-
     @Size(max = 255)
     private String cancellationNote =null;
 
