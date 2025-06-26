@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- HeadquarterDTO of Headquarter(entity):
- To add or update the entire entity
+ * HeadquarterDTO of Headquarter(entity):
+ * To add or update the entire entity
  */
 @Getter
 @Setter

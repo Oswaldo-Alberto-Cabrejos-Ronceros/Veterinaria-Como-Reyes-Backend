@@ -41,6 +41,7 @@ public class CategoryServiceImpl implements ICategoryService {
     public List<CategoryDTO> getAllCategories() {
         filterStatus.activeFilterStatus(true);
         return categoryRepository.findAll().stream()
+                .filter(Category::getStatus)
                 .map(categoryMapper::maptoCategoryDTO)
                 .collect(Collectors.toList());
     }

@@ -59,8 +59,8 @@ public class RoleServiceImpl implements IRoleService {
     @Transactional
     @Override
     public RoleDTO createRole(RoleDTO roleDTO) {
-        filterStatus.activeFilterStatus(true);
         Role role = roleMapper.mapToRole(roleDTO);
+        role.setStatus(true);
         Role savedRole = roleRepository.save(role);
         return roleMapper.mapToRoleDTO(savedRole);
     }
@@ -68,7 +68,6 @@ public class RoleServiceImpl implements IRoleService {
     @Transactional
     @Override
     public RoleDTO updateRole(Long id, RoleDTO roleDTO) {
-        filterStatus.activeFilterStatus(true);
         Role role = roleRepository.findByRoleIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Role not found with id " + id));
         role.setName(roleDTO.getName());
