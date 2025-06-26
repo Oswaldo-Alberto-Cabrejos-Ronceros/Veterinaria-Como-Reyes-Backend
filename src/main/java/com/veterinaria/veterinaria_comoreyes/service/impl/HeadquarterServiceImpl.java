@@ -61,7 +61,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public HeadquarterDTO createHeadquarter(HeadquarterDTO dto) {
         Headquarter entity = headquarterMapper.mapToHeadquarter(dto);
-        entity.setStatus(true);
+        entity.setStatus(true); //Estado en true
         Headquarter saved = headquarterRepository.save(entity);
         return headquarterMapper.mapToHeadquarterDTO(saved);
     }
