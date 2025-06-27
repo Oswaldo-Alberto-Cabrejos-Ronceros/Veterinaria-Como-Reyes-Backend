@@ -104,6 +104,7 @@ public class ClientServiceImpl implements IClientService {
 
         validatePhoneAvailable(clientDTO.getPhone());
 
+        // Verificar si el DNI ya está registrado
         if (clientRepository.existsByDni(clientDTO.getDni())) {
             throw new RuntimeException("Cliente ya registrado con ese DNI: " + clientDTO.getDni());
         }

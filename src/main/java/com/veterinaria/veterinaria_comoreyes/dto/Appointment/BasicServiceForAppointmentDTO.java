@@ -12,6 +12,7 @@ import lombok.Setter;
 public class BasicServiceForAppointmentDTO {
 
     private Long headquarterServiceId;
+    private Long serviceId;
     private String name;
     private String description;
     private Double price;

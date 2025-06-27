@@ -261,6 +261,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
-        return appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+        List<Object[]> rows = appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+
+        return rows.stream().map(row -> new BasicServiceForAppointmentDTO(
+                ((Number) row[0]).longValue(),                             // headquarterServiceId
+                ((Number) row[1]).longValue(),                             // serviceId
+                row[2] != null ? row[2].toString() : null,                 // name
+                row[3] != null ? row[3].toString() : null,                 // description
+                row[4] != null ? ((Number) row[4]).doubleValue() : null,   // price
+                row[5] != null ? ((Number) row[5]).intValue() : null       // duration
+        )).toList();
     }
+
+
 }
