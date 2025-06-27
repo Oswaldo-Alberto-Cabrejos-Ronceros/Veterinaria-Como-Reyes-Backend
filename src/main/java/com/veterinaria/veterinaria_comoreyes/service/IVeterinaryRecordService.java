@@ -19,5 +19,6 @@ public interface IVeterinaryRecordService {
 
     VeterinaryRecordDTO updateStatus(Long id, StatusVeterinaryRecord status);
 
-    Page<InfoVeterinaryRecordForTableDTO> getAllInfoVeterinaryRecords(Pageable pageable);
+
+    Page<InfoVeterinaryRecordForTableDTO> getAllInfoVeterinaryRecordsByAnimal(Long animalId, Pageable pageable);
 }

@@ -56,12 +56,14 @@ public class VeterinaryRecordController {
     public ResponseEntity<VeterinaryRecordDTO> setObservacion(@PathVariable Long id) {
         return ResponseEntity.ok(service.updateStatus(id, StatusVeterinaryRecord.OBSERVACION));
     }
-    // Tabla paginada de registros veterinarios
-    @GetMapping("/table")
-    public Page<InfoVeterinaryRecordForTableDTO> getAllRecords(
+    // Tabla paginada de registros veterinarios por animal id
+    @GetMapping("/animal/{animalId}")
+    public Page<InfoVeterinaryRecordForTableDTO> getAllInfoVeterinaryRecordsByAnimal(
+            @PathVariable Long animalId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return service.getAllInfoVeterinaryRecords(pageable);
+        return service.getAllInfoVeterinaryRecordsByAnimal(animalId, pageable);
     }
+
 }

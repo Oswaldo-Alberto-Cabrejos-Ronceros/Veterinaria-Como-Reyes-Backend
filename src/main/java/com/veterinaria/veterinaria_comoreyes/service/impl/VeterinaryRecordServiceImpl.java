@@ -63,8 +63,8 @@ public class VeterinaryRecordServiceImpl implements IVeterinaryRecordService {
     }
 
     @Override
-    public Page<InfoVeterinaryRecordForTableDTO> getAllInfoVeterinaryRecords(Pageable pageable) {
-        return repository.findAllInfoVeterinaryRecords(pageable)
+    public Page<InfoVeterinaryRecordForTableDTO> getAllInfoVeterinaryRecordsByAnimal(Long animalId, Pageable pageable) {
+        return repository.findAllInfoVeterinaryRecordsByAnimalId(animalId, pageable)
                 .map(this::mapToDto);
     }
 
