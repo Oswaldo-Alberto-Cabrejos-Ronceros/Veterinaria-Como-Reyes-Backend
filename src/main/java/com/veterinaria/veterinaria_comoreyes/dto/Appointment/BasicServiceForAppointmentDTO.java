@@ -1,9 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,6 +18,11 @@ public class BasicServiceForAppointmentDTO {
     private Long serviceId;
     private String name;
     private String description;
-    private Double price;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private BigDecimal price;
     private Integer duration;
+    private String specieName;
+    private String serviceImageUrl;
+    private String categoryName;
+
 }
