@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,26 +87,30 @@ public class SpecieServiceImpl implements ISpecieService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SpecieDTO> getAllSpeciesPaginated(int page, int size) {
-        String redisKey = "species:page=" + page + ":size=" + size;
+    public Page<SpecieDTO> searchSpecies(String name, String imagePath, Boolean status, Pageable pageable) {
+        String redisKey = String.format(
+                "species:page=%d:size=%d:name=%s:imagePath=%s:status=%s",
+                pageable.getPageNumber(), pageable.getPageSize(),
+                name != null ? name : "null",
+                imagePath != null ? imagePath : "null",
+                status != null ? status : "null");
 
         @SuppressWarnings("unchecked")
-        List<SpecieDTO> cached = (List<SpecieDTO>) redisTemplate.opsForValue().get(redisKey);
+        List<SpecieDTO> cachedList = (List<SpecieDTO>) redisTemplate.opsForValue().get(redisKey);
+        Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
 
-        if (cached != null && !cached.isEmpty()) {
-            System.out.println("[REDIS HIT] Clave encontrada: " + redisKey + " | Elementos: " + cached.size());
-            return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
+        if (cachedList != null && totalCount != null) {
+            System.out.println("[REDIS HIT] Clave: " + redisKey);
+            return new PageImpl<>(cachedList, pageable, totalCount);
         }
 
-        System.out.println("[REDIS MISS] Consultando base de datos para: " + redisKey);
-        Page<Specie> speciePage = specieRepository.findAllByStatusTrue(PageRequest.of(page, size));
+        System.out.println("[REDIS MISS] Consultando DB para clave: " + redisKey);
+        Page<SpecieDTO> resultPage = specieRepository.searchSpecies(name, imagePath, status, pageable);
 
-        List<SpecieDTO> dtoList = speciePage.getContent().stream()
-                .map(specieMapper::mapToSpecieDTO)
-                .collect(Collectors.toList());
+        redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
+        redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
 
-        redisTemplate.opsForValue().set(redisKey, dtoList);
-        return new PageImpl<>(dtoList, speciePage.getPageable(), speciePage.getTotalElements());
+        return resultPage;
     }
 
 }

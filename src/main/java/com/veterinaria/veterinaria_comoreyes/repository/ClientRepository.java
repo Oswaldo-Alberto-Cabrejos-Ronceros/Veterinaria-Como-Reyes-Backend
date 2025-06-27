@@ -1,7 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.repository;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
 import org.springframework.data.domain.Page;
@@ -19,15 +18,19 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     boolean existsByDni(String dni);
 
-    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO(" +
-            "s.specieId, s.name, s.imagePath, s.status) " +
-            "FROM Specie s WHERE " +
-            "(:name IS NULL OR s.name LIKE %:name%) AND " +
-            "(:imagePath IS NULL OR s.imagePath LIKE %:imagePath%) AND " +
-            "(:status IS NULL OR s.status = :status)")
-    Page<SpecieDTO> searchSpecies(@Param("name") String name,
-            @Param("imagePath") String imagePath,
+    @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Client.ClientListDTO(c.clientId, c.dni, c.name, c.lastName, c.headquarter.name,CASE WHEN c.status = true THEN 'Activo' ELSE 'Bloqueado' END) "
+            +
+            "FROM Client c WHERE " +
+            "(:dni IS NULL OR c.dni = :dni) AND " +
+            "(:name IS NULL OR c.name LIKE %:name%) AND " +
+            "(:lastName IS NULL OR c.lastName LIKE %:lastName%) AND " +
+            "(:status IS NULL OR c.status = :status) AND " +
+            "(:headquarterId IS NULL OR c.headquarter.headquarterId = :headquarterId)")
+    Page<ClientListDTO> searchClients(@Param("dni") String dni,
+            @Param("name") String name,
+            @Param("lastName") String lastName,
             @Param("status") Boolean status,
+            @Param("headquarterId") Long headquarterId,
             Pageable pageable);
 
     Client findByClientId(long clientId);
