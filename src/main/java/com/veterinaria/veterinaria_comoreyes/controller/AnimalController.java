@@ -1,7 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +33,6 @@ public class AnimalController {
         return ResponseEntity.ok().body(animalService.getAnimalById(id));
     }
 
-
     @GetMapping("/client/{id}")
     public ResponseEntity<List<AnimalDTO>> getAnimalByClientId(@PathVariable Long id) {
         return ResponseEntity.ok().body(animalService.getAnimalsByClient(id));
@@ -50,4 +54,18 @@ public class AnimalController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Page<AnimalListDTO>> searchAnimals(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String breedId,
+            @RequestParam(required = false) String clientId,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<AnimalListDTO> result = animalService.searchAnimals(name, gender, breedId, clientId, status, pageable);
+        return ResponseEntity.ok(result);
+    }
 }

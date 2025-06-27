@@ -1,8 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IAnimalService {
 
@@ -23,4 +27,7 @@ public interface IAnimalService {
     void validateClientExistAndStatusForAnimalId(Long id);
 
     String findSpecieNameByAnimalId(Long id);
+
+    Page<AnimalListDTO> searchAnimals(String name, String gender, String breedId, String clientId, Boolean status,
+            Pageable pageable);
 }
