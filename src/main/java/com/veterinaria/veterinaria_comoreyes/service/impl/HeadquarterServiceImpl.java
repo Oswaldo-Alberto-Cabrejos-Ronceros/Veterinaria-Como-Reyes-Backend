@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeInfoPublicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.exception.HeadquarterNotValidException;
@@ -12,6 +13,10 @@ import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +32,18 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     private HeadquarterMapper headquarterMapper;
     @Autowired
     private FilterStatus filterStatus;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository,EmployeeRepository employeeRepository, HeadquarterMapper headquarterMapper, FilterStatus filterStatus){
-        this.headquarterRepository=headquarterRepository;
-        this.headquarterMapper=headquarterMapper;
-        this.filterStatus=filterStatus;
-        this.employeeRepository=employeeRepository;
+    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository, EmployeeRepository employeeRepository,
+            HeadquarterMapper headquarterMapper, FilterStatus filterStatus) {
+        this.headquarterRepository = headquarterRepository;
+        this.headquarterMapper = headquarterMapper;
+        this.filterStatus = filterStatus;
+        this.employeeRepository = employeeRepository;
     }
 
     @Transactional(readOnly = true)
@@ -61,7 +69,7 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public HeadquarterDTO createHeadquarter(HeadquarterDTO dto) {
         Headquarter entity = headquarterMapper.mapToHeadquarter(dto);
-        entity.setStatus(true); //Estado en true
+        entity.setStatus(true); // Estado en true
         Headquarter saved = headquarterRepository.save(entity);
         return headquarterMapper.mapToHeadquarterDTO(saved);
     }
@@ -99,8 +107,8 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     // Validar si la sede existe y esta disponible
     @Override
     public void validateHeadquarterAvailable(Long id) {
-        boolean exist= headquarterRepository.existsByHeadquarterIdAndStatusIsTrue(id);
-        if(!exist){
+        boolean exist = headquarterRepository.existsByHeadquarterIdAndStatusIsTrue(id);
+        if (!exist) {
             throw new HeadquarterNotValidException("Sede no disponoble");
         }
     }
@@ -113,7 +121,8 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         // Mapear cada sede con sus empleados activos
         return headquarters.stream().map(hq -> {
             // Buscar empleados activos para cada sede
-            List<Employee> activeEmployees = employeeRepository.findByHeadquarter_HeadquarterIdAndStatusTrue(hq.getHeadquarterId());
+            List<Employee> activeEmployees = employeeRepository
+                    .findByHeadquarter_HeadquarterIdAndStatusTrue(hq.getHeadquarterId());
 
             // Mapear empleados a DTO
             List<EmployeeInfoPublicDTO> employeeInfoList = activeEmployees.stream()
@@ -123,4 +132,35 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
             return new HeadquarterEmployeesDTO(hq.getName(), employeeInfoList);
         }).toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<HeadquarterListDTO> searcHeadquarters(String name, String address,
+            String district, Boolean status, Pageable pageable) {
+        String redisKey = String.format("headquarters:page=%d:size=%d:name=%s:address=%s:district=%s:status=%s",
+                pageable.getPageNumber(), pageable.getPageSize(),
+                name != null ? name : "null",
+                address != null ? address : "null",
+                district != null ? district : "null",
+                status != null ? status : "null");
+
+        @SuppressWarnings("unchecked")
+        List<HeadquarterListDTO> cachedList = (List<HeadquarterListDTO>) redisTemplate.opsForValue().get(redisKey);
+        Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        if (cachedList != null && totalCount != null) {
+            System.out.println("[REDIS HIT] Clave: " + redisKey);
+            return new PageImpl<>(cachedList, pageable, totalCount);
+        }
+
+        System.out.println("[REDIS MISS] Clave: " + redisKey);
+        Page<HeadquarterListDTO> resultPage = headquarterRepository.searchHeadquarters(name, address, district, status,
+                pageable);
+
+        redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
+        redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
+
+        return resultPage;
+    }
+
 }

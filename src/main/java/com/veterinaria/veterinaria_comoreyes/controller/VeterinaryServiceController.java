@@ -1,8 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Service.VetServiceListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Service.VeterinaryServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryServiceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,12 +44,15 @@ public class VeterinaryServiceController {
     }
 
     @PostMapping
-    public ResponseEntity<VeterinaryServiceDTO> createVeterinaryService(@RequestBody VeterinaryServiceDTO veterinaryServiceDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(veterinaryServiceService.createService(veterinaryServiceDTO));
+    public ResponseEntity<VeterinaryServiceDTO> createVeterinaryService(
+            @RequestBody VeterinaryServiceDTO veterinaryServiceDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(veterinaryServiceService.createService(veterinaryServiceDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VeterinaryServiceDTO> updateService(@PathVariable Long id, @RequestBody VeterinaryServiceDTO veterinaryServiceDTO) {
+    public ResponseEntity<VeterinaryServiceDTO> updateService(@PathVariable Long id,
+            @RequestBody VeterinaryServiceDTO veterinaryServiceDTO) {
         return ResponseEntity.ok(veterinaryServiceService.updateService(id, veterinaryServiceDTO));
     }
 
@@ -54,4 +61,20 @@ public class VeterinaryServiceController {
         veterinaryServiceService.deleteService(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<VetServiceListDTO>> searchVeterinaryServices(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Double price,
+            @RequestParam(required = false) String specieId,
+            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<VetServiceListDTO> result = veterinaryServiceService.searchVetServices(
+                name, price, specieId, categoryId, status, pageable);
+        return ResponseEntity.ok(result);
+    }
+
 }

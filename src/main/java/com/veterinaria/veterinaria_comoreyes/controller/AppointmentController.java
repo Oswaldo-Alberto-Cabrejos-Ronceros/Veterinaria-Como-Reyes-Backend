@@ -5,6 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestD
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.BasicServiceForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.TimesForTurnDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +94,7 @@ public class AppointmentController {
     @GetMapping("/search")
     public Page<AppointmentListDTO> searchAppointments(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate scheduleDateTime,
-            @RequestParam(required = false) String statusAppointment,
+            @RequestParam(required = false) StatusAppointment statusAppointment,
             @RequestParam(required = false) Long headquarterVetServiceId,
             @RequestParam(required = false) Long employeeId,
             @RequestParam(required = false) Long animalId,

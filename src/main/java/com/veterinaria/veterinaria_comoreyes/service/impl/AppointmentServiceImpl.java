@@ -281,7 +281,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AppointmentListDTO> searchAppointments(LocalDate scheduleDateTime, String statusAppointment,
+    public Page<AppointmentListDTO> searchAppointments(LocalDate scheduleDateTime, StatusAppointment statusAppointment,
             Long headquarterVetServiceId, Long employeeId, Long animalId, Pageable pageable) {
 
         String redisKey = String.format(

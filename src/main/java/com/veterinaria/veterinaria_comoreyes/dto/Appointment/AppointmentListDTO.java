@@ -2,6 +2,8 @@ package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
 import java.time.LocalDateTime;
 
+import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +19,7 @@ public class AppointmentListDTO {
 
     private LocalDateTime scheduleDateTime;
 
-    private String statusAppointment;
+    private StatusAppointment statusAppointment;
 
     private Long headquarterVetServiceId;
 

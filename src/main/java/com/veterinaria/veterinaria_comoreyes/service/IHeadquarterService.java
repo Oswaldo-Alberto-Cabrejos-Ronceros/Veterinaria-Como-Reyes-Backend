@@ -2,8 +2,12 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterListDTO;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IHeadquarterService {
 
@@ -21,4 +25,7 @@ public interface IHeadquarterService {
     void validateHeadquarterAvailable(Long id);
 
     List<HeadquarterEmployeesDTO> getAllActiveHeadquartersWithActiveEmployees();
+
+    Page<HeadquarterListDTO> searcHeadquarters(String name, String address, String district, Boolean status,
+            Pageable pageable);
 }
