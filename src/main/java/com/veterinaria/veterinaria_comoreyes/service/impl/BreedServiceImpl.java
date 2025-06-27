@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedListBySpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.BreedMapper;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,116 +24,122 @@ import java.util.stream.Collectors;
 @Service
 public class BreedServiceImpl implements IBreedService {
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+        @Autowired
+        private RedisTemplate<String, Object> redisTemplate;
 
-    private final BreedRepository breedRepository;
-    private final SpecieRepository specieRepository;
-    private final FilterStatus filterStatus;
-    private final BreedMapper breedMapper;
+        private final BreedRepository breedRepository;
+        private final SpecieRepository specieRepository;
+        private final FilterStatus filterStatus;
+        private final BreedMapper breedMapper;
 
-    @Autowired
-    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository,
-            FilterStatus filterStatus, BreedMapper breedMapper) {
-        this.breedRepository = breedRepository;
-        this.specieRepository = specieRepository;
-        this.filterStatus = filterStatus;
-        this.breedMapper = breedMapper;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public BreedDTO getBreedById(Long id) {
-        filterStatus.activeFilterStatus(true);
-        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
-                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
-        return breedMapper.maptoBreedDTO(breed);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<BreedDTO> getBreedsBySpecies(Long speciesId) {
-        filterStatus.activeFilterStatus(true);
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(speciesId)
-                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + speciesId));
-        return breedRepository.findBySpecie(specie)
-                .stream()
-                .map(breedMapper::maptoBreedDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<BreedDTO> getAllBreeds() {
-        filterStatus.activeFilterStatus(true);
-        return breedRepository.findAll()
-                .stream()
-                .map(breedMapper::maptoBreedDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    @Override
-    public BreedDTO createBreed(BreedDTO breedDTO) {
-        Long specieId = breedDTO.getSpecie().getSpecieId();
-
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
-                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
-
-        Breed breed = breedMapper.maptoBreed(breedDTO);
-        breed.setStatus(true);
-        breed.setSpecie(specie);
-        return breedMapper.maptoBreedDTO(breedRepository.save(breed));
-    }
-
-    @Transactional
-    @Override
-    public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
-        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
-                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
-
-        // Validar especie
-        Long specieId = breedDTO.getSpecie().getSpecieId();
-        Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
-                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
-
-        breed.setName(breedDTO.getName());
-        breed.setSpecie(specie);
-
-        return breedMapper.maptoBreedDTO(breedRepository.save(breed));
-    }
-
-    @Transactional
-    @Override
-    public void deleteBreed(Long id) {
-        Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
-                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
-        breed.setStatus(false);
-        breedRepository.save(breed);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Page<BreedDTO> getBreedsBySpeciePaginated(Long specieId, int page, int size) {
-        String redisKey = "breeds:specie=" + specieId + ":page=" + page + ":size=" + size;
-
-        @SuppressWarnings("unchecked")
-        List<BreedDTO> cached = (List<BreedDTO>) redisTemplate.opsForValue().get(redisKey);
-
-        if (cached != null && !cached.isEmpty()) {
-            System.out.println("[REDIS HIT] " + redisKey);
-            return new PageImpl<>(cached, PageRequest.of(page, size), cached.size());
+        @Autowired
+        public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository,
+                        FilterStatus filterStatus, BreedMapper breedMapper) {
+                this.breedRepository = breedRepository;
+                this.specieRepository = specieRepository;
+                this.filterStatus = filterStatus;
+                this.breedMapper = breedMapper;
         }
 
-        System.out.println("[REDIS MISS] " + redisKey);
-        Page<Breed> breeds = breedRepository
-                .findAllBySpecie_SpecieIdAndStatusTrue(specieId, PageRequest.of(page, size));
+        @Transactional(readOnly = true)
+        @Override
+        public BreedDTO getBreedById(Long id) {
+                filterStatus.activeFilterStatus(true);
+                Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
+                                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+                return breedMapper.maptoBreedDTO(breed);
+        }
 
-        List<BreedDTO> dtoList = breeds.getContent().stream()
-                .map(breedMapper::maptoBreedDTO)
-                .collect(Collectors.toList());
+        @Transactional(readOnly = true)
+        @Override
+        public List<BreedDTO> getBreedsBySpecies(Long speciesId) {
+                filterStatus.activeFilterStatus(true);
+                Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(speciesId)
+                                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + speciesId));
+                return breedRepository.findBySpecie(specie)
+                                .stream()
+                                .map(breedMapper::maptoBreedDTO)
+                                .collect(Collectors.toList());
+        }
 
-        redisTemplate.opsForValue().set(redisKey, dtoList);
-        return new PageImpl<>(dtoList, breeds.getPageable(), breeds.getTotalElements());
-    }
+        @Transactional(readOnly = true)
+        @Override
+        public List<BreedDTO> getAllBreeds() {
+                filterStatus.activeFilterStatus(true);
+                return breedRepository.findAll()
+                                .stream()
+                                .map(breedMapper::maptoBreedDTO)
+                                .collect(Collectors.toList());
+        }
+
+        @Transactional
+        @Override
+        public BreedDTO createBreed(BreedDTO breedDTO) {
+                Long specieId = breedDTO.getSpecie().getSpecieId();
+
+                Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
+                                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
+
+                Breed breed = breedMapper.maptoBreed(breedDTO);
+                breed.setStatus(true);
+                breed.setSpecie(specie);
+                return breedMapper.maptoBreedDTO(breedRepository.save(breed));
+        }
+
+        @Transactional
+        @Override
+        public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
+                Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
+                                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+
+                // Validar especie
+                Long specieId = breedDTO.getSpecie().getSpecieId();
+                Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(specieId)
+                                .orElseThrow(() -> new RuntimeException("Specie not found with id: " + specieId));
+
+                breed.setName(breedDTO.getName());
+                breed.setSpecie(specie);
+
+                return breedMapper.maptoBreedDTO(breedRepository.save(breed));
+        }
+
+        @Transactional
+        @Override
+        public void deleteBreed(Long id) {
+                Breed breed = breedRepository.findByBreedIdAndStatusIsTrue(id)
+                                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+                breed.setStatus(false);
+                breedRepository.save(breed);
+        }
+
+        @Override
+        @Transactional(readOnly = true)
+        public Page<BreedListBySpecieDTO> searchBreedBySpecieName(String specieName, Boolean status,
+                        Pageable pageable) {
+                String redisKey = String.format(
+                                "breeds:page=%d:size=%d:specieName=%s:status=%s",
+                                pageable.getPageNumber(), pageable.getPageSize(),
+                                specieName != null ? specieName : "null",
+                                status != null ? status : "null");
+
+                @SuppressWarnings("unchecked")
+                List<BreedListBySpecieDTO> cachedList = (List<BreedListBySpecieDTO>) redisTemplate.opsForValue()
+                                .get(redisKey);
+                Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+                if (cachedList != null && totalCount != null) {
+                        System.out.println("[REDIS HIT] Clave: " + redisKey);
+                        return new PageImpl<>(cachedList, pageable, totalCount);
+                }
+
+                System.out.println("[REDIS MISS] Clave: " + redisKey);
+                Page<BreedListBySpecieDTO> resultPage = breedRepository.searchBreedBySpecieName(specieName, status,
+                                pageable);
+
+                redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
+                redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
+
+                return resultPage;
+        }
+
 }

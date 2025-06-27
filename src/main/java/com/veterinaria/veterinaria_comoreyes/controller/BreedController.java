@@ -1,9 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedListBySpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,12 +54,12 @@ public class BreedController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/by-specie")
-    public Page<BreedDTO> getBreedsBySpecie(
-            @RequestParam Long specieId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return breedService.getBreedsBySpeciePaginated(specieId, page, size);
+    @GetMapping("/search/by-specie")
+    public Page<BreedListBySpecieDTO> getBreedsBySpecieName(
+            @RequestParam(required = false) String specieName,
+            @RequestParam(required = false) Boolean status,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return breedService.searchBreedBySpecieName(specieName, status, pageable);
     }
 
 }

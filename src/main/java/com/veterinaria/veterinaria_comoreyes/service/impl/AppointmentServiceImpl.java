@@ -9,9 +9,14 @@ import com.veterinaria.veterinaria_comoreyes.mapper.AppointmentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;
 import com.veterinaria.veterinaria_comoreyes.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +25,14 @@ import java.util.stream.Collectors;
 @Service
 public class AppointmentServiceImpl implements IAppointmentService {
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final AppointmentRepository appointmentRepository;
     private final AppointmentMapper appointmentMapper;
     private final HeadquarterVetServiceRepository headquarterVetServiceRepository;
     private final IHeadquarterVetServiceService headquarterVetServiceService;
-    private final  IPaymentService paymentService;
+    private final IPaymentService paymentService;
     private final IAnimalService animalService;
     private final AnimalRepository animalRepository;
     private final EmployeeRepository employeeRepository;
@@ -33,10 +41,13 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
-                                  AppointmentMapper appointmentMapper,
-                                  HeadquarterVetServiceRepository headquarterVetServiceRepository, IHeadquarterVetServiceService headquarterVetServiceService, IPaymentService paymentService, IAnimalService animalService,
-                                  AnimalRepository animalRepository,
-                                  EmployeeRepository employeeRepository, IPaymentMethodService paymentMethodService, PaymentRepository paymentRepository) {
+            AppointmentMapper appointmentMapper,
+            HeadquarterVetServiceRepository headquarterVetServiceRepository,
+            IHeadquarterVetServiceService headquarterVetServiceService, IPaymentService paymentService,
+            IAnimalService animalService,
+            AnimalRepository animalRepository,
+            EmployeeRepository employeeRepository, IPaymentMethodService paymentMethodService,
+            PaymentRepository paymentRepository) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.headquarterVetServiceRepository = headquarterVetServiceRepository;
@@ -50,15 +61,16 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     public void validateSpeciesOfAnimalWithService(Long animalId, Long headquarterServiceId) {
-        String nameSpecieOfService =headquarterVetServiceService.nameSpecie(headquarterServiceId);
-        String nameSpecieOfAnimal =animalService.findSpecieNameByAnimalId(animalId);
+        String nameSpecieOfService = headquarterVetServiceService.nameSpecie(headquarterServiceId);
+        String nameSpecieOfAnimal = animalService.findSpecieNameByAnimalId(animalId);
         if (nameSpecieOfAnimal.equalsIgnoreCase(nameSpecieOfService)) {
-            throw new RuntimeException("Este animal no puede ser seleccionado con este servicio porque su especie no coincide.");
+            throw new RuntimeException(
+                    "Este animal no puede ser seleccionado con este servicio porque su especie no coincide.");
         }
     }
 
     public void validateAvailability(LocalDateTime scheduleDateTime, Long headquarterServiceId) {
-        boolean isAvailable = appointmentRepository.isAppointmentSlotAvailable(scheduleDateTime,headquarterServiceId);
+        boolean isAvailable = appointmentRepository.isAppointmentSlotAvailable(scheduleDateTime, headquarterServiceId);
 
         if (!isAvailable) {
             throw new RuntimeException("La fecha y hora seleccionadas estan ocupadas.");
@@ -129,7 +141,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
-    public UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment){
+    public UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment) {
         Payment payment = paymentRepository.findByAppointment_AppointmentIdAndStatus(idAppoinment, "PENDIENTE")
                 .orElseThrow(() -> new ResourceNotFoundException("No hay pago pendiente para esta cita"));
 
@@ -144,8 +156,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
         Double unitPrice = payment.getAppointment()
                 .getHeadquarterVetService()
                 .getVeterinaryService()
-                .getPrice()
-                ;
+                .getPrice();
 
         // Construir y devolver el DTO
         UserBuyerDTO userBuyerDTO = new UserBuyerDTO();
@@ -156,7 +167,6 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         return userBuyerDTO;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -232,7 +242,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<TimesForTurnDTO> getAvailableTimesForTurn(Long headquarterVetServiceId, String date) {
-        List<FormatTimeDTO> allTimes = appointmentRepository.timesAvailableForServiceAndDate(headquarterVetServiceId, date);
+        List<FormatTimeDTO> allTimes = appointmentRepository.timesAvailableForServiceAndDate(headquarterVetServiceId,
+                date);
 
         List<FormatTimeDTO> manana = new ArrayList<>();
         List<FormatTimeDTO> tarde = new ArrayList<>();
@@ -252,15 +263,53 @@ public class AppointmentServiceImpl implements IAppointmentService {
         }
 
         List<TimesForTurnDTO> result = new ArrayList<>();
-        if (!manana.isEmpty()) result.add(new TimesForTurnDTO("MAÑANA", manana));
-        if (!tarde.isEmpty()) result.add(new TimesForTurnDTO("TARDE", tarde));
-        if (!noche.isEmpty()) result.add(new TimesForTurnDTO("NOCHE", noche));
+        if (!manana.isEmpty())
+            result.add(new TimesForTurnDTO("MAÑANA", manana));
+        if (!tarde.isEmpty())
+            result.add(new TimesForTurnDTO("TARDE", tarde));
+        if (!noche.isEmpty())
+            result.add(new TimesForTurnDTO("NOCHE", noche));
 
         return result;
     }
 
     @Override
-    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
+    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
+            Long speciesId) {
         return appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AppointmentListDTO> searchAppointments(LocalDate scheduleDateTime, String statusAppointment,
+            Long headquarterVetServiceId, Long employeeId, Long animalId, Pageable pageable) {
+
+        String redisKey = String.format(
+                "appointments:page=%d:size=%d:date=%s:status=%s:hvsId=%s:empId=%s:animalId=%s",
+                pageable.getPageNumber(), pageable.getPageSize(),
+                scheduleDateTime != null ? scheduleDateTime : "null",
+                statusAppointment != null ? statusAppointment : "null",
+                headquarterVetServiceId != null ? headquarterVetServiceId : "null",
+                employeeId != null ? employeeId : "null",
+                animalId != null ? animalId : "null");
+
+        @SuppressWarnings("unchecked")
+        List<AppointmentListDTO> cached = (List<AppointmentListDTO>) redisTemplate.opsForValue().get(redisKey);
+        Long total = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        if (cached != null && total != null) {
+            System.out.println("[REDIS HIT] " + redisKey);
+            return new PageImpl<>(cached, pageable, total);
+        }
+
+        System.out.println("[REDIS MISS] " + redisKey);
+        Page<AppointmentListDTO> pageResult = appointmentRepository.searchAppointments(
+                scheduleDateTime, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
+
+        redisTemplate.opsForValue().set(redisKey, pageResult.getContent());
+        redisTemplate.opsForValue().set(redisKey + ":total", pageResult.getTotalElements());
+
+        return pageResult;
+    }
+
 }

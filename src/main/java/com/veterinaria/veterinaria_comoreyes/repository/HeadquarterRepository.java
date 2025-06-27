@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface HeadquarterRepository extends JpaRepository<Headquarter, Long> {
-Optional<Headquarter> findByHeadquarterIdAndStatusIsTrue(Long id);
+   Optional<Headquarter> findByHeadquarterIdAndStatusIsTrue(Long id);
+
    boolean existsByHeadquarterIdAndStatusIsTrue(long headquarterId);
+
    Headquarter findByHeadquarterId(long headquarterId);
+
    List<Headquarter> findAllByStatusTrue();
 
 }

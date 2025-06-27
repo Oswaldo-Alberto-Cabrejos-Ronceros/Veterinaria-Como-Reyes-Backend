@@ -1,10 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedListBySpecieDTO;
 
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IBreedService {
     BreedDTO getBreedById(Long id);
@@ -19,6 +21,6 @@ public interface IBreedService {
 
     void deleteBreed(Long id);
 
-    Page<BreedDTO> getBreedsBySpeciePaginated(Long specieId, int page, int size);
+    Page<BreedListBySpecieDTO> searchBreedBySpecieName(String specieName, Boolean status, Pageable pageable);
 
 }

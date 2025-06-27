@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.BasicServiceForAppointmentDTO;
@@ -7,9 +8,14 @@ import com.veterinaria.veterinaria_comoreyes.dto.Appointment.TimesForTurnDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -35,7 +41,8 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}")
-    public AppointmentResponseDTO updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentRequestDTO dto) {
+    public AppointmentResponseDTO updateAppointment(@PathVariable Long id,
+            @Valid @RequestBody AppointmentRequestDTO dto) {
         return appointmentService.updateAppointment(id, dto);
     }
 
@@ -59,7 +66,8 @@ public class AppointmentController {
             @RequestParam("headquarterVetServiceId") Long headquarterVetServiceId,
             @RequestParam("date") String date) {
 
-        List<TimesForTurnDTO> availableTimes = appointmentService.getAvailableTimesForTurn(headquarterVetServiceId, date);
+        List<TimesForTurnDTO> availableTimes = appointmentService.getAvailableTimesForTurn(headquarterVetServiceId,
+                date);
 
         if (availableTimes.isEmpty()) {
             return ResponseEntity.noContent().build(); // 204 No Content si no hay horarios
@@ -73,12 +81,26 @@ public class AppointmentController {
             @RequestParam Long headquarterId,
             @RequestParam Long speciesId) {
 
-        List<BasicServiceForAppointmentDTO> services =
-                appointmentService.getServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+        List<BasicServiceForAppointmentDTO> services = appointmentService
+                .getServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
 
         if (services.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(services);
     }
+
+    @GetMapping("/search")
+    public Page<AppointmentListDTO> searchAppointments(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate scheduleDateTime,
+            @RequestParam(required = false) String statusAppointment,
+            @RequestParam(required = false) Long headquarterVetServiceId,
+            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) Long animalId,
+            @PageableDefault(size = 10) Pageable pageable) {
+
+        return appointmentService.searchAppointments(
+                scheduleDateTime, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
+    }
+
 }
