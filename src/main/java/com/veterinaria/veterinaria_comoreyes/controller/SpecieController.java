@@ -5,6 +5,8 @@ import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,10 +43,13 @@ public class SpecieController {
         specieService.deleteSpecie(id);
     }
 
-    @GetMapping("/paginated")
-    public Page<SpecieDTO> getPaginatedSpecies(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return specieService.getAllSpeciesPaginated(page, size);
+    @GetMapping("/search")
+    public Page<SpecieDTO> searchSpecies(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String imagePath,
+            @RequestParam(required = false) Boolean status,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return specieService.searchSpecies(name, imagePath, status, pageable);
     }
+
 }

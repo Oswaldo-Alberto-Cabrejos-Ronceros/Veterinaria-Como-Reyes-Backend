@@ -24,7 +24,9 @@ import com.veterinaria.veterinaria_comoreyes.service.IUserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,18 +43,19 @@ public class ClientServiceImpl implements IClientService {
     private final ClientMapper clientMapper;
     private final UserMapper userMapper;
     private final HeadquarterMapper headquarterMapper;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     public ClientServiceImpl(
-        ClientRepository clientRepository,
-        IUserService userService,
-        IReniecService reniecService,
-        IHeadquarterService headquarterService,
-        JwtTokenUtil jwtTokenUtil,
-        HeadquarterMapper headquarterMapper,
-        ClientMapper clientMapper,
-        UserMapper userMapper
-    ) {
+            ClientRepository clientRepository,
+            IUserService userService,
+            IReniecService reniecService,
+            IHeadquarterService headquarterService,
+            JwtTokenUtil jwtTokenUtil,
+            HeadquarterMapper headquarterMapper,
+            ClientMapper clientMapper,
+            UserMapper userMapper,
+            RedisTemplate<String, Object> redisTemplate) {
         this.clientRepository = clientRepository;
         this.userService = userService;
         this.headquarterService = headquarterService;
@@ -61,17 +64,46 @@ public class ClientServiceImpl implements IClientService {
         this.clientMapper = clientMapper;
         this.headquarterMapper = headquarterMapper;
         this.userMapper = userMapper;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
-    public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Boolean status, Long headquarterId, Pageable pageable) {
-        return clientRepository.searchClients(dni, name, lastName, status, headquarterId, pageable);
+    public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Boolean status,
+            Long headquarterId, Pageable pageable) {
+        String redisKey = String.format("clients:page=%d:size=%d:dni=%s:name=%s:lastName=%s:status=%s:headquarter=%s",
+                pageable.getPageNumber(), pageable.getPageSize(),
+                dni != null ? dni : "null",
+                name != null ? name : "null",
+                lastName != null ? lastName : "null",
+                status != null ? status : "null",
+                headquarterId != null ? headquarterId : "null");
+
+        // Verificar si hay datos cacheados
+        @SuppressWarnings("unchecked")
+        List<ClientListDTO> cachedList = (List<ClientListDTO>) redisTemplate.opsForValue().get(redisKey);
+        Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        if (cachedList != null && totalCount != null) {
+            System.out.println("[REDIS HIT] Clave: " + redisKey);
+            return new PageImpl<>(cachedList, pageable, totalCount);
+        }
+
+        // Si no hay datos cacheados, consultar la base de datos
+        System.out.println("[REDIS MISS] Consultando DB para clave: " + redisKey);
+        Page<ClientListDTO> resultPage = clientRepository.searchClients(dni, name, lastName, status, headquarterId,
+                pageable);
+
+        // Cachear resultados
+        redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
+        redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
+
+        return resultPage;
     }
 
     @Override
     public ClientDTO getClientById(Long id) {
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
         return clientMapper.mapToClientDTO(client);
     }
 
@@ -85,12 +117,12 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public List<ClientDTO> getAllClients() {
         return clientRepository.findAll()
-            .stream()
-            .map(clientMapper::mapToClientDTO)
-            .collect(Collectors.toList());
+                .stream()
+                .map(clientMapper::mapToClientDTO)
+                .collect(Collectors.toList());
     }
 
-    private void validatePhoneAvailable(String phone){
+    private void validatePhoneAvailable(String phone) {
         boolean exist = clientRepository.existsByPhone(phone);
         if (exist) {
             throw new PhoneAlreadyExistsException("El número de teléfono ya está registrado en otro empleado");
@@ -100,7 +132,6 @@ public class ClientServiceImpl implements IClientService {
     @Transactional
     @Override
     public ClientDTO createClient(ClientDTO clientDTO) {
-
 
         validatePhoneAvailable(clientDTO.getPhone());
 
@@ -125,7 +156,6 @@ public class ClientServiceImpl implements IClientService {
         }
 
         System.out.println("User ID: " + clientDTO.getUser().getUserId());
-
 
         Client client = clientMapper.mapToClient(clientDTO);
         client.setStatus(true);
@@ -164,7 +194,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void blockClientById(Long id) {
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
         client.setStatus(false);
         clientRepository.save(client);
     }
@@ -173,7 +203,7 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void deleteClientById(Long id) {
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Client not found with id: " + id));
         client.setStatus(false); // eliminación lógica
         clientRepository.save(client);
     }
@@ -186,7 +216,7 @@ public class ClientServiceImpl implements IClientService {
         }
 
         Client client = clientRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
         client.setAddress(data.getAddress());
         client.setPhone(data.getPhone());
@@ -202,13 +232,13 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public void updateBlockNote(Long clientId, String blockNote) {
         Client client = clientRepository.findById(clientId)
-            .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clientId));
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clientId));
 
         client.setBlockNote(blockNote);
         clientRepository.save(client);
     }
 
-    //metodos para el auth
+    // metodos para el auth
     @Override
     public Client getClientByUserForAuth(User user) {
         Client client = clientRepository.findByUser(user);
@@ -217,6 +247,7 @@ public class ClientServiceImpl implements IClientService {
         }
         return client;
     }
+
     @Override
     public void validateClientExistsAndStatus(Long clientId) {
         boolean exist = clientRepository.existsByClientIdAndStatusIsTrue(clientId);
@@ -225,42 +256,42 @@ public class ClientServiceImpl implements IClientService {
         }
     }
 
-        /***************************************************************
-         * Metodos solo para el CLient
-         ****************************************************************/
-        @Override
-        public nMyInfoClientDTO getMyInfoAsClient(Long id){
-            Client client = clientRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
+    /***************************************************************
+     * Metodos solo para el CLient
+     ****************************************************************/
+    @Override
+    public nMyInfoClientDTO getMyInfoAsClient(Long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
-            //creamos y intoducimos los datos necesarios en user (id y name)
-            HeadquarterBasicDTO headquarterBasicDTO = new HeadquarterBasicDTO();
-            headquarterBasicDTO.setId(client.getHeadquarter().getHeadquarterId());
-            headquarterBasicDTO.setName(client.getHeadquarter().getName());
+        // creamos y intoducimos los datos necesarios en user (id y name)
+        HeadquarterBasicDTO headquarterBasicDTO = new HeadquarterBasicDTO();
+        headquarterBasicDTO.setId(client.getHeadquarter().getHeadquarterId());
+        headquarterBasicDTO.setName(client.getHeadquarter().getName());
 
-            //creamos el myInfo y le introducimos los valores
-            nMyInfoClientDTO dto = new nMyInfoClientDTO();
+        // creamos el myInfo y le introducimos los valores
+        nMyInfoClientDTO dto = new nMyInfoClientDTO();
 
-            dto.setClientId(client.getClientId());
-            dto.setHeadquarter(headquarterBasicDTO);
-            dto.setDni(client.getDni());
-            dto.setNames(client.getName());
-            dto.setLastNames(client.getLastName());
-            dto.setAddress(client.getAddress());
-            dto.setPhone(client.getPhone());
+        dto.setClientId(client.getClientId());
+        dto.setHeadquarter(headquarterBasicDTO);
+        dto.setDni(client.getDni());
+        dto.setNames(client.getName());
+        dto.setLastNames(client.getLastName());
+        dto.setAddress(client.getAddress());
+        dto.setPhone(client.getPhone());
 
-            //verificamos que tenga usuario
-            if (client.getUser() == null) {
-                dto.setUser(null);
-            } else {
-                //creamos y intoducimos los datos necesarios en user (id y email)
-                UserEmailDTO userEmailDTO = new UserEmailDTO();
-                userEmailDTO.setId(client.getUser().getUserId());
-                userEmailDTO.setEmail(client.getUser().getEmail());
-                dto.setUser(userEmailDTO);
-            }
+        // verificamos que tenga usuario
+        if (client.getUser() == null) {
+            dto.setUser(null);
+        } else {
+            // creamos y intoducimos los datos necesarios en user (id y email)
+            UserEmailDTO userEmailDTO = new UserEmailDTO();
+            userEmailDTO.setId(client.getUser().getUserId());
+            userEmailDTO.setEmail(client.getUser().getEmail());
+            dto.setUser(userEmailDTO);
+        }
 
-            return dto;
-            }
+        return dto;
+    }
 
 }

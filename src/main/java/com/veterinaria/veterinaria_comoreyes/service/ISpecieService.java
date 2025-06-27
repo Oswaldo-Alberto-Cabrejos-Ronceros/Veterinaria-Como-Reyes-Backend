@@ -5,6 +5,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ISpecieService {
     SpecieDTO getSpecieById(Long id);
@@ -17,6 +18,6 @@ public interface ISpecieService {
 
     void deleteSpecie(Long id);
 
-    Page<SpecieDTO> getAllSpeciesPaginated(int page, int size);
+    Page<SpecieDTO> searchSpecies(String name, String imagePath, Boolean status, Pageable pageable);
 
 }
