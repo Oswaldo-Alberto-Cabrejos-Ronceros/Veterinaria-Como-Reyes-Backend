@@ -1,7 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Employee.AnimalInfoForClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -53,9 +53,11 @@ public class AnimalController {
         return ResponseEntity.noContent().build();
     }
 
+    //esto es para el panel de cliente la info basica de los animales
     @GetMapping("/client/{id}")
     public ResponseEntity<List<AnimalInfoForClientDTO>> getAnimalsByClientId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(animalService.getAnimalsByClientId(id));
     }
+
 
 }

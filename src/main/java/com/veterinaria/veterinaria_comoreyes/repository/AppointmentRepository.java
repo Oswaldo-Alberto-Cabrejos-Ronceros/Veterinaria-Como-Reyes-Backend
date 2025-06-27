@@ -79,27 +79,28 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("fechaSeleccionada") String fechaSeleccionada
     );
 
+    @Query(value = """
+    SELECT 
+        hvs.id AS headquarterServiceId,
+        vs.service_id AS serviceId,
+        vs.name,
+        vs.description,
+        vs.price,
+        vs.duration
+    FROM 
+        HEADQUARTER_VET_SERVICE hvs
+    JOIN 
+        VETERINARY_SERVICE vs ON hvs.ID_SERVICE = vs.SERVICE_ID
+    WHERE 
+        hvs.ID_HEADQUARTER = :headquarterId
+        AND vs.ID_SPECIE = :speciesId
+    """, nativeQuery = true)
+    List<Object[]> findServicesByHeadquarterAndSpeciesForAppointment(
+            @Param("headquarterId") Long headquarterId,
+            @Param("speciesId") Long speciesId
+    );
 
-        @Query(value = """
-        SELECT 
-            hvs.id AS headquarterServiceId,
-            vs.service_id AS serviceId,
-            vs.NAME,
-            vs.DESCRIPTION,
-            vs.PRICE,
-            vs.DURATION
-        FROM 
-            HEADQUARTER_VET_SERVICE hvs
-        JOIN 
-            VETERINARY_SERVICE vs ON hvs.ID_SERVICE = vs.SERVICE_ID
-        WHERE 
-            hvs.ID_HEADQUARTER = :headquarterId
-            AND vs.ID_SPECIE = :speciesId
-        """, nativeQuery = true)
-        List<BasicServiceForAppointmentDTO> findServicesByHeadquarterAndSpeciesForAppointment(
-                @Param("headquarterId") Long headquarterId,
-                @Param("speciesId") Long speciesId
-        );
+
 
 
 
