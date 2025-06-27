@@ -27,4 +27,5 @@ public class AnimalInfoForClientDTO {
     private String breedName;     // row[7]
     private String speciesName;   // row[8]
     private String animalComment; // row[9]
+
 }

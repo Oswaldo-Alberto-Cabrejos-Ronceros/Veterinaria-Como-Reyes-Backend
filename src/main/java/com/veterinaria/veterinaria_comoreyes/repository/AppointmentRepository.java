@@ -50,29 +50,37 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Boolean isAppointmentSlotAvailable(LocalDateTime scheduleDateTime,Long headquarterServiceId);
 
     @Query(value = """
-        SELECT 
-          TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI') AS time,
-          TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI') || ' - ' ||
-          TO_CHAR(h.start_time + NUMTODSINTERVAL(gen.lvl * s.duration, 'MINUTE'), 'HH24:MI') AS timeRange
+        SELECT
+            TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI') AS time,
+            TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI') || ' - ' ||
+            TO_CHAR(h.start_time + NUMTODSINTERVAL(gen.lvl * s.duration, 'MINUTE'), 'HH24:MI') AS timeRange
         FROM headquarter_vet_service hs
         JOIN headquarter h ON hs.id_headquarter = h.headquarter_id
         JOIN veterinary_service s ON hs.id_service = s.service_id
         JOIN (SELECT LEVEL AS lvl FROM dual CONNECT BY LEVEL <= 100) gen ON 1 = 1
         LEFT JOIN (
-          SELECT 
-            headquarter_vetservice_id,
-            TO_CHAR(schedule_date_time, 'HH24:MI') AS hora_clave_str,
-            COUNT(*) AS total_citas
-          FROM appointment
-          WHERE status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
-            AND TRUNC(schedule_date_time) = TO_DATE(:fechaSeleccionada, 'YYYY-MM-DD')
-          GROUP BY headquarter_vetservice_id, TO_CHAR(schedule_date_time, 'HH24:MI')
+            SELECT\s
+                headquarter_vetservice_id,
+                TO_CHAR(schedule_date_time, 'HH24:MI') AS hora_clave_str,
+                COUNT(*) AS total_citas
+            FROM appointment
+            WHERE status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+              AND TRUNC(schedule_date_time) = TO_DATE(:fechaSeleccionada, 'YYYY-MM-DD')
+            GROUP BY headquarter_vetservice_id, TO_CHAR(schedule_date_time, 'HH24:MI')
         ) ap ON ap.headquarter_vetservice_id = hs.id
              AND ap.hora_clave_str = TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI')
         WHERE hs.id = :headquarterServiceId
-          AND h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE') < h.end_time
+          AND (h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE')) < h.end_time
           AND NVL(ap.total_citas, 0) < s.simultaneous_capacity
+          AND (
+            TO_DATE(:fechaSeleccionada, 'YYYY-MM-DD') > TRUNC(SYSDATE)
+            OR (
+              TO_DATE(:fechaSeleccionada, 'YYYY-MM-DD') = TRUNC(SYSDATE)
+              AND TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI:SS') > TO_CHAR(SYSDATE, 'HH24:MI:SS')
+            )
+          )
         ORDER BY h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE')
+        
     """, nativeQuery = true)
     List<FormatTimeDTO> timesAvailableForServiceAndDate(
             @Param("headquarterServiceId") Long headquarterServiceId,
