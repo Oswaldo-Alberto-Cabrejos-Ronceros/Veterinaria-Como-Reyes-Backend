@@ -14,6 +14,9 @@
     import org.springframework.stereotype.Service;
     import org.springframework.transaction.annotation.Transactional;
 
+    import java.math.BigDecimal;
+    import java.math.RoundingMode;
+    import java.time.LocalDate;
     import java.util.List;
     import java.util.stream.Collectors;
 
@@ -135,17 +138,25 @@
             List<Object[]> rows = animalRepository.findAnimalInfoRawByClientIdForPanel(clientId);
 
             return rows.stream().map(row -> new AnimalInfoForClientDTO(
-                    ((Number) row[0]).longValue(),                           // animal_id
-                    row[1].toString(),                                       // birth_date
-                    row[2].toString(),                                       // gender
-                    row[3].toString(),                                       // name
-                    row[4].toString(),                                       // url_image
-                    row[5] != null ? ((Number) row[5]).doubleValue() : null, // weight
-                    row[6].toString(),                                       // breed_name
-                    row[7].toString(),                                       // species_name
-                    row[8] != null ? row[8].toString() : null                // animal_comment
+                    ((Number) row[0]).longValue(), // animal_id
+
+                    row[1] instanceof LocalDate ? (LocalDate) row[1]
+                            : row[1] instanceof java.sql.Date ? ((java.sql.Date) row[1]).toLocalDate()
+                            : row[1] instanceof java.sql.Timestamp ? ((java.sql.Timestamp) row[1]).toLocalDateTime().toLocalDate()
+                            : LocalDate.parse(row[1].toString().substring(0, 10)),
+
+                    row[2].toString(), // gender
+                    row[3].toString(), // name
+                    row[4].toString(), // url_image
+                    row[5] != null ? new BigDecimal(row[5].toString()).setScale(2, RoundingMode.HALF_UP) : null, // weight
+                    row[6] instanceof Number ? ((Number) row[6]).longValue() : Long.parseLong(row[6].toString()), // speciesId
+                    row[7].toString(), // breed_name
+                    row[8].toString(), // species_name
+                    row[9] != null ? row[9].toString() : null // animal_comment
             )).toList();
+
         }
+
 
 
     }

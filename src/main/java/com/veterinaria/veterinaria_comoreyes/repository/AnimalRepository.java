@@ -30,6 +30,7 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
             a.name,
             a.url_image,
             a.weight,
+            s.specie_id,
             b.name AS breed_name,
             s.name AS species_name,
             a.animal_comment

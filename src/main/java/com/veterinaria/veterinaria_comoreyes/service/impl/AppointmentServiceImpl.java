@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -261,17 +263,24 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
-        List<Object[]> rows = appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+        List<Object[]> rows = appointmentRepository.findServiceDetailsForAppointment(headquarterId, speciesId);
 
         return rows.stream().map(row -> new BasicServiceForAppointmentDTO(
-                ((Number) row[0]).longValue(),                             // headquarterServiceId
-                ((Number) row[1]).longValue(),                             // serviceId
-                row[2] != null ? row[2].toString() : null,                 // name
-                row[3] != null ? row[3].toString() : null,                 // description
-                row[4] != null ? ((Number) row[4]).doubleValue() : null,   // price
-                row[5] != null ? ((Number) row[5]).intValue() : null       // duration
+                ((Number) row[0]).longValue(),                                // headquarterServiceId
+                ((Number) row[1]).longValue(),                                // serviceId
+                row[2].toString(),                                            // name
+                row[3].toString(),                                            // description
+                row[4] != null
+                        ? new BigDecimal(row[4].toString()).setScale(2, RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO,                                        // price con 2 decimales
+                ((Number) row[5]).intValue(),                                 // duration
+                row[6].toString(),                                            // specieName
+                row[7] != null ? row[7].toString() : null,                    // serviceImageUrl
+                row[8].toString()                                             // categoryName
         )).toList();
     }
+
+
 
 
 }
