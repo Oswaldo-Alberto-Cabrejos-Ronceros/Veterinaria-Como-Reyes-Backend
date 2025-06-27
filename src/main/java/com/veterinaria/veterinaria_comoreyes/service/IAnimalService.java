@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
 
 import java.util.List;
@@ -30,4 +31,6 @@ public interface IAnimalService {
 
     Page<AnimalListDTO> searchAnimals(String name, String gender, String breedId, String clientId, Boolean status,
             Pageable pageable);
+
+    List<AnimalInfoForClientDTO> getAnimalsByClientId(Long clientId);
 }

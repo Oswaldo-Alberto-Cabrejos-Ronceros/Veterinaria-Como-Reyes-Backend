@@ -16,6 +16,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -273,11 +275,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return result;
     }
 
-    @Override
-    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
-            Long speciesId) {
-        return appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
-    }
+    // @Override
+    // public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
+    //         Long speciesId) {
+    //     return appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+    // }
 
     @Override
     @Transactional(readOnly = true)
@@ -311,5 +313,21 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         return pageResult;
     }
+    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
+        List<Object[]> rows = appointmentRepository.findServiceDetailsForAppointment(headquarterId, speciesId);
 
+        return rows.stream().map(row -> new BasicServiceForAppointmentDTO(
+                ((Number) row[0]).longValue(),                                // headquarterServiceId
+                ((Number) row[1]).longValue(),                                // serviceId
+                row[2].toString(),                                            // name
+                row[3].toString(),                                            // description
+                row[4] != null
+                        ? new BigDecimal(row[4].toString()).setScale(2, RoundingMode.HALF_UP)
+                        : BigDecimal.ZERO,                                        // price con 2 decimales
+                ((Number) row[5]).intValue(),                                 // duration
+                row[6].toString(),                                            // specieName
+                row[7] != null ? row[7].toString() : null,                    // serviceImageUrl
+                row[8].toString()                                             // categoryName
+        )).toList();
+    }
 }

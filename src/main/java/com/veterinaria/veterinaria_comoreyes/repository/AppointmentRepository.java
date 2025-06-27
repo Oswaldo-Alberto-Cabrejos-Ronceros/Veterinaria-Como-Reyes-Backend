@@ -9,11 +9,12 @@ import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 
+import io.lettuce.core.dynamic.annotation.Param;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -83,6 +84,32 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<FormatTimeDTO> timesAvailableForServiceAndDate(
             @Param("headquarterServiceId") Long headquarterServiceId,
             @Param("fechaSeleccionada") String fechaSeleccionada);
+
+    @Query(value = """
+            SELECT
+                hvs.id AS headquarterServiceId,
+                vs.service_id AS serviceId,
+                vs.name,
+                vs.description,
+                vs.price,
+                vs.duration,
+                s.name AS specieName,
+                vs.dir_image AS serviceImageUrl,
+                c.name AS categoryName
+            FROM
+                HEADQUARTER_VET_SERVICE hvs
+            JOIN
+                VETERINARY_SERVICE vs ON hvs.id_service = vs.service_id
+            JOIN
+                SPECIE s ON vs.id_specie = s.specie_id
+            JOIN
+                CATEGORY c ON vs.id_category = c.category_id
+            WHERE
+                hvs.id_headquarter = :headquarterId
+                AND vs.id_specie = :speciesId
+            """, nativeQuery = true)
+    List<Object[]> findServiceDetailsForAppointment(@Param("headquarterId") Long headquarterId,
+            @Param("speciesId") Long speciesId);
 
     @Query(value = """
             SELECT

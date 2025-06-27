@@ -34,7 +34,7 @@ public class AnimalDTO {
     private float weight;
 
     @Past
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     @NotBlank(message = "La fecha de nacimiento es obligatorio")
     private LocalDate birthDate;
 
