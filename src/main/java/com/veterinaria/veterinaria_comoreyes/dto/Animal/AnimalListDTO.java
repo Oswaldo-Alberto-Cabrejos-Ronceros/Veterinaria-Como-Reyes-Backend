@@ -22,4 +22,5 @@ public class AnimalListDTO {
     private String gender;
     private String breedId;
     private String clientId;
+    private String status;
 }

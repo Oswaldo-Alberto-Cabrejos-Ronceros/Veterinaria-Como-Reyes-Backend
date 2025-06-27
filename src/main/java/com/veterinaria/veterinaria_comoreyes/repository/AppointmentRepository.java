@@ -122,10 +122,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """)
     Page<AppointmentListDTO> searchAppointments(
             @Param("scheduleDateTime") LocalDate scheduleDateTime,
-            @Param("statusAppointment") String statusAppointment,
+            @Param("statusAppointment") StatusAppointment statusAppointment,
             @Param("headquarterVetServiceId") Long headquarterVetServiceId,
             @Param("employeeId") Long employeeId,
             @Param("animalId") Long animalId,
             Pageable pageable);
-
 }
