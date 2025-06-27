@@ -30,14 +30,17 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
             a.name,
             a.url_image,
             a.weight,
+            s.specie_id,
             b.name AS breed_name,
-            s.name AS species_name
+            s.name AS species_name,
+            a.animal_comment
         FROM animal a
         INNER JOIN breed b ON a.breed_id = b.breed_id
         INNER JOIN specie s ON b.id_specie = s.specie_id
         WHERE a.client_id = :clientId AND a.status = 1
         """, nativeQuery = true)
-    List<Object[]> findAnimalInfoRawByClientId(@Param("clientId") Long clientId);
+    List<Object[]> findAnimalInfoRawByClientIdForPanel(@Param("clientId") Long clientId);
+
 
 
 }

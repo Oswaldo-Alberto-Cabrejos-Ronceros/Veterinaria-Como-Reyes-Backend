@@ -53,9 +53,11 @@ public class AnimalController {
         return ResponseEntity.noContent().build();
     }
 
+    //esto es para el panel de cliente la info basica de los animales
     @GetMapping("/client/{id}")
     public ResponseEntity<List<AnimalInfoForClientDTO>> getAnimalsByClientId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(animalService.getAnimalsByClientId(id));
     }
+
 
 }

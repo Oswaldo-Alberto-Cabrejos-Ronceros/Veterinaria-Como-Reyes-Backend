@@ -46,4 +46,3 @@ public class VeterinaryRecord {
     @Enumerated(EnumType.STRING)
     private StatusVeterinaryRecord statusVeterinaryRecord= StatusVeterinaryRecord.EN_CURSO;;
 
-}
