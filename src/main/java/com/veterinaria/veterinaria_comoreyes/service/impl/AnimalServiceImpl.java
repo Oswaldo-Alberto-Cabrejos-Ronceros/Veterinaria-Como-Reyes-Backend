@@ -3,9 +3,12 @@
     import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
     import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
     import com.veterinaria.veterinaria_comoreyes.entity.Animal;
+    import com.veterinaria.veterinaria_comoreyes.entity.Breed;
     import com.veterinaria.veterinaria_comoreyes.entity.Client;
+    import com.veterinaria.veterinaria_comoreyes.entity.Specie;
     import com.veterinaria.veterinaria_comoreyes.mapper.AnimalMapper;
     import com.veterinaria.veterinaria_comoreyes.repository.AnimalRepository;
+    import com.veterinaria.veterinaria_comoreyes.repository.BreedRepository;
     import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
     import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
     import com.veterinaria.veterinaria_comoreyes.service.IClientService;
@@ -28,19 +31,22 @@
         private final FilterStatus filterStatus;
         private final AnimalMapper animalMapper;
         private final IClientService clientService;
+        private final BreedRepository breedRepository;
 
         @Autowired
         public AnimalServiceImpl(
                 AnimalRepository animalRepository,
                 ClientRepository clientRepository,
                 FilterStatus filterStatus,
-                AnimalMapper animalMapper, IClientService clientService
+                AnimalMapper animalMapper, IClientService clientService,
+                BreedRepository breedRepository
         ) {
             this.animalRepository = animalRepository;
             this.clientRepository = clientRepository;
             this.filterStatus = filterStatus;
             this.animalMapper = animalMapper;
             this.clientService = clientService;
+            this.breedRepository = breedRepository;
         }
 
         @Transactional(readOnly = true)
@@ -82,6 +88,22 @@
             clientRepository.findById(clientId)
                     .orElseThrow(() -> new RuntimeException("Client not found with id: " + clientId));
             Animal animal = animalMapper.mapToAnimal(animalDTO);
+
+            // Si la imagen viene vacía o null, usamos la imagen de la especie asociada al breed
+            if (animalDTO.getUrlImage() == null || animalDTO.getUrlImage().trim().isEmpty()) {
+                Long breedId = animalDTO.getBreed().getBreedId();
+
+                // Obtener el breed y la especie
+                Breed breed = breedRepository.findById(breedId)
+                        .orElseThrow(() -> new RuntimeException("Breed not found with id: " + breedId));
+
+                Specie specie = breed.getSpecie();
+                if (specie == null || specie.getImagePath() == null) {
+                    throw new RuntimeException("Specie or its image not found for breed id: " + breedId);
+                }
+
+                animal.setUrlImage(specie.getImagePath());
+            }
             animal.setStatus(true);
             return animalMapper.mapToAnimalDTO(animalRepository.save(animal));
         }
