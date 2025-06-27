@@ -1,7 +1,7 @@
     package com.veterinaria.veterinaria_comoreyes.service.impl;
 
     import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
-    import com.veterinaria.veterinaria_comoreyes.dto.Employee.AnimalInfoForClientDTO;
+    import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
     import com.veterinaria.veterinaria_comoreyes.entity.Animal;
     import com.veterinaria.veterinaria_comoreyes.entity.Client;
     import com.veterinaria.veterinaria_comoreyes.mapper.AnimalMapper;

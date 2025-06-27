@@ -1,9 +1,13 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.InfoVeterinaryRecordForTableDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusVeterinaryRecord;
 import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryRecordService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,5 +55,13 @@ public class VeterinaryRecordController {
     @PatchMapping("/{id}/status/observacion")
     public ResponseEntity<VeterinaryRecordDTO> setObservacion(@PathVariable Long id) {
         return ResponseEntity.ok(service.updateStatus(id, StatusVeterinaryRecord.OBSERVACION));
+    }
+    // Tabla paginada de registros veterinarios
+    @GetMapping("/table")
+    public Page<InfoVeterinaryRecordForTableDTO> getAllRecords(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return service.getAllInfoVeterinaryRecords(pageable);
     }
 }
