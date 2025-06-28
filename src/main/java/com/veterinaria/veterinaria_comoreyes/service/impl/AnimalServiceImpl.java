@@ -168,7 +168,7 @@ public class AnimalServiceImpl implements IAnimalService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AnimalListDTO> searchAnimals(String name, String gender, String breedId, String clientId,
+    public Page<AnimalListDTO> searchAnimals(String name, String gender, Long breedId, Long clientId,
             Boolean status, Pageable pageable) {
         String redisKey = String.format("animals:page=%d:size=%d:name=%s:gender=%s:breed=%s:client=%s:status=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
@@ -180,7 +180,14 @@ public class AnimalServiceImpl implements IAnimalService {
 
         @SuppressWarnings("unchecked")
         List<AnimalListDTO> cached = (List<AnimalListDTO>) redisTemplate.opsForValue().get(redisKey);
-        Long total = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+        Long total = null;
+        if (rawTotal instanceof Integer) {
+            total = ((Integer) rawTotal).longValue();
+        } else if (rawTotal instanceof Long) {
+            total = (Long) rawTotal;
+        }
 
         if (cached != null && total != null) {
             System.out.println("[REDIS HIT] " + redisKey);
@@ -193,4 +200,5 @@ public class AnimalServiceImpl implements IAnimalService {
         redisTemplate.opsForValue().set(redisKey + ":total", page.getTotalElements());
         return page;
     }
+
 }

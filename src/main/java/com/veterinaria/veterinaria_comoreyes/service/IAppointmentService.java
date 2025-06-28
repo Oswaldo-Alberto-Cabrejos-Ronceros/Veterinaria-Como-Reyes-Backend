@@ -36,6 +36,8 @@ public interface IAppointmentService {
         List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
                         Long speciesId);
 
-        Page<AppointmentListDTO> searchAppointments(LocalDate scheduleDateTime, StatusAppointment statusAppointment,
+        Page<AppointmentListDTO> searchAppointments(
+                        LocalDate scheduleDateTime, String statusAppointment,
                         Long headquarterVetServiceId, Long employeeId, Long animalId, Pageable pageable);
+
 }

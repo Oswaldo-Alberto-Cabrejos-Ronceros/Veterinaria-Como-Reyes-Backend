@@ -125,7 +125,14 @@ public class BreedServiceImpl implements IBreedService {
                 @SuppressWarnings("unchecked")
                 List<BreedListBySpecieDTO> cachedList = (List<BreedListBySpecieDTO>) redisTemplate.opsForValue()
                                 .get(redisKey);
-                Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+                Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+                Long totalCount = null;
+                if (rawTotal instanceof Integer) {
+                        totalCount = ((Integer) rawTotal).longValue();
+                } else if (rawTotal instanceof Long) {
+                        totalCount = (Long) rawTotal;
+                }
 
                 if (cachedList != null && totalCount != null) {
                         System.out.println("[REDIS HIT] Clave: " + redisKey);

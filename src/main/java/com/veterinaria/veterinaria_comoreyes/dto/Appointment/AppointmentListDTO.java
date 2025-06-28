@@ -19,7 +19,7 @@ public class AppointmentListDTO {
 
     private LocalDateTime scheduleDateTime;
 
-    private StatusAppointment statusAppointment;
+    private String statusAppointment;
 
     private Long headquarterVetServiceId;
 

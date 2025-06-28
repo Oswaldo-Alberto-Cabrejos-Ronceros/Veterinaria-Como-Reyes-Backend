@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 
 import java.util.List;
 
@@ -18,6 +19,6 @@ public interface ISpecieService {
 
     void deleteSpecie(Long id);
 
-    Page<SpecieDTO> searchSpecies(String name, String imagePath, Boolean status, Pageable pageable);
+    Page<SpecieListDTO> searchSpecies(String name, String imagePath, Boolean status, Pageable pageable);
 
 }

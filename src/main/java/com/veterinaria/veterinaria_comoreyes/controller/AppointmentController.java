@@ -94,7 +94,7 @@ public class AppointmentController {
     @GetMapping("/search")
     public Page<AppointmentListDTO> searchAppointments(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate scheduleDateTime,
-            @RequestParam(required = false) StatusAppointment statusAppointment,
+            @RequestParam(required = false) String statusAppointment,
             @RequestParam(required = false) Long headquarterVetServiceId,
             @RequestParam(required = false) Long employeeId,
             @RequestParam(required = false) Long animalId,

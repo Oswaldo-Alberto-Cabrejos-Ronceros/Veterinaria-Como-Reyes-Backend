@@ -29,7 +29,7 @@ public interface IAnimalService {
 
     String findSpecieNameByAnimalId(Long id);
 
-    Page<AnimalListDTO> searchAnimals(String name, String gender, String breedId, String clientId, Boolean status,
+    Page<AnimalListDTO> searchAnimals(String name, String gender, Long breedId, Long clientId, Boolean status,
             Pageable pageable);
 
     List<AnimalInfoForClientDTO> getAnimalsByClientId(Long clientId);

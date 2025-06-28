@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class SpecieController {
     }
 
     @GetMapping("/search")
-    public Page<SpecieDTO> searchSpecies(
+    public Page<SpecieListDTO> searchSpecies(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String imagePath,
             @RequestParam(required = false) Boolean status,

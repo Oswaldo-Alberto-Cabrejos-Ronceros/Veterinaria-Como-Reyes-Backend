@@ -70,7 +70,9 @@ public class ClientServiceImpl implements IClientService {
     @Override
     public Page<ClientListDTO> searchClients(String dni, String name, String lastName, Boolean status,
             Long headquarterId, Pageable pageable) {
-        String redisKey = String.format("clients:page=%d:size=%d:dni=%s:name=%s:lastName=%s:status=%s:headquarter=%s",
+
+        String redisKey = String.format(
+                "clients:page=%d:size=%d:dni=%s:name=%s:lastName=%s:status=%s:headquarter=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
                 dni != null ? dni : "null",
                 name != null ? name : "null",
@@ -78,22 +80,26 @@ public class ClientServiceImpl implements IClientService {
                 status != null ? status : "null",
                 headquarterId != null ? headquarterId : "null");
 
-        // Verificar si hay datos cacheados
         @SuppressWarnings("unchecked")
         List<ClientListDTO> cachedList = (List<ClientListDTO>) redisTemplate.opsForValue().get(redisKey);
-        Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+        Long totalCount = null;
+        if (rawTotal instanceof Integer) {
+            totalCount = ((Integer) rawTotal).longValue();
+        } else if (rawTotal instanceof Long) {
+            totalCount = (Long) rawTotal;
+        }
 
         if (cachedList != null && totalCount != null) {
             System.out.println("[REDIS HIT] Clave: " + redisKey);
             return new PageImpl<>(cachedList, pageable, totalCount);
         }
 
-        // Si no hay datos cacheados, consultar la base de datos
         System.out.println("[REDIS MISS] Consultando DB para clave: " + redisKey);
         Page<ClientListDTO> resultPage = clientRepository.searchClients(dni, name, lastName, status, headquarterId,
                 pageable);
 
-        // Cachear resultados
         redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
         redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
 

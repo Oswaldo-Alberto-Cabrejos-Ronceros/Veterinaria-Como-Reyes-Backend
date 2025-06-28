@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.SpecieMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
@@ -86,7 +87,7 @@ public class SpecieServiceImpl implements ISpecieService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SpecieDTO> searchSpecies(String name, String imagePath, Boolean status, Pageable pageable) {
+    public Page<SpecieListDTO> searchSpecies(String name, String imagePath, Boolean status, Pageable pageable) {
         String redisKey = String.format(
                 "species:page=%d:size=%d:name=%s:imagePath=%s:status=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
@@ -95,8 +96,15 @@ public class SpecieServiceImpl implements ISpecieService {
                 status != null ? status : "null");
 
         @SuppressWarnings("unchecked")
-        List<SpecieDTO> cachedList = (List<SpecieDTO>) redisTemplate.opsForValue().get(redisKey);
-        Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+        List<SpecieListDTO> cachedList = (List<SpecieListDTO>) redisTemplate.opsForValue().get(redisKey);
+
+        Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+        Long totalCount = null;
+        if (rawTotal instanceof Integer) {
+            totalCount = ((Integer) rawTotal).longValue();
+        } else if (rawTotal instanceof Long) {
+            totalCount = (Long) rawTotal;
+        }
 
         if (cachedList != null && totalCount != null) {
             System.out.println("[REDIS HIT] Clave: " + redisKey);
@@ -104,7 +112,7 @@ public class SpecieServiceImpl implements ISpecieService {
         }
 
         System.out.println("[REDIS MISS] Consultando DB para clave: " + redisKey);
-        Page<SpecieDTO> resultPage = specieRepository.searchSpecies(name, imagePath, status, pageable);
+        Page<SpecieListDTO> resultPage = specieRepository.searchSpecies(name, imagePath, status, pageable);
 
         redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
         redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());

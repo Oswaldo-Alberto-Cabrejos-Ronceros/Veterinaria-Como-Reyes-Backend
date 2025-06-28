@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -276,20 +277,23 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     // @Override
-    // public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
-    //         Long speciesId) {
-    //     return appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+    // public List<BasicServiceForAppointmentDTO>
+    // getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
+    // Long speciesId) {
+    // return
+    // appointmentRepository.findServicesByHeadquarterAndSpeciesForAppointment(headquarterId,
+    // speciesId);
     // }
-
     @Override
     @Transactional(readOnly = true)
-    public Page<AppointmentListDTO> searchAppointments(LocalDate scheduleDateTime, StatusAppointment statusAppointment,
+    public Page<AppointmentListDTO> searchAppointments(
+            LocalDate scheduleDateTime, String statusAppointment,
             Long headquarterVetServiceId, Long employeeId, Long animalId, Pageable pageable) {
 
         String redisKey = String.format(
-                "appointments:page=%d:size=%d:date=%s:status=%s:hvsId=%s:empId=%s:animalId=%s",
+                "appointments:page=%d:size=%d:scheduleDateTime=%s:statusAppointment=%s:headquarterVetServiceId=%s:employeeId=%s:animalId=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
-                scheduleDateTime != null ? scheduleDateTime : "null",
+                scheduleDateTime != null ? scheduleDateTime.toString() : "null",
                 statusAppointment != null ? statusAppointment : "null",
                 headquarterVetServiceId != null ? headquarterVetServiceId : "null",
                 employeeId != null ? employeeId : "null",
@@ -297,7 +301,14 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         @SuppressWarnings("unchecked")
         List<AppointmentListDTO> cached = (List<AppointmentListDTO>) redisTemplate.opsForValue().get(redisKey);
-        Long total = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+        Long total = null;
+        if (rawTotal instanceof Integer) {
+            total = ((Integer) rawTotal).longValue();
+        } else if (rawTotal instanceof Long) {
+            total = (Long) rawTotal;
+        }
 
         if (cached != null && total != null) {
             System.out.println("[REDIS HIT] " + redisKey);
@@ -305,29 +316,43 @@ public class AppointmentServiceImpl implements IAppointmentService {
         }
 
         System.out.println("[REDIS MISS] " + redisKey);
-        Page<AppointmentListDTO> pageResult = appointmentRepository.searchAppointments(
+        Page<Object[]> results = appointmentRepository.searchAppointmentsNative(
                 scheduleDateTime, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
 
-        redisTemplate.opsForValue().set(redisKey, pageResult.getContent());
-        redisTemplate.opsForValue().set(redisKey + ":total", pageResult.getTotalElements());
+        List<AppointmentListDTO> dtoList = results.getContent().stream().map(obj -> {
+            return new AppointmentListDTO(
+                    ((Number) obj[0]).longValue(),
+                    obj[1] != null ? ((java.sql.Timestamp) obj[1]).toLocalDateTime() : null,
+                    (String) obj[2],
+                    obj[3] != null ? ((Number) obj[3]).longValue() : null,
+                    obj[4] != null ? ((Number) obj[4]).longValue() : null,
+                    obj[5] != null ? ((Number) obj[5]).longValue() : null);
+        }).toList();
+
+        Page<AppointmentListDTO> pageResult = new PageImpl<>(dtoList, pageable, results.getTotalElements());
+
+        redisTemplate.opsForValue().set(redisKey, dtoList);
+        redisTemplate.opsForValue().set(redisKey + ":total", results.getTotalElements());
 
         return pageResult;
     }
-    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
+
+    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
+            Long speciesId) {
         List<Object[]> rows = appointmentRepository.findServiceDetailsForAppointment(headquarterId, speciesId);
 
         return rows.stream().map(row -> new BasicServiceForAppointmentDTO(
-                ((Number) row[0]).longValue(),                                // headquarterServiceId
-                ((Number) row[1]).longValue(),                                // serviceId
-                row[2].toString(),                                            // name
-                row[3].toString(),                                            // description
+                ((Number) row[0]).longValue(), // headquarterServiceId
+                ((Number) row[1]).longValue(), // serviceId
+                row[2].toString(), // name
+                row[3].toString(), // description
                 row[4] != null
                         ? new BigDecimal(row[4].toString()).setScale(2, RoundingMode.HALF_UP)
-                        : BigDecimal.ZERO,                                        // price con 2 decimales
-                ((Number) row[5]).intValue(),                                 // duration
-                row[6].toString(),                                            // specieName
-                row[7] != null ? row[7].toString() : null,                    // serviceImageUrl
-                row[8].toString()                                             // categoryName
+                        : BigDecimal.ZERO, // price con 2 decimales
+                ((Number) row[5]).intValue(), // duration
+                row[6].toString(), // specieName
+                row[7] != null ? row[7].toString() : null, // serviceImageUrl
+                row[8].toString() // categoryName
         )).toList();
     }
 }

@@ -7,18 +7,15 @@ import com.veterinaria.veterinaria_comoreyes.entity.Appointment;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
-import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
-
-import io.lettuce.core.dynamic.annotation.Param;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,25 +128,24 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("headquarterId") Long headquarterId,
             @Param("speciesId") Long speciesId);
 
-    @Query("""
-                SELECT new com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentListDTO(
-                    a.appointmentId,
-                    a.scheduleDateTime,
-                    a.statusAppointment,
-                    a.headquarterVetService.id,
-                    a.employee.employeeId,
-                    a.animal.animalId
-                )
-                FROM Appointment a
-                WHERE (:scheduleDateTime IS NULL OR DATE(a.scheduleDateTime) = :scheduleDateTime)
-                  AND (:statusAppointment IS NULL OR a.statusAppointment = com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment.valueOf(:statusAppointment))
-                  AND (:headquarterVetServiceId IS NULL OR a.headquarterVetService.id = :headquarterVetServiceId)
-                  AND (:employeeId IS NULL OR a.employee.employeeId = :employeeId)
-                  AND (:animalId IS NULL OR a.animal.animalId = :animalId)
-            """)
-    Page<AppointmentListDTO> searchAppointments(
+    @Query(value = """
+                SELECT
+                    a.appointment_id,
+                    a.schedule_date_time,
+                    a.status_appointments,
+                    a.headquarter_vetservice_id,
+                    a.empleado_id,
+                    a.animal_id
+                FROM appointment a
+                WHERE (:scheduleDateTime IS NULL OR TRUNC(a.schedule_date_time) = :scheduleDateTime)
+                  AND (:statusAppointment IS NULL OR a.status_appointments = :statusAppointment)
+                  AND (:headquarterVetServiceId IS NULL OR a.headquarter_vetservice_id = :headquarterVetServiceId)
+                  AND (:employeeId IS NULL OR a.empleado_id = :employeeId)
+                  AND (:animalId IS NULL OR a.animal_id = :animalId)
+            """, nativeQuery = true)
+    Page<Object[]> searchAppointmentsNative(
             @Param("scheduleDateTime") LocalDate scheduleDateTime,
-            @Param("statusAppointment") StatusAppointment statusAppointment,
+            @Param("statusAppointment") String statusAppointment,
             @Param("headquarterVetServiceId") Long headquarterVetServiceId,
             @Param("employeeId") Long employeeId,
             @Param("animalId") Long animalId,

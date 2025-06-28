@@ -132,7 +132,9 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Transactional(readOnly = true)
     public Page<VetServiceListDTO> searchVetServices(String name, Double price, String specieId, String categoryId,
             Boolean status, Pageable pageable) {
-        String redisKey = String.format("vetServices:page=%d:size=%d:name=%s:price=%s:specie=%s:category=%s:status=%s",
+
+        String redisKey = String.format(
+                "vetServices:page=%d:size=%d:name=%s:price=%s:specie=%s:category=%s:status=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
                 name != null ? name : "null",
                 price != null ? price : "null",
@@ -142,7 +144,14 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
 
         @SuppressWarnings("unchecked")
         List<VetServiceListDTO> cached = (List<VetServiceListDTO>) redisTemplate.opsForValue().get(redisKey);
-        Long total = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+        Long total = null;
+        if (rawTotal instanceof Integer) {
+            total = ((Integer) rawTotal).longValue();
+        } else if (rawTotal instanceof Long) {
+            total = (Long) rawTotal;
+        }
 
         if (cached != null && total != null) {
             System.out.println("[REDIS HIT] " + redisKey);
@@ -150,8 +159,8 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         }
 
         System.out.println("[REDIS MISS] " + redisKey);
-        Page<VetServiceListDTO> result = veterinaryServiceRepository.searchVetServices(name, price, specieId,
-                categoryId, status, pageable);
+        Page<VetServiceListDTO> result = veterinaryServiceRepository.searchVetServices(
+                name, price, specieId, categoryId, status, pageable);
 
         redisTemplate.opsForValue().set(redisKey, result.getContent());
         redisTemplate.opsForValue().set(redisKey + ":total", result.getTotalElements());

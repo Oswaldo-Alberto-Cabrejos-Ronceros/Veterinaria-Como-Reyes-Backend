@@ -38,10 +38,11 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     Page<AnimalListDTO> searchAnimals(
             @Param("name") String name,
             @Param("gender") String gender,
-            @Param("breedId") String breedId,
-            @Param("clientId") String clientId,
+            @Param("breedId") Long breedId,
+            @Param("clientId") Long clientId,
             @Param("status") Boolean status,
             Pageable pageable);
+
     @Query(value = """
         SELECT 
             a.animal_id,

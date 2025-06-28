@@ -62,8 +62,8 @@ public class AnimalController {
     public ResponseEntity<Page<AnimalListDTO>> searchAnimals(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String gender,
-            @RequestParam(required = false) String breedId,
-            @RequestParam(required = false) String clientId,
+            @RequestParam(required = false) Long breedId,
+            @RequestParam(required = false) Long clientId,
             @RequestParam(required = false) Boolean status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {

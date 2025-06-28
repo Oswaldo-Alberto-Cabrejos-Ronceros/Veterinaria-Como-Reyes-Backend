@@ -137,7 +137,9 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Transactional(readOnly = true)
     public Page<HeadquarterListDTO> searcHeadquarters(String name, String address,
             String district, Boolean status, Pageable pageable) {
-        String redisKey = String.format("headquarters:page=%d:size=%d:name=%s:address=%s:district=%s:status=%s",
+
+        String redisKey = String.format(
+                "headquarters:page=%d:size=%d:name=%s:address=%s:district=%s:status=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
                 name != null ? name : "null",
                 address != null ? address : "null",
@@ -146,7 +148,14 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
 
         @SuppressWarnings("unchecked")
         List<HeadquarterListDTO> cachedList = (List<HeadquarterListDTO>) redisTemplate.opsForValue().get(redisKey);
-        Long totalCount = (Long) redisTemplate.opsForValue().get(redisKey + ":total");
+
+        Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
+        Long totalCount = null;
+        if (rawTotal instanceof Integer) {
+            totalCount = ((Integer) rawTotal).longValue();
+        } else if (rawTotal instanceof Long) {
+            totalCount = (Long) rawTotal;
+        }
 
         if (cachedList != null && totalCount != null) {
             System.out.println("[REDIS HIT] Clave: " + redisKey);
@@ -154,8 +163,8 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         }
 
         System.out.println("[REDIS MISS] Clave: " + redisKey);
-        Page<HeadquarterListDTO> resultPage = headquarterRepository.searchHeadquarters(name, address, district, status,
-                pageable);
+        Page<HeadquarterListDTO> resultPage = headquarterRepository.searchHeadquarters(
+                name, address, district, status, pageable);
 
         redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
         redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
