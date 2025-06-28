@@ -19,12 +19,17 @@ public interface BreedRepository extends JpaRepository<Breed, Long> {
         Optional<Breed> findByBreedIdAndStatusIsTrue(Long id);
 
         @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedListBySpecieDTO(" +
-                        "b.breedId, b.specie.name, CASE WHEN b.status = true THEN 'Activo' ELSE 'Bloqueado' END) " +
+                        "b.breedId, b.specie.name, b.name, CASE WHEN b.status = true THEN 'Activo' ELSE 'Bloqueado' END) "
+                        +
                         "FROM Breed b " +
-                        "WHERE (:specieName IS NULL OR b.specie.name LIKE %:specieName%) " +
+                        "WHERE (:specieName IS NULL OR LOWER(b.specie.name) LIKE LOWER(CONCAT('%', :specieName, '%'))) "
+                        +
+                        "AND (:breedName IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT('%', :breedName, '%'))) " +
                         "AND (:status IS NULL OR b.status = :status)")
         Page<BreedListBySpecieDTO> searchBreedBySpecieName(
                         @Param("specieName") String specieName,
+                        @Param("breedName") String breedName,
                         @Param("status") Boolean status,
                         Pageable pageable);
+
 }

@@ -114,12 +114,13 @@ public class BreedServiceImpl implements IBreedService {
 
         @Override
         @Transactional(readOnly = true)
-        public Page<BreedListBySpecieDTO> searchBreedBySpecieName(String specieName, Boolean status,
+        public Page<BreedListBySpecieDTO> searchBreedBySpecieName(String specieName, String breedName, Boolean status,
                         Pageable pageable) {
                 String redisKey = String.format(
-                                "breeds:page=%d:size=%d:specieName=%s:status=%s",
+                                "breeds:page=%d:size=%d:specieName=%s:breedName=%s:status=%s",
                                 pageable.getPageNumber(), pageable.getPageSize(),
                                 specieName != null ? specieName : "null",
+                                breedName != null ? breedName : "null",
                                 status != null ? status : "null");
 
                 @SuppressWarnings("unchecked")
@@ -140,8 +141,8 @@ public class BreedServiceImpl implements IBreedService {
                 }
 
                 System.out.println("[REDIS MISS] Clave: " + redisKey);
-                Page<BreedListBySpecieDTO> resultPage = breedRepository.searchBreedBySpecieName(specieName, status,
-                                pageable);
+                Page<BreedListBySpecieDTO> resultPage = breedRepository.searchBreedBySpecieName(specieName, breedName,
+                                status, pageable);
 
                 redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
                 redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());

@@ -57,9 +57,10 @@ public class BreedController {
     @GetMapping("/search/by-specie")
     public Page<BreedListBySpecieDTO> getBreedsBySpecieName(
             @RequestParam(required = false) String specieName,
+            @RequestParam(required = false) String breedName,
             @RequestParam(required = false) Boolean status,
             @PageableDefault(size = 10) Pageable pageable) {
-        return breedService.searchBreedBySpecieName(specieName, status, pageable);
+        return breedService.searchBreedBySpecieName(specieName,breedName, status, pageable);
     }
 
 }

@@ -12,5 +12,6 @@ import lombok.Setter;
 public class BreedListBySpecieDTO {
     private Long breedId;
     private String specieName;
+    private String breedName;
     private String status;
 }

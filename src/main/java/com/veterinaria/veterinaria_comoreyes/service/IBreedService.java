@@ -21,6 +21,6 @@ public interface IBreedService {
 
     void deleteBreed(Long id);
 
-    Page<BreedListBySpecieDTO> searchBreedBySpecieName(String specieName, Boolean status, Pageable pageable);
+    Page<BreedListBySpecieDTO> searchBreedBySpecieName(String specieName,String breedName, Boolean status, Pageable pageable);
 
 }
