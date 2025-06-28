@@ -4,9 +4,12 @@ import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
+import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
+import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.AnimalMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.AnimalRepository;
+import com.veterinaria.veterinaria_comoreyes.repository.BreedRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
@@ -28,51 +31,28 @@ import java.util.stream.Collectors;
 @Service
 public class AnimalServiceImpl implements IAnimalService {
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
     private final AnimalRepository animalRepository;
     private final ClientRepository clientRepository;
     private final FilterStatus filterStatus;
     private final AnimalMapper animalMapper;
     private final IClientService clientService;
-
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Override
-    public List<AnimalInfoForClientDTO> getAnimalsByClientId(Long clientId) {
-        List<Object[]> rows = animalRepository.findAnimalInfoRawByClientIdForPanel(clientId);
-
-        return rows.stream().map(row -> new AnimalInfoForClientDTO(
-                ((Number) row[0]).longValue(), // animal_id
-
-                row[1] instanceof LocalDate ? (LocalDate) row[1]
-                        : row[1] instanceof java.sql.Date ? ((java.sql.Date) row[1]).toLocalDate()
-                                : row[1] instanceof java.sql.Timestamp
-                                        ? ((java.sql.Timestamp) row[1]).toLocalDateTime().toLocalDate()
-                                        : LocalDate.parse(row[1].toString().substring(0, 10)),
-
-                row[2].toString(), // gender
-                row[3].toString(), // name
-                row[4].toString(), // url_image
-                row[5] != null ? new BigDecimal(row[5].toString()).setScale(2, RoundingMode.HALF_UP) : null, // weight
-                row[6] instanceof Number ? ((Number) row[6]).longValue() : Long.parseLong(row[6].toString()), // speciesId
-                row[7].toString(), // breed_name
-                row[8].toString(), // species_name
-                row[9] != null ? row[9].toString() : null // animal_comment
-        )).toList();
-
-    }
+    private final BreedRepository breedRepository;
 
     @Autowired
     public AnimalServiceImpl(
             AnimalRepository animalRepository,
             ClientRepository clientRepository,
             FilterStatus filterStatus,
-            AnimalMapper animalMapper, IClientService clientService) {
+            AnimalMapper animalMapper, IClientService clientService,
+            BreedRepository breedRepository) {
         this.animalRepository = animalRepository;
         this.clientRepository = clientRepository;
         this.filterStatus = filterStatus;
         this.animalMapper = animalMapper;
         this.clientService = clientService;
+        this.breedRepository = breedRepository;
     }
 
     @Transactional(readOnly = true)
@@ -114,6 +94,23 @@ public class AnimalServiceImpl implements IAnimalService {
         clientRepository.findById(clientId)
                 .orElseThrow(() -> new RuntimeException("Client not found with id: " + clientId));
         Animal animal = animalMapper.mapToAnimal(animalDTO);
+
+        // Si la imagen viene vacía o null, usamos la imagen de la especie asociada al
+        // breed
+        if (animalDTO.getUrlImage() == null || animalDTO.getUrlImage().trim().isEmpty()) {
+            Long breedId = animalDTO.getBreed().getBreedId();
+
+            // Obtener el breed y la especie
+            Breed breed = breedRepository.findById(breedId)
+                    .orElseThrow(() -> new RuntimeException("Breed not found with id: " + breedId));
+
+            Specie specie = breed.getSpecie();
+            if (specie == null || specie.getImagePath() == null) {
+                throw new RuntimeException("Specie or its image not found for breed id: " + breedId);
+            }
+
+            animal.setUrlImage(specie.getImagePath());
+        }
         animal.setStatus(true);
         return animalMapper.mapToAnimalDTO(animalRepository.save(animal));
     }
@@ -201,4 +198,28 @@ public class AnimalServiceImpl implements IAnimalService {
         return page;
     }
 
+    @Override
+    public List<AnimalInfoForClientDTO> getAnimalsByClientId(Long clientId) {
+        List<Object[]> rows = animalRepository.findAnimalInfoRawByClientIdForPanel(clientId);
+
+        return rows.stream().map(row -> new AnimalInfoForClientDTO(
+                ((Number) row[0]).longValue(), // animal_id
+
+                row[1] instanceof LocalDate ? (LocalDate) row[1]
+                        : row[1] instanceof java.sql.Date ? ((java.sql.Date) row[1]).toLocalDate()
+                                : row[1] instanceof java.sql.Timestamp
+                                        ? ((java.sql.Timestamp) row[1]).toLocalDateTime().toLocalDate()
+                                        : LocalDate.parse(row[1].toString().substring(0, 10)),
+
+                row[2].toString(), // gender
+                row[3].toString(), // name
+                row[4].toString(), // url_image
+                row[5] != null ? new BigDecimal(row[5].toString()).setScale(2, RoundingMode.HALF_UP) : null, // weight
+                row[6] instanceof Number ? ((Number) row[6]).longValue() : Long.parseLong(row[6].toString()), // speciesId
+                row[7].toString(), // breed_name
+                row[8].toString(), // species_name
+                row[9] != null ? row[9].toString() : null // animal_comment
+        )).toList();
+
+    }
 }
