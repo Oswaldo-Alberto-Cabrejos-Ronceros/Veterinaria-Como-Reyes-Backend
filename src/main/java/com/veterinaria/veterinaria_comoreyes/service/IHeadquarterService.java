@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,4 +22,7 @@ public interface IHeadquarterService {
     void validateHeadquarterAvailable(Long id);
 
     List<HeadquarterEmployeesDTO> getAllActiveHeadquartersWithActiveEmployees();
+
+    @Transactional
+    void activateHeadquarter(Long headquarterId);
 }

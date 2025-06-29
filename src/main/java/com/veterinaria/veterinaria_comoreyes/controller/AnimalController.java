@@ -59,5 +59,11 @@ public class AnimalController {
         return ResponseEntity.ok(animalService.getAnimalsByClientId(id));
     }
 
+    @PutMapping("/{animalId}/activate")
+    public ResponseEntity<Void> activateAnimal(@PathVariable Long animalId) {
+        animalService.activateAnimal(animalId);
+        return ResponseEntity.ok().build();
+    }
+
 
 }

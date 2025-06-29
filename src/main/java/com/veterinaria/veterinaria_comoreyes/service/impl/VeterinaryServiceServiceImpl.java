@@ -121,4 +121,10 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
         service.setStatus(false);
         veterinaryServiceRepository.save(service);
     }
+
+    @Transactional
+    @Override
+    public void activateVeterinaryService(Long serviceId) {
+        veterinaryServiceRepository.activateVeterinaryService(serviceId);
+    }
 }

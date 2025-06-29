@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterVetServiceService;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +56,16 @@ public class HeadquarterVetServiceController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         headquarterVetServiceService.deleteHeadquarterVetService(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/veterinarians")
+    public ResponseEntity<List<EmployeeBasicInfoDTO>> listVeterinariansByHvs(
+            @RequestParam Long headquarterVetServiceId
+    ) {
+        List<EmployeeBasicInfoDTO> vets = headquarterVetServiceService.getVeterinariansByHvs(headquarterVetServiceId);
+        if (vets.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(vets);
     }
 }

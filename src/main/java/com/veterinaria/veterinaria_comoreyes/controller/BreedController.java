@@ -50,4 +50,10 @@ public class BreedController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{breedId}/activate")
+    public ResponseEntity<Void> activateBreed(@PathVariable Long breedId) {
+        breedService.activateBreed(breedId);
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -162,4 +162,10 @@ public class PaymentServiceImpl implements IPaymentService {
             return dto;
         });
     }
+
+    @Transactional
+    @Override
+    public void updatePaymentStatus(Long paymentId, PaymentStatus status) {
+        paymentRepository.updateStatus(paymentId, status);
+    }
 }

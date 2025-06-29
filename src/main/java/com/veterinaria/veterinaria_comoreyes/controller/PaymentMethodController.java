@@ -4,6 +4,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodDTO
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentMethodService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,5 +39,11 @@ public class PaymentMethodController {
     @DeleteMapping("/{id}")
     public void deletePaymentMethod(@PathVariable Long id) {
         paymentMethodService.deletePaymentMethod(id);
+    }
+
+    @PutMapping("/{paymentMethodId}/activate")
+    public ResponseEntity<Void> activatePaymentMethod(@PathVariable Long paymentMethodId) {
+        paymentMethodService.activatePaymentMethod(paymentMethodId);
+        return ResponseEntity.ok().build();
     }
 }
