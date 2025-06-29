@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -287,54 +288,55 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     @Transactional(readOnly = true)
     public Page<AppointmentListDTO> searchAppointments(
-            LocalDate scheduleDateTime, String statusAppointment,
-            Long headquarterVetServiceId, Long employeeId, Long animalId, Pageable pageable) {
+            LocalDate scheduleDate,
+            String statusAppointment,
+            Long headquarterVetServiceId,
+            Long employeeId,
+            Long animalId,
+            Pageable pageable) {
 
         String redisKey = String.format(
-                "appointments:page=%d:size=%d:scheduleDateTime=%s:statusAppointment=%s:headquarterVetServiceId=%s:employeeId=%s:animalId=%s",
+                "appointments:page=%d:size=%d:date=%s:status=%s:hvsId=%s:empId=%s:animalId=%s",
                 pageable.getPageNumber(), pageable.getPageSize(),
-                scheduleDateTime != null ? scheduleDateTime.toString() : "null",
+                scheduleDate != null ? scheduleDate.toString() : "null",
                 statusAppointment != null ? statusAppointment : "null",
                 headquarterVetServiceId != null ? headquarterVetServiceId : "null",
                 employeeId != null ? employeeId : "null",
                 animalId != null ? animalId : "null");
 
         @SuppressWarnings("unchecked")
-        List<AppointmentListDTO> cached = (List<AppointmentListDTO>) redisTemplate.opsForValue().get(redisKey);
+        List<AppointmentListDTO> cachedList = (List<AppointmentListDTO>) redisTemplate.opsForValue().get(redisKey);
 
         Object rawTotal = redisTemplate.opsForValue().get(redisKey + ":total");
-        Long total = null;
+        Long totalCount = null;
         if (rawTotal instanceof Integer) {
-            total = ((Integer) rawTotal).longValue();
+            totalCount = ((Integer) rawTotal).longValue();
         } else if (rawTotal instanceof Long) {
-            total = (Long) rawTotal;
+            totalCount = (Long) rawTotal;
         }
 
-        if (cached != null && total != null) {
-            System.out.println("[REDIS HIT] " + redisKey);
-            return new PageImpl<>(cached, pageable, total);
+        if (cachedList != null && totalCount != null) {
+            System.out.println("[REDIS HIT] Clave: " + redisKey);
+            return new PageImpl<>(cachedList, pageable, totalCount);
         }
 
-        System.out.println("[REDIS MISS] " + redisKey);
+        System.out.println("[REDIS MISS] Consultando DB para clave: " + redisKey);
         Page<Object[]> results = appointmentRepository.searchAppointmentsNative(
-                scheduleDateTime, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
+                scheduleDate, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
 
-        List<AppointmentListDTO> dtoList = results.getContent().stream().map(obj -> {
-            return new AppointmentListDTO(
-                    ((Number) obj[0]).longValue(),
-                    obj[1] != null ? ((java.sql.Timestamp) obj[1]).toLocalDateTime() : null,
-                    (String) obj[2],
-                    obj[3] != null ? ((Number) obj[3]).longValue() : null,
-                    obj[4] != null ? ((Number) obj[4]).longValue() : null,
-                    obj[5] != null ? ((Number) obj[5]).longValue() : null);
-        }).toList();
+        List<AppointmentListDTO> dtoList = results.getContent().stream().map(obj -> new AppointmentListDTO(
+                ((Number) obj[0]).longValue(), // appointmentId
+                obj[1] != null ? obj[1].toString() : null, // scheduleDateTime
+                (String) obj[2], // statusAppointment
+                obj[3] != null ? ((Number) obj[3]).longValue() : null, // headquarterVetServiceId
+                obj[4] != null ? ((Number) obj[4]).longValue() : null, // employeeId
+                obj[5] != null ? ((Number) obj[5]).longValue() : null // animalId
+        )).collect(Collectors.toList());
 
-        Page<AppointmentListDTO> pageResult = new PageImpl<>(dtoList, pageable, results.getTotalElements());
+        redisTemplate.opsForValue().set(redisKey, dtoList, Duration.ofMinutes(10));
+        redisTemplate.opsForValue().set(redisKey + ":total", results.getTotalElements(), Duration.ofMinutes(10));
 
-        redisTemplate.opsForValue().set(redisKey, dtoList);
-        redisTemplate.opsForValue().set(redisKey + ":total", results.getTotalElements());
-
-        return pageResult;
+        return new PageImpl<>(dtoList, pageable, results.getTotalElements());
     }
 
     public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,

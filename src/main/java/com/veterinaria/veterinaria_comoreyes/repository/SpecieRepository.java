@@ -10,7 +10,6 @@ import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 
-
 import java.util.Optional;
 
 public interface SpecieRepository extends JpaRepository<Specie, Long> {
@@ -20,8 +19,8 @@ public interface SpecieRepository extends JpaRepository<Specie, Long> {
         @Query("SELECT new com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO(" +
                         "s.specieId, s.name, s.imagePath, s.status) " +
                         "FROM Specie s WHERE " +
-                        "(:name IS NULL OR s.name LIKE %:name%) AND " +
-                        "(:imagePath IS NULL OR s.imagePath LIKE %:imagePath%) AND " +
+                        "(:name IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+                        "(:imagePath IS NULL OR LOWER(s.imagePath) LIKE LOWER(CONCAT('%', :imagePath, '%'))) AND " +
                         "(:status IS NULL OR s.status = :status)")
         Page<SpecieListDTO> searchSpecies(@Param("name") String name,
                         @Param("imagePath") String imagePath,

@@ -1,8 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +17,7 @@ public class AppointmentListDTO {
 
     private Long appointmentId;
 
-    private LocalDateTime scheduleDateTime;
+    private String scheduleDateTime;
 
     private String statusAppointment;
 

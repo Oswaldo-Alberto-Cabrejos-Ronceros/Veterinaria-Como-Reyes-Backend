@@ -16,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -114,8 +115,10 @@ public class SpecieServiceImpl implements ISpecieService {
         System.out.println("[REDIS MISS] Consultando DB para clave: " + redisKey);
         Page<SpecieListDTO> resultPage = specieRepository.searchSpecies(name, imagePath, status, pageable);
 
-        redisTemplate.opsForValue().set(redisKey, resultPage.getContent());
-        redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements());
+        if (!resultPage.isEmpty()) {
+            redisTemplate.opsForValue().set(redisKey, resultPage.getContent(), Duration.ofMinutes(30));
+            redisTemplate.opsForValue().set(redisKey + ":total", resultPage.getTotalElements(), Duration.ofMinutes(30));
+        }        
 
         return resultPage;
     }

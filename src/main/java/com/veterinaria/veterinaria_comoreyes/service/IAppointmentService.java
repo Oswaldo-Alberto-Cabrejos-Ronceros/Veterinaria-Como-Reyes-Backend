@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -11,7 +12,6 @@ import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestD
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.BasicServiceForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.TimesForTurnDTO;
-import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 
 public interface IAppointmentService {
@@ -37,7 +37,10 @@ public interface IAppointmentService {
                         Long speciesId);
 
         Page<AppointmentListDTO> searchAppointments(
-                        LocalDate scheduleDateTime, String statusAppointment,
-                        Long headquarterVetServiceId, Long employeeId, Long animalId, Pageable pageable);
-
+                        LocalDate scheduleDate,
+                        String statusAppointment,
+                        Long headquarterVetServiceId,
+                        Long employeeId,
+                        Long animalId,
+                        Pageable pageable);
 }

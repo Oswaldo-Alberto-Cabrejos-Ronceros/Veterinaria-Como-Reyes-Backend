@@ -17,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -93,15 +95,24 @@ public class AppointmentController {
 
     @GetMapping("/search")
     public Page<AppointmentListDTO> searchAppointments(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate scheduleDateTime,
+            @RequestParam(required = false) String scheduleDate,
             @RequestParam(required = false) String statusAppointment,
-            @RequestParam(required = false) Long headquarterVetServiceId,
-            @RequestParam(required = false) Long employeeId,
+            @RequestParam(name = "hvsId", required = false) Long headquarterVetServiceId,
+            @RequestParam(name = "empId", required = false) Long employeeId,
             @RequestParam(required = false) Long animalId,
             @PageableDefault(size = 10) Pageable pageable) {
+        LocalDate parsedDate = null;
+
+        if (scheduleDate != null && !scheduleDate.isBlank()) {
+            try {
+                parsedDate = LocalDate.parse(scheduleDate); // Formato ISO: yyyy-MM-dd
+            } catch (DateTimeParseException e) {
+                throw new IllegalArgumentException("Fecha inválida. Usa el formato yyyy-MM-dd.");
+            }
+        }
 
         return appointmentService.searchAppointments(
-                scheduleDateTime, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
+                parsedDate, statusAppointment, headquarterVetServiceId, employeeId, animalId, pageable);
     }
 
 }
