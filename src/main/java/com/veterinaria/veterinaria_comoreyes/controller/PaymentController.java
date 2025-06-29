@@ -1,9 +1,13 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,5 +42,25 @@ public class PaymentController {
     @DeleteMapping("/{id}")
     public void deletePayment(@PathVariable Long id) {
         paymentService.deletePayment(id);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<Page<PaymentListDTO>> getAllPaymentsForTable(Pageable pageable) {
+        Page<PaymentListDTO> page = paymentService.getAllPaymentsForTable(pageable);
+        return ResponseEntity.ok(page);
+    }
+    @GetMapping("/search")
+    public ResponseEntity<Page<PaymentListDTO>> search(
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) Long headquarterId,
+            @RequestParam(required = false) Long serviceId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            Pageable pageable
+    ) {
+        var page = paymentService.searchPayments(dni, headquarterId, serviceId,
+                status, startDate, endDate, pageable);
+        return ResponseEntity.ok(page);
     }
 }
