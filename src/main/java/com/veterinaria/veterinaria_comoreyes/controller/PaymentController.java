@@ -55,8 +55,8 @@ public class PaymentController {
             @RequestParam(required = false) Long headquarterId,
             @RequestParam(required = false) Long serviceId,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String startDate, // formato: yyyy-MM-dd
+            @RequestParam(required = false) String endDate, // formato: yyyy-MM-dd
             Pageable pageable
     ) {
         var page = paymentService.searchPayments(dni, headquarterId, serviceId,

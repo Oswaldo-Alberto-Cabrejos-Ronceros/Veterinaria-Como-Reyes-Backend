@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
 
 public interface IHeadquarterVetServiceService {
@@ -26,4 +27,6 @@ public interface IHeadquarterVetServiceService {
     String nameSpecie(Long id);
 
     Double priceService(Long id);
+
+    List<EmployeeBasicInfoDTO> getVeterinariansByHvs(Long hvsId);
 }
