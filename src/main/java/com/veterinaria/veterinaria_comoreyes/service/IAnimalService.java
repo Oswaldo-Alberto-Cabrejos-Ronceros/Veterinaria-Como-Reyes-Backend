@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,4 +27,7 @@ public interface IAnimalService {
     String findSpecieNameByAnimalId(Long id);
 
     List<AnimalInfoForClientDTO> getAnimalsByClientId(Long clientId);
+
+    @Transactional
+    void activateAnimal(Long animalId);
 }

@@ -1,10 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.repository;
 
+import com.veterinaria.veterinaria_comoreyes.entity.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veterinaria.veterinaria_comoreyes.entity.Payment;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -74,4 +76,9 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("endDate") String endDate,
             Pageable pageable
     );
+
+    @Modifying
+    @Query("UPDATE Payment p SET p.status = :status WHERE p.paymentId = :paymentId")
+    void updateStatus(@Param("paymentId") Long paymentId, @Param("status") PaymentStatus status);
+
 }

@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.repository;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -41,6 +42,9 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
         """, nativeQuery = true)
     List<Object[]> findAnimalInfoRawByClientIdForPanel(@Param("clientId") Long clientId);
 
+    @Modifying
+    @Query(value = "UPDATE animal SET status = 1 WHERE animal_id = :animalId", nativeQuery = true)
+    void activateAnimal(@Param("animalId") Long animalId);
 
 
 }

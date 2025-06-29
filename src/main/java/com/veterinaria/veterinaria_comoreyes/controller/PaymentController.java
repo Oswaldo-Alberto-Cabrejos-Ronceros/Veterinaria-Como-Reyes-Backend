@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.PaymentStatus;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,5 +63,29 @@ public class PaymentController {
         var page = paymentService.searchPayments(dni, headquarterId, serviceId,
                 status, startDate, endDate, pageable);
         return ResponseEntity.ok(page);
+    }
+
+    @PutMapping("/{paymentId}/status/completed")
+    public ResponseEntity<Void> setCompleted(@PathVariable Long paymentId) {
+        paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETADA);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{paymentId}/status/cancelled")
+    public ResponseEntity<Void> setCancelled(@PathVariable Long paymentId) {
+        paymentService.updatePaymentStatus(paymentId, PaymentStatus.CANCELADA);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{paymentId}/status/pending")
+    public ResponseEntity<Void> setPending(@PathVariable Long paymentId) {
+        paymentService.updatePaymentStatus(paymentId, PaymentStatus.PENDIENTE);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{paymentId}/status/refunded")
+    public ResponseEntity<Void> setRefunded(@PathVariable Long paymentId) {
+        paymentService.updatePaymentStatus(paymentId, PaymentStatus.REEMBOLSADA);
+        return ResponseEntity.ok().build();
     }
 }
