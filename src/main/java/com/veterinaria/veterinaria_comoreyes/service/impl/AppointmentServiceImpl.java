@@ -280,6 +280,29 @@ public class AppointmentServiceImpl implements IAppointmentService {
         )).toList();
     }
 
+    @Override
+    public List<InfoBasicAppointmentForPanelDTO> getAppointmentsForClientPanel(Long clientId) {
+        List<Object[]> results = appointmentRepository.findInfoBasicAppointmentsByClientId(clientId);
+        List<InfoBasicAppointmentForPanelDTO> dtos = new ArrayList<>();
+        for (Object[] row : results) {
+            InfoBasicAppointmentForPanelDTO dto = new InfoBasicAppointmentForPanelDTO();
+            dto.setId(row[0] != null ? ((Number) row[0]).longValue() : null); // id
+            dto.setDate((String) row[1]); // appointment_date
+            dto.setTime((String) row[2]); // appointment_time
+            dto.setAnimalName((String) row[3]); // nombre del animal
+            dto.setServiceName((String) row[4]); // nombre del servicio
+            dto.setServiceDescription((String) row[5]); // descripción del servicio
+            dto.setServiceImage((String) row[6]); // imagen del servicio
+            dto.setCategoryServiceName((String) row[7]); // nombre de la categoría del servicio
+            dto.setStatus((String) row[8]); // estado
+            dto.setDuration(row[9] != null ? ((Number) row[9]).intValue() : null); // duración en minutos
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+
+
 
 
 

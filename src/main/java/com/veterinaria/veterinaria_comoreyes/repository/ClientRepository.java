@@ -38,4 +38,11 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     Optional<Client> findByClientIdAndStatusIsTrue(Long Id);
 
     Boolean existsByClientIdAndStatusIsTrue(Long clientId);
+
+    @Query(value = """
+        SELECT c.client_id, c.name || ' ' || c.last_name AS full_name
+        FROM client c
+        WHERE c.dni = :dni
+        """, nativeQuery = true)
+    Object findBasicInfoByDni(@Param("dni") String dni);
 }

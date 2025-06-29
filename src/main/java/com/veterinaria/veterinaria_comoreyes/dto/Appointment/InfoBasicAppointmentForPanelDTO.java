@@ -1,23 +1,39 @@
 package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class InfoBasicAppointmentForPanelDTO {
+
     Long id;
 
-    @JsonFormat(pattern = "dd/MM/yyyy", shape = JsonFormat.Shape.STRING)
+    @JsonFormat( shape = JsonFormat.Shape.STRING)
+    String date;
 
-    LocalDate date;
-    @JsonFormat(pattern = "HH:mm", shape = JsonFormat.Shape.STRING)
+    @JsonFormat( shape = JsonFormat.Shape.STRING)
     String time;
 
-    String petName;
+    String animalName;
 
     String serviceName;
+
+    String serviceDescription;
 
     String serviceImage;
 
     String categoryServiceName;
+
+    String status;
+
+    Integer duration; // Duration in minutes
+
 }

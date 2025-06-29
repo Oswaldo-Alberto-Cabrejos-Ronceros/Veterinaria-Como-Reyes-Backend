@@ -114,6 +114,30 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                     @Param("speciesId") Long speciesId);
 
 
+    @Query(value = """
+        SELECT 
+            a.appointment_id AS id,
+            TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS appointment_date,
+            TO_CHAR(a.schedule_date_time, 'HH24:MI') AS appointment_time,
+            an.name AS animalName,
+            s.name AS serviceName,
+            s.description AS serviceDescription,
+            s.dir_image AS serviceImage,
+            cs.name AS categoryServiceName,
+            a.status_appointments AS status,
+            s.duration AS duration
+        FROM appointment a
+        JOIN animal an ON a.animal_id = an.animal_id
+        JOIN headquarter_vet_service hs ON a.headquarter_vetservice_id = hs.id
+        JOIN veterinary_service s ON hs.id_service = s.service_id
+        JOIN category cs ON s.id_category = cs.category_id
+        WHERE an.client_id = :clientId
+          AND a.status_appointments IN ('CONFIRMADA', 'PROGRAMADA')
+        ORDER BY a.schedule_date_time ASC
+    """, nativeQuery = true)
+    List<Object[]> findInfoBasicAppointmentsByClientId(@Param("clientId") Long clientId);
+
+
 
 
 

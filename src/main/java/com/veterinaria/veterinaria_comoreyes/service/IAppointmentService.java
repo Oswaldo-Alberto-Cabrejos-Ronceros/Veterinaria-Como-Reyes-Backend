@@ -2,10 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import java.util.List;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.BasicServiceForAppointmentDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.TimesForTurnDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 
 public interface IAppointmentService {
@@ -28,4 +25,6 @@ public interface IAppointmentService {
     List <TimesForTurnDTO> getAvailableTimesForTurn(Long headquarterVetServiceId, String date);
 
     List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId);
+
+    List<InfoBasicAppointmentForPanelDTO> getAppointmentsForClientPanel(Long clientId);
 }
