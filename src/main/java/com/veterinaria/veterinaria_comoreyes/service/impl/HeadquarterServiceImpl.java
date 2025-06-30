@@ -123,4 +123,10 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
             return new HeadquarterEmployeesDTO(hq.getName(), employeeInfoList);
         }).toList();
     }
+
+    @Transactional
+    @Override
+    public void activateHeadquarter(Long headquarterId) {
+        headquarterRepository.activateHeadquarter(headquarterId);
+    }
 }

@@ -49,4 +49,10 @@ public class RoleController {
         roleService.deleteRole(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{roleId}/activate")
+    public ResponseEntity<Void> activateRole(@PathVariable Long roleId) {
+        roleService.activateRole(roleId);
+        return ResponseEntity.ok().build();
+    }
 }

@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleBasicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Role.RoleDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Role;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
@@ -27,4 +28,7 @@ public interface IRoleService {
     long countActiveRolesForEmployee(Long employeeId);
 
     List<Role> getActiveRolesForEmployee(Long employeeId);
+
+    @Transactional
+    void activateRole(Long roleId);
 }

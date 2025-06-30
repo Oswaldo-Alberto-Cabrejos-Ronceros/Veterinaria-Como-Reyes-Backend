@@ -4,6 +4,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,4 +40,11 @@ public class SpecieController {
     public void deleteSpecie(@PathVariable Long id) {
         specieService.deleteSpecie(id);
     }
+
+    @PutMapping("/{specieId}/activate")
+    public ResponseEntity<Void> activateSpecie(@PathVariable Long specieId) {
+        specieService.activateSpecie(specieId);
+        return ResponseEntity.ok().build();
+    }
+
 }
