@@ -16,5 +16,4 @@ public class ClientListDTO {
     private String lastName;
     private String headquarterName;
     private String status;
-
 }
