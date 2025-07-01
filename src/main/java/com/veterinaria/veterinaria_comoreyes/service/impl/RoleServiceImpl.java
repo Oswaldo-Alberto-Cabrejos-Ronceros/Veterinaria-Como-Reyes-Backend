@@ -61,6 +61,7 @@ public class RoleServiceImpl implements IRoleService {
     public RoleDTO createRole(RoleDTO roleDTO) {
         filterStatus.activeFilterStatus(true);
         Role role = roleMapper.mapToRole(roleDTO);
+        role.setStatus(true);
         Role savedRole = roleRepository.save(role);
         return roleMapper.mapToRoleDTO(savedRole);
     }

@@ -1,12 +1,15 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentMethod;
 import com.veterinaria.veterinaria_comoreyes.mapper.PaymentMethodMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.PaymentMethodRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentMethodService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +19,13 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentMethodServiceImpl implements IPaymentMethodService {
 
-
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentMethodMapper paymentMethodMapper;
     private final FilterStatus filterStatus;
 
     @Autowired
-    public PaymentMethodServiceImpl(PaymentMethodRepository paymentMethodRepository,PaymentMethodMapper paymentMethodMapper, FilterStatus filterStatus) {
+    public PaymentMethodServiceImpl(PaymentMethodRepository paymentMethodRepository,
+            PaymentMethodMapper paymentMethodMapper, FilterStatus filterStatus) {
         this.paymentMethodRepository = paymentMethodRepository;
         this.paymentMethodMapper = paymentMethodMapper;
         this.filterStatus = filterStatus;
@@ -80,7 +83,7 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     }
 
     @Override
-    public void validePaymentMethod(Long id){
+    public void validePaymentMethod(Long id) {
         boolean exist = paymentMethodRepository.existsByPaymentMethodIdAndStatusIsTrue(id);
         if (!exist) {
             throw new RuntimeException("No disponible este metodo de pago");
@@ -92,5 +95,12 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
     @Override
     public void activatePaymentMethod(Long paymentMethodId) {
         paymentMethodRepository.activatePaymentMethod(paymentMethodId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PaymentMethodListDTO> searchPaymentMethodsPage(String name, Boolean status, Pageable pageable) {
+        filterStatus.activeFilterStatus(true);
+        return paymentMethodRepository.searchPaymentMethodsWithFilters(name, status, pageable);
     }
 }

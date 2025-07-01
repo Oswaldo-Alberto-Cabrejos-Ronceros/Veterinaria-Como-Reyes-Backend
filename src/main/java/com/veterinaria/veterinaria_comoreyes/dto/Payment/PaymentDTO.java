@@ -19,13 +19,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PaymentDTO {
 
-     private Long paymentId;
+    private Long paymentId;
 
     @NotNull(message = "El monto del pago es obligatorio")
     @Positive(message = "El monto debe ser mayor a 0")
     private Double amount;
 
-    @Positive(message = "La fecha y hora del pago es obligatoria")
     @PastOrPresent(message = "La fecha de pago no puede estar en el futuro")
     @JsonFormat(pattern = "dd/MM/yyyy'T'HH:mm:ss")
     private LocalDateTime paymentDateTime;

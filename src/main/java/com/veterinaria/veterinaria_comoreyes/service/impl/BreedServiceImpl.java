@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.BreedMapper;
@@ -9,6 +10,8 @@ import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IBreedService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +27,8 @@ public class BreedServiceImpl implements IBreedService {
     private final BreedMapper breedMapper;
 
     @Autowired
-    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository, FilterStatus filterStatus, BreedMapper breedMapper) {
+    public BreedServiceImpl(BreedRepository breedRepository, SpecieRepository specieRepository,
+            FilterStatus filterStatus, BreedMapper breedMapper) {
         this.breedRepository = breedRepository;
         this.specieRepository = specieRepository;
         this.filterStatus = filterStatus;
@@ -107,4 +111,12 @@ public class BreedServiceImpl implements IBreedService {
     public void activateBreed(Long breedId) {
         breedRepository.activateBreed(breedId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<BreedListDTO> searchBreeds(String name, String specieName, Boolean status, Pageable pageable) {
+        filterStatus.activeFilterStatus(true); // Aplica el filtro lógico global
+        return breedRepository.searchBreedsWithFilters(name, specieName, status, pageable);
+    }
+
 }

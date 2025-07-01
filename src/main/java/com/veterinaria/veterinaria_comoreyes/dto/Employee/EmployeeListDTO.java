@@ -10,12 +10,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmployeeListDTO {
-
     Long employeeId;
     String dni;
     String cmvp;
     String name;
     String lastName;
+    String rolName;
     String nameHeadquarter;
     String status;
 }

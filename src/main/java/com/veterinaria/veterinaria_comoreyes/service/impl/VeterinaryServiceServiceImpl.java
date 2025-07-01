@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Service.ServiceListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Service.VeterinaryServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.VeterinaryService;
 import com.veterinaria.veterinaria_comoreyes.mapper.CategoryMapper;
@@ -13,6 +14,8 @@ import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import com.veterinaria.veterinaria_comoreyes.service.IVeterinaryServiceService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,8 +40,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
             FilterStatus filterStatus,
             VeterinaryServiceMapper veterinaryServiceMapper,
             SpecieMapper specieMapper,
-            CategoryMapper categoryMapper
-    ) {
+            CategoryMapper categoryMapper) {
         this.veterinaryServiceRepository = veterinaryServiceRepository;
         this.specieService = specieService;
         this.categoryService = categoryService;
@@ -127,4 +129,13 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     public void activateVeterinaryService(Long serviceId) {
         veterinaryServiceRepository.activateVeterinaryService(serviceId);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ServiceListDTO> searchServices(String name, String specie, String category, Boolean status,
+            Pageable pageable) {
+        filterStatus.activeFilterStatus(true); // Aplica el filtro global de estado si se requiere
+        return veterinaryServiceRepository.searchServicesWithFilters(name, specie, category, status, pageable);
+    }
+
 }
