@@ -44,5 +44,6 @@ public class VeterinaryRecord {
     private String resultUrl;
 
     @Enumerated(EnumType.STRING)
-    private StatusVeterinaryRecord statusVeterinaryRecord= StatusVeterinaryRecord.EN_CURSO;;
+    private StatusVeterinaryRecord statusVeterinaryRecord = StatusVeterinaryRecord.EN_CURSO;
+}
 
