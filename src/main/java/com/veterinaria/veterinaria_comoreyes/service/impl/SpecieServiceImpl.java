@@ -77,5 +77,11 @@ public class SpecieServiceImpl implements ISpecieService {
         specie.setStatus(false);
         specieRepository.save(specie);
     }
+
+    @Transactional
+    @Override
+    public void activateSpecie(Long specieId) {
+        specieRepository.activateSpecie(specieId);
+    }
 }
 

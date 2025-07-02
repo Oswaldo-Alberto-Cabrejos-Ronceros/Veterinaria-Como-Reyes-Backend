@@ -96,6 +96,15 @@ public class ClientController {
         return ResponseEntity.ok("Comentario actualizada correctamente");
     }
 
+    @GetMapping("/by-dni")
+    public ResponseEntity<ClientBasicInfoByDniDTO> getClientByDni(@RequestParam String dni) {
+        ClientBasicInfoByDniDTO dto = clientService.getClientBasicInfoByDni(dni);
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(dto);
+    }
+
     /******************************************
      * Controllers user-client
      * ****************************************/

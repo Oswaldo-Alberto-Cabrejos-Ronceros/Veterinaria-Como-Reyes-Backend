@@ -75,4 +75,11 @@ public class CategoryServiceImpl implements ICategoryService {
         category.setStatus(false); // Inactivo
         categoryRepository.save(category);
     }
+
+    @Transactional
+    @Override
+    public void activateCategory(Long categoryId) {
+        categoryRepository.activateCategory(categoryId);
+    }
+
 }

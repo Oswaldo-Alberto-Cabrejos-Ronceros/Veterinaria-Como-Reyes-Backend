@@ -101,4 +101,10 @@ public class BreedServiceImpl implements IBreedService {
         breed.setStatus(false);
         breedRepository.save(breed);
     }
+
+    @Transactional
+    @Override
+    public void activateBreed(Long breedId) {
+        breedRepository.activateBreed(breedId);
+    }
 }

@@ -4,6 +4,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ICategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,5 +39,11 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     public void deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
+    }
+
+    @PutMapping("/{categoryId}/activate")
+    public ResponseEntity<Void> activateCategory(@PathVariable Long categoryId) {
+        categoryService.activateCategory(categoryId);
+        return ResponseEntity.ok().build();
     }
 }

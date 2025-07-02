@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -230,7 +231,7 @@ public class ClientServiceImpl implements IClientService {
          * Metodos solo para el CLient
          ****************************************************************/
         @Override
-        public nMyInfoClientDTO getMyInfoAsClient(Long id){
+        public nMyInfoClientDTO getMyInfoAsClient(Long id) {
             Client client = clientRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + id));
 
@@ -262,6 +263,18 @@ public class ClientServiceImpl implements IClientService {
             }
 
             return dto;
-            }
+        }
 
+    @Override
+    public ClientBasicInfoByDniDTO getClientBasicInfoByDni(String dni) {
+        Object result = clientRepository.findBasicInfoByDni(dni);
+        if (result == null) {
+            return null;
+        }
+        Object[] row = (Object[]) result;
+        ClientBasicInfoByDniDTO dto = new ClientBasicInfoByDniDTO();
+        dto.setId(((Number) row[0]).longValue());
+        dto.setFullName((String) row[1]);
+        return dto;
+    }
 }

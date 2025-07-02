@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,6 +147,16 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
     public Double priceService(Long id){
         return headquarterVetServiceRepository.findServicePriceById(id)
                 .orElseThrow(() -> new RuntimeException("Nombre del servicio no encontrado"));
+    }
+
+    @Override
+    public List<EmployeeBasicInfoDTO> getVeterinariansByHvs(Long hvsId) {
+        return headquarterVetServiceRepository.findVeterinariansByHeadquarterVetServiceId(hvsId).stream()
+                .map(row -> new EmployeeBasicInfoDTO(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1]
+                ))
+                .toList();
     }
 
 

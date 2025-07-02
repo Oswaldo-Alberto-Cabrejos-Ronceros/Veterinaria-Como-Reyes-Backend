@@ -58,4 +58,10 @@ public class HeadquarterController {
         List<HeadquarterEmployeesDTO> dtos = headquarterService.getAllActiveHeadquartersWithActiveEmployees();
         return ResponseEntity.ok(dtos);
     }
+
+    @PutMapping("/{headquarterId}/activate")
+    public ResponseEntity<Void> activateHeadquarter(@PathVariable Long headquarterId) {
+        headquarterService.activateHeadquarter(headquarterId);
+        return ResponseEntity.ok().build();
+    }
 }

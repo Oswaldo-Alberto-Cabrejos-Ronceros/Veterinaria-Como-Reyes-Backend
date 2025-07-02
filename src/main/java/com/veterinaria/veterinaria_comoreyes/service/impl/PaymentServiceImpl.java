@@ -1,16 +1,19 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.mapper.PaymentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,8 +62,7 @@ public class PaymentServiceImpl implements IPaymentService {
         payment.setPaymentMethod(method);
 
         // Validar estado inicial permitido
-        if (dto.getStatus() == null || dto.getStatus() == PaymentStatus.RECHAZADA
-                || dto.getStatus() == PaymentStatus.REEMBOLSADA) {
+        if (dto.getStatus() == null) {
             payment.setStatus(PaymentStatus.PENDIENTE);
         } else {
             payment.setStatus(dto.getStatus());
@@ -88,12 +90,7 @@ public class PaymentServiceImpl implements IPaymentService {
     public PaymentDTO updatePayment(Long id, PaymentDTO dto) {
         Payment existing = paymentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pago no encontrado"));
-
-        // No se permite cambiar a REEMBOLSADA directamente sin lógica aparte
-        if (dto.getStatus() == PaymentStatus.REEMBOLSADA || dto.getStatus() == PaymentStatus.PARCIALMENTE_REEMBOLSADA) {
-            throw new IllegalArgumentException("El estado de reembolso debe ser gestionado por un proceso especial.");
-        }
-
+        // Validar que el pago no esté en un estado que impida modificaciones
         // Aplicar cambios permitidos
         paymentMapper.updateEntityFromDto(dto, existing);
 
@@ -127,5 +124,48 @@ public class PaymentServiceImpl implements IPaymentService {
         // En lugar de eliminar, podrías marcarlo como CANCELADA
         payment.setStatus(PaymentStatus.CANCELADA);
         paymentRepository.save(payment);
+    }
+
+    @Override
+    public Page<PaymentListDTO> getAllPaymentsForTable(Pageable pageable) {
+        Page<Object[]> results = paymentRepository.findAllPaymentsForTable(pageable);
+        return results.map(row -> {
+            PaymentListDTO dto = new PaymentListDTO();
+            dto.setId(((Number) row[0]).longValue());
+            dto.setHeadquarterName((String) row[1]);
+            dto.setServiceName((String) row[2]);
+            dto.setClientDni((String) row[3]);
+            dto.setAmount(BigDecimal.valueOf(((Number) row[4]).doubleValue()));
+            dto.setStatus((String) row[5]);
+            dto.setPaymentMethod((String) row[6]);
+            dto.setPaymentDate((String) row[7]);
+            return dto;
+        });
+    }
+
+    @Override
+    public Page<PaymentListDTO> searchPayments(String dni, Long headquarterId, Long serviceId,
+                                               String status, String startDate, String endDate,
+                                               Pageable pageable) {
+        Page<Object[]> pag = paymentRepository.searchPaymentsForTable(dni, headquarterId, serviceId,
+                status, startDate, endDate, pageable);
+        return pag.map(row -> {
+            PaymentListDTO dto = new PaymentListDTO();
+            dto.setId(((Number) row[0]).longValue());
+            dto.setHeadquarterName((String) row[1]);
+            dto.setServiceName((String) row[2]);
+            dto.setClientDni((String) row[3]);
+            dto.setAmount(BigDecimal.valueOf(((Number) row[4]).doubleValue()));
+            dto.setStatus((String) row[5]);
+            dto.setPaymentMethod((String) row[6]);
+            dto.setPaymentDate((String) row[7]);
+            return dto;
+        });
+    }
+
+    @Transactional
+    @Override
+    public void updatePaymentStatus(Long paymentId, PaymentStatus status) {
+        paymentRepository.updateStatus(paymentId, status);
     }
 }

@@ -179,6 +179,12 @@
 
         }
 
+        @Transactional
+        @Override
+        public void activateAnimal(Long animalId) {
+            animalRepository.activateAnimal(animalId);
+        }
+
 
 
     }

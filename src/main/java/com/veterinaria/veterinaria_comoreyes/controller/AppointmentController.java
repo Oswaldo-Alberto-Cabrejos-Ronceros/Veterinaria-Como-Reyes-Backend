@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentResponseDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.BasicServiceForAppointmentDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Appointment.TimesForTurnDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,5 +77,11 @@ public class AppointmentController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(services);
+    }
+
+    @GetMapping("/client/{clientId}/panel")
+    public ResponseEntity<List<InfoBasicAppointmentForPanelDTO>> getAppointmentsForClientPanel(@PathVariable Long clientId) {
+        List<InfoBasicAppointmentForPanelDTO> appointments = appointmentService.getAppointmentsForClientPanel(clientId);
+        return ResponseEntity.ok(appointments);
     }
 }

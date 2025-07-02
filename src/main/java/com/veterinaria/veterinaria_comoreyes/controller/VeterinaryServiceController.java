@@ -54,4 +54,10 @@ public class VeterinaryServiceController {
         veterinaryServiceService.deleteService(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{serviceId}/activate")
+    public ResponseEntity<Void> activateVeterinaryService(@PathVariable Long serviceId) {
+        veterinaryServiceService.activateVeterinaryService(serviceId);
+        return ResponseEntity.ok().build();
+    }
 }

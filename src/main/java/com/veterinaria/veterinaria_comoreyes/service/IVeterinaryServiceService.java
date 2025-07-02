@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Service.VeterinaryServiceDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,4 +19,7 @@ public interface IVeterinaryServiceService {
     VeterinaryServiceDTO updateService(Long id,VeterinaryServiceDTO veterinaryServiceDTO);
 
     void deleteService(Long id);
+
+    @Transactional
+    void activateVeterinaryService(Long serviceId);
 }

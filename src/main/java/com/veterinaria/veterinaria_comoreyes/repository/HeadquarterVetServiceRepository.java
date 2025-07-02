@@ -28,4 +28,16 @@ public interface HeadquarterVetServiceRepository extends JpaRepository<Headquart
 
     @Query("SELECT hs.veterinaryService.specie.specieId FROM HeadquarterVetService hs WHERE hs.id = :id")
     Optional<String>  findSpecieNameById(Long id);
+
+    @Query(value = "SELECT e.employee_id AS id, e.name || ' ' || e.last_name AS fullName " +
+            "FROM employee e " +
+            "JOIN employee_role er ON e.employee_id = er.id_employee " +
+            "JOIN role r ON er.id_role = r.role_id " +
+            "JOIN headquarter h ON e.id_headquarter = h.headquarter_id " +
+            "JOIN headquarter_vet_service hs ON hs.id_headquarter = h.headquarter_id " +
+            "WHERE hs.id = :headquarterVetServiceId " +
+            "AND e.status = 1 " +
+            "AND r.name = 'Veterinario'", nativeQuery = true)
+    List<Object[]> findVeterinariansByHeadquarterVetServiceId(@Param("headquarterVetServiceId") Long headquarterVetServiceId);
+
 }

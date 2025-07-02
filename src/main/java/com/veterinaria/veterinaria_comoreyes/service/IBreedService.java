@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Breed.BreedDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,4 +17,7 @@ public interface IBreedService {
     BreedDTO updateBreed(Long id, BreedDTO breedDTO);
 
     void deleteBreed(Long id);
+
+    @Transactional
+    void activateBreed(Long breedId);
 }

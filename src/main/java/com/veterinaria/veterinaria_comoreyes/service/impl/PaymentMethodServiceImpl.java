@@ -87,4 +87,10 @@ public class PaymentMethodServiceImpl implements IPaymentMethodService {
         }
 
     }
+
+    @Transactional
+    @Override
+    public void activatePaymentMethod(Long paymentMethodId) {
+        paymentMethodRepository.activatePaymentMethod(paymentMethodId);
+    }
 }

@@ -126,4 +126,10 @@ public class RoleServiceImpl implements IRoleService {
     public List<Role> getActiveRolesForEmployee(Long employeeId) {
         return roleRepository.findByEmployeesEmployeeIdAndStatusTrue(employeeId);
     }
+
+    @Transactional
+    @Override
+    public void activateRole(Long roleId) {
+        roleRepository.activateRole(roleId);
+    }
 }
