@@ -44,7 +44,9 @@ public interface IEmployeeService {
 
 
     // Método para búsqueda personalizada
-    Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status, Long headquarterId, Pageable pageable);
+    Page<EmployeeListDTO> searchEmployees(String dni, String cmvp, String lastname, String rolName,
+            String nameHeadquarter, Boolean status,
+            Pageable pageable);
 
     nMyInfoEmployeeDTO myInfoAsEmployee(Long id);
 

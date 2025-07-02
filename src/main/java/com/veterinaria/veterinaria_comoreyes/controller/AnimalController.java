@@ -2,7 +2,12 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +34,13 @@ public class AnimalController {
         return ResponseEntity.ok().body(animalService.getAnimalById(id));
     }
 
-
     /*
-    @GetMapping("/client/{id}")
-    public ResponseEntity<List<AnimalDTO>> getAnimalByClientId(@PathVariable Long id) {
-        return ResponseEntity.ok().body(animalService.getAnimalsByClient(id));
-    }
-    */
+     * @GetMapping("/client/{id}")
+     * public ResponseEntity<List<AnimalDTO>> getAnimalByClientId(@PathVariable Long
+     * id) {
+     * return ResponseEntity.ok().body(animalService.getAnimalsByClient(id));
+     * }
+     */
 
     @PostMapping
     public ResponseEntity<AnimalDTO> createAnimal(@RequestBody AnimalDTO animalDTO) {
@@ -53,7 +58,7 @@ public class AnimalController {
         return ResponseEntity.noContent().build();
     }
 
-    //esto es para el panel de cliente la info basica de los animales
+    // esto es para el panel de cliente la info basica de los animales
     @GetMapping("/client/{id}")
     public ResponseEntity<List<AnimalInfoForClientDTO>> getAnimalsByClientId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(animalService.getAnimalsByClientId(id));
@@ -65,5 +70,15 @@ public class AnimalController {
         return ResponseEntity.ok().build();
     }
 
-
+    @GetMapping("/search")
+    public Page<AnimalListDTO> searchFullAnimals(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String owner,
+            @RequestParam(required = false) String specie,
+            @RequestParam(required = false) String breed,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) Boolean status,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return animalService.searchAnimals(name, owner, specie, breed, gender, status, pageable);
+    }
 }

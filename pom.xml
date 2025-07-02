@@ -35,6 +35,7 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
@@ -163,9 +164,8 @@
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
-			<version>1.5.5.Final</version>
+			<version>1.6.3</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>

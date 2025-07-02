@@ -22,11 +22,11 @@ import com.veterinaria.veterinaria_comoreyes.service.IEmployeeService;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.service.IRoleService;
 import com.veterinaria.veterinaria_comoreyes.service.IUserService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -75,9 +75,8 @@ public class EmployeeServiceImpl implements IEmployeeService {
 
         Employee employee = employeeRepository
                 .findByUser(userDTO)
-                .orElseThrow(() ->
-                        new RuntimeException("Empleado no encontrado para el usuario ID: " + userDTO.getUserId())
-                );
+                .orElseThrow(() -> new RuntimeException(
+                        "Empleado no encontrado para el usuario ID: " + userDTO.getUserId()));
 
         return employeeMapper.mapToEmployeeDTO(employee);
     }
@@ -98,7 +97,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
             throw new RuntimeException("Ya existe un empleado con ese DNI: " + employeeDTO.getDni());
         }
 
-        //validate that name and last Name match with data of Reniec
+        // validate that name and last Name match with data of Reniec
         reniecService.validateIdentityReniec(
                 employeeDTO.getDni(),
                 employeeDTO.getName(),
@@ -123,43 +122,44 @@ public class EmployeeServiceImpl implements IEmployeeService {
             List<Role> roles = roleService.validateAndFetchRoles(employeeDTO.getRoles());
             employee.setRoles(roles);
         }
-
         Employee savedEmployee = employeeRepository.save(employee);
         return employeeMapper.mapToEmployeeDTO(savedEmployee);
     }
 
     private void validatePhoneAvailable(String phone) {
-         boolean exist = employeeRepository.existsByPhone(phone);
+        boolean exist = employeeRepository.existsByPhone(phone);
         if (exist) {
             throw new PhoneAlreadyExistsException("El número de teléfono ya está registrado en otro cliente");
         }
     }
+
     private void validateDniAvailable(String dni) {
         boolean exist = employeeRepository.existsByDni(dni);
         if (exist) {
             throw new RuntimeException("Ya existe otro empleado con ese DNI");
         }
     }
+
     @Transactional
     @Override
     public EmployeeDTO updateEmployee(Long employeeId, EmployeeDTO employeeDTO) {
 
-        //verificar si el cliente id ingresado existe
+        // verificar si el cliente id ingresado existe
         Employee existingEmployee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
 
-        //verificar si ha ingresado otro numero y lo validamos si es el caso
+        // verificar si ha ingresado otro numero y lo validamos si es el caso
         if (!existingEmployee.getPhone().equals(employeeDTO.getPhone())) {
             validatePhoneAvailable(employeeDTO.getPhone());
         }
 
-        //verificar si ha ingresado un dni distinto y lo validmos si es el caso
+        // verificar si ha ingresado un dni distinto y lo validmos si es el caso
         if (!existingEmployee.getDni().equals(employeeDTO.getDni())) {
 
-            //validar que no exista otro cliente con el nuevo dni
+            // validar que no exista otro cliente con el nuevo dni
             validateDniAvailable(employeeDTO.getDni());
 
-            //validate that name and last Name match with data of Reniec
+            // validate that name and last Name match with data of Reniec
             reniecService.validateIdentityReniec(
                     employeeDTO.getDni(),
                     employeeDTO.getName(),
@@ -235,14 +235,9 @@ public class EmployeeServiceImpl implements IEmployeeService {
         return null;
     }
 
-    @Override
-    public Page<EmployeeListDTO> searchEmployees(String dni, String name, String lastName, Byte status,
-                                                 Long headquarterId, Pageable pageable) {
-        return employeeRepository.searchEmployees(dni, name, lastName, status, headquarterId, pageable);
-    }
     /******************************************
      * Services user-employee
-     * ****************************************/
+     ****************************************/
     @Override
     public nMyInfoEmployeeDTO myInfoAsEmployee(Long id) {
 
@@ -268,16 +263,18 @@ public class EmployeeServiceImpl implements IEmployeeService {
             user.setId(employee.getUser().getUserId());
             infoEmployeeDTO.setUser(user);
         }
-        /*else{
-            infoEmployeeDTO.setUser(null);
-        }*/
+        /*
+         * else{
+         * infoEmployeeDTO.setUser(null);
+         * }
+         */
 
         if (employee.getRoles() != null) {
             List<RoleBasicDTO> roles = new ArrayList<RoleBasicDTO>();
             roles = roleService.filterRolesStatusActive(employee.getRoles());
             infoEmployeeDTO.setRoles(roles);
         }
-        if(employee.getHeadquarter() != null) {
+        if (employee.getHeadquarter() != null) {
             HeadquarterBasicDTO headquarterBasic = new HeadquarterBasicDTO();
             headquarterBasic.setId(employee.getHeadquarter().getHeadquarterId());
             headquarterBasic.setName(employee.getHeadquarter().getName());
@@ -306,4 +303,14 @@ public class EmployeeServiceImpl implements IEmployeeService {
         }
         return employee;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<EmployeeListDTO> searchEmployees(String dni, String cmvp, String lastname,
+            String rolName, String nameHeadquarter,
+            Boolean status, Pageable pageable) {
+        return employeeRepository.searchEmployeesWithFilters(
+                dni, cmvp, lastname, rolName, nameHeadquarter, status, pageable);
+    }
+
 }
