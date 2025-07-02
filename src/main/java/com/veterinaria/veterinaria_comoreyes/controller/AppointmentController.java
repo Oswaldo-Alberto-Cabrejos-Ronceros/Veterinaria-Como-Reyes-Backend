@@ -93,14 +93,18 @@ public class AppointmentController {
 
     @GetMapping("/search")
     public Page<AppointmentListDTO> searchAppointments(
+            @RequestParam(required = false) String day,
             @RequestParam(required = false) String headquarter,
             @RequestParam(required = false) String categoryService,
             @RequestParam(required = false) String appointmentStatus,
             @PageableDefault(size = 10) Pageable pageable) {
+
+        // Validación del formato de fecha si es necesario
+        if (day != null && !day.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new IllegalArgumentException("Formato de fecha inválido. Use YYYY-MM-DD");
+        }
+
         return appointmentService.searchAppointments(
-                headquarter,
-                categoryService,
-                appointmentStatus,
-                pageable);
+                day, headquarter, categoryService, appointmentStatus, pageable);
     }
 }

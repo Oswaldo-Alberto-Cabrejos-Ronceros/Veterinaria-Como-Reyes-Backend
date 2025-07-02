@@ -140,36 +140,50 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """, nativeQuery = true)
     List<Object[]> findInfoBasicAppointmentsByClientId(@Param("clientId") Long clientId);
 
-    @Query("""
-                SELECT new com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentListDTO(
-                    a.appointmentId,
-                    h.name,
-                    c.name,
-                    CASE
-                        WHEN a.statusAppointment = 'PROGRAMADA' THEN 'Programada'
-                        WHEN a.statusAppointment = 'CONFIRMADA' THEN 'Confirmada'
-                        WHEN a.statusAppointment = 'COMPLETADA' THEN 'Completada'
-                        WHEN a.statusAppointment = 'CANCELADA' THEN 'Cancelada'
-                        ELSE a.statusAppointment.toString()
-                    END
-                )
-                FROM Appointment a
-                JOIN a.headquarterVetService hvs
-                JOIN hvs.headquarter h
-                JOIN hvs.veterinaryService vs
-                JOIN vs.category c
-                WHERE (:headquarter IS NULL OR h.name LIKE %:headquarter%)
-                AND (:categoryService IS NULL OR c.name LIKE %:categoryService%)
-                AND (:appointmentStatus IS NULL OR
-                    CASE
-                        WHEN :appointmentStatus = 'Programada' THEN a.statusAppointment = 'PROGRAMADA'
-                        WHEN :appointmentStatus = 'Confirmada' THEN a.statusAppointment = 'CONFIRMADA'
-                        WHEN :appointmentStatus = 'Completada' THEN a.statusAppointment = 'COMPLETADA'
-                        WHEN :appointmentStatus = 'Cancelada' THEN a.statusAppointment = 'CANCELADA'
-                        ELSE true
-                    END)
-            """)
-    Page<AppointmentListDTO> searchAppointmentsWithFilters(
+    @Query(value = """
+            SELECT
+                a.appointment_id,
+                TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') as day,
+                h.name as headquarter,
+                c.name as category_service,
+                a.status_appointments as status
+            FROM appointment a
+            JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+            JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
+            JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+            JOIN category c ON c.category_id = vs.id_category
+            WHERE (:day IS NULL OR TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') = :day)
+            AND (:headquarter IS NULL OR h.name LIKE '%' || :headquarter || '%')
+            AND (:categoryService IS NULL OR c.name LIKE '%' || :categoryService || '%')
+            AND (:appointmentStatus IS NULL OR
+                CASE
+                    WHEN :appointmentStatus = 'Programada' THEN a.status_appointments = 'PROGRAMADA'
+                    WHEN :appointmentStatus = 'Confirmada' THEN a.status_appointments = 'CONFIRMADA'
+                    WHEN :appointmentStatus = 'Completada' THEN a.status_appointments = 'COMPLETADA'
+                    WHEN :appointmentStatus = 'Cancelada' THEN a.status_appointments = 'CANCELADA'
+                    ELSE 1=1
+                END)
+            """, countQuery = """
+            SELECT COUNT(*)
+            FROM appointment a
+            JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+            JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
+            JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+            JOIN category c ON c.category_id = vs.id_category
+            WHERE (:day IS NULL OR TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') = :day)
+            AND (:headquarter IS NULL OR h.name LIKE '%' || :headquarter || '%')
+            AND (:categoryService IS NULL OR c.name LIKE '%' || :categoryService || '%')
+            AND (:appointmentStatus IS NULL OR
+                CASE
+                    WHEN :appointmentStatus = 'Programada' THEN a.status_appointments = 'PROGRAMADA'
+                    WHEN :appointmentStatus = 'Confirmada' THEN a.status_appointments = 'CONFIRMADA'
+                    WHEN :appointmentStatus = 'Completada' THEN a.status_appointments = 'COMPLETADA'
+                    WHEN :appointmentStatus = 'Cancelada' THEN a.status_appointments = 'CANCELADA'
+                    ELSE 1=1
+                END)
+            """, nativeQuery = true)
+    Page<Object[]> searchAppointmentsNative(
+            @Param("day") String day,
             @Param("headquarter") String headquarter,
             @Param("categoryService") String categoryService,
             @Param("appointmentStatus") String appointmentStatus,

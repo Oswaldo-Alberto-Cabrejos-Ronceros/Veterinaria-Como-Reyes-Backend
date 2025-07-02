@@ -10,6 +10,7 @@ import com.veterinaria.veterinaria_comoreyes.repository.*;
 import com.veterinaria.veterinaria_comoreyes.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -313,9 +314,37 @@ public class AppointmentServiceImpl implements IAppointmentService {
     @Override
     public Page<AppointmentListDTO> searchAppointments(String day, String headquarter, String categoryService,
             String appointmentStatus, Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'searchAppointments'");
+
+        Page<Object[]> results = appointmentRepository.searchAppointmentsNative(
+                day, headquarter, categoryService, appointmentStatus, pageable);
+
+        List<AppointmentListDTO> dtoList = results.getContent().stream()
+                .map(obj -> new AppointmentListDTO(
+                        ((Number) obj[0]).longValue(), // appointmentId
+                        (String) obj[1], // day
+                        (String) obj[2], // headquarter
+                        (String) obj[3], // categoryService
+                        mapStatus((String) obj[4]) // appointmentStatus
+                ))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, results.getTotalElements());
     }
 
-   
+    private String mapStatus(String status) {
+        if (status == null)
+            return null;
+        switch (status) {
+            case "PROGRAMADA":
+                return "Programada";
+            case "CONFIRMADA":
+                return "Confirmada";
+            case "COMPLETADA":
+                return "Completada";
+            case "CANCELADA":
+                return "Cancelada";
+            default:
+                return status;
+        }
+    }
 }
