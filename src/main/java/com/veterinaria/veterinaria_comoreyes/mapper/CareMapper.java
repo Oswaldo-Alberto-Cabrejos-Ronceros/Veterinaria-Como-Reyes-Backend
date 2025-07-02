@@ -8,22 +8,24 @@ import org.mapstruct.*;
 @Mapper(config = GlobalMapperConfig.class, componentModel = "spring")
 public interface CareMapper {
 
-    // Para mostrar en el frontend
     @Mapping(source = "headquarterVetService.id", target = "headquarterVetServiceId")
     @Mapping(source = "appointment.appointmentId", target = "appointmentId")
     @Mapping(source = "animal.animalId", target = "animalId")
+    @Mapping(source = "employee.employeeId", target = "employeeId")
     CareDTO toDTO(Care care);
 
-    // Para guardar desde el backend
-    @Mapping(source = "headquarterVetServiceId", target = "headquarterVetService.id")
-    @Mapping(source = "appointmentId", target = "appointment.appointmentId")
-    @Mapping(source = "animalId", target = "animal.animalId")
-    Care toEntity(CareDTO dto);
-
-    // Para actualizar sin sobrescribir campos nulos
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "headquarterVetServiceId", target = "headquarterVetService.id")
     @Mapping(source = "appointmentId", target = "appointment.appointmentId")
     @Mapping(source = "animalId", target = "animal.animalId")
+    @Mapping(source = "employeeId", target = "employee.employeeId")
+    Care toEntity(CareDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "headquarterVetServiceId", target = "headquarterVetService.id")
+    @Mapping(source = "appointmentId", target = "appointment.appointmentId")
+    @Mapping(source = "animalId", target = "animal.animalId")
+    @Mapping(source = "employeeId", target = "employee.employeeId")
     void updateEntityFromDto(CareDTO dto, @MappingTarget Care entity);
 }
+

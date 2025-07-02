@@ -26,11 +26,12 @@ public class CareDTO {
     @NotNull(message = "Status de atención es requerido")
     private StatusCare statusCare= StatusCare.EN_CURSO;
 
-    @NotNull
+
     private Long headquarterVetServiceId;
 
     private Long appointmentId;
 
-    @NotNull
     private Long animalId;
+
+    private Long employeeId;
 }
