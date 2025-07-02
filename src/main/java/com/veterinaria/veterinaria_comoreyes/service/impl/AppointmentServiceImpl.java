@@ -9,6 +9,8 @@ import com.veterinaria.veterinaria_comoreyes.mapper.AppointmentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;
 import com.veterinaria.veterinaria_comoreyes.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +28,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     private final AppointmentMapper appointmentMapper;
     private final HeadquarterVetServiceRepository headquarterVetServiceRepository;
     private final IHeadquarterVetServiceService headquarterVetServiceService;
-    private final  IPaymentService paymentService;
+    private final IPaymentService paymentService;
     private final IAnimalService animalService;
     private final AnimalRepository animalRepository;
     private final EmployeeRepository employeeRepository;
@@ -35,10 +37,13 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Autowired
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
-                                  AppointmentMapper appointmentMapper,
-                                  HeadquarterVetServiceRepository headquarterVetServiceRepository, IHeadquarterVetServiceService headquarterVetServiceService, IPaymentService paymentService, IAnimalService animalService,
-                                  AnimalRepository animalRepository,
-                                  EmployeeRepository employeeRepository, IPaymentMethodService paymentMethodService, PaymentRepository paymentRepository) {
+            AppointmentMapper appointmentMapper,
+            HeadquarterVetServiceRepository headquarterVetServiceRepository,
+            IHeadquarterVetServiceService headquarterVetServiceService, IPaymentService paymentService,
+            IAnimalService animalService,
+            AnimalRepository animalRepository,
+            EmployeeRepository employeeRepository, IPaymentMethodService paymentMethodService,
+            PaymentRepository paymentRepository) {
         this.appointmentRepository = appointmentRepository;
         this.appointmentMapper = appointmentMapper;
         this.headquarterVetServiceRepository = headquarterVetServiceRepository;
@@ -52,15 +57,16 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     public void validateSpeciesOfAnimalWithService(Long animalId, Long headquarterServiceId) {
-        String nameSpecieOfService =headquarterVetServiceService.nameSpecie(headquarterServiceId);
-        String nameSpecieOfAnimal =animalService.findSpecieNameByAnimalId(animalId);
+        String nameSpecieOfService = headquarterVetServiceService.nameSpecie(headquarterServiceId);
+        String nameSpecieOfAnimal = animalService.findSpecieNameByAnimalId(animalId);
         if (nameSpecieOfAnimal.equalsIgnoreCase(nameSpecieOfService)) {
-            throw new RuntimeException("Este animal no puede ser seleccionado con este servicio porque su especie no coincide.");
+            throw new RuntimeException(
+                    "Este animal no puede ser seleccionado con este servicio porque su especie no coincide.");
         }
     }
 
     public void validateAvailability(LocalDateTime scheduleDateTime, Long headquarterServiceId) {
-        boolean isAvailable = appointmentRepository.isAppointmentSlotAvailable(scheduleDateTime,headquarterServiceId);
+        boolean isAvailable = appointmentRepository.isAppointmentSlotAvailable(scheduleDateTime, headquarterServiceId);
 
         if (!isAvailable) {
             throw new RuntimeException("La fecha y hora seleccionadas estan ocupadas.");
@@ -131,7 +137,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
-    public UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment){
+    public UserBuyerDTO getInfoForPaymentMerPago(Long idAppoinment) {
         Payment payment = paymentRepository.findByAppointment_AppointmentIdAndStatus(idAppoinment, "PENDIENTE")
                 .orElseThrow(() -> new ResourceNotFoundException("No hay pago pendiente para esta cita"));
 
@@ -146,8 +152,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
         Double unitPrice = payment.getAppointment()
                 .getHeadquarterVetService()
                 .getVeterinaryService()
-                .getPrice()
-                ;
+                .getPrice();
 
         // Construir y devolver el DTO
         UserBuyerDTO userBuyerDTO = new UserBuyerDTO();
@@ -158,7 +163,6 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         return userBuyerDTO;
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -234,7 +238,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
     @Override
     public List<TimesForTurnDTO> getAvailableTimesForTurn(Long headquarterVetServiceId, String date) {
-        List<FormatTimeDTO> allTimes = appointmentRepository.timesAvailableForServiceAndDate(headquarterVetServiceId, date);
+        List<FormatTimeDTO> allTimes = appointmentRepository.timesAvailableForServiceAndDate(headquarterVetServiceId,
+                date);
 
         List<FormatTimeDTO> manana = new ArrayList<>();
         List<FormatTimeDTO> tarde = new ArrayList<>();
@@ -254,29 +259,33 @@ public class AppointmentServiceImpl implements IAppointmentService {
         }
 
         List<TimesForTurnDTO> result = new ArrayList<>();
-        if (!manana.isEmpty()) result.add(new TimesForTurnDTO("MAÑANA", manana));
-        if (!tarde.isEmpty()) result.add(new TimesForTurnDTO("TARDE", tarde));
-        if (!noche.isEmpty()) result.add(new TimesForTurnDTO("NOCHE", noche));
+        if (!manana.isEmpty())
+            result.add(new TimesForTurnDTO("MAÑANA", manana));
+        if (!tarde.isEmpty())
+            result.add(new TimesForTurnDTO("TARDE", tarde));
+        if (!noche.isEmpty())
+            result.add(new TimesForTurnDTO("NOCHE", noche));
 
         return result;
     }
 
     @Override
-    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId, Long speciesId) {
+    public List<BasicServiceForAppointmentDTO> getServicesByHeadquarterAndSpeciesForAppointment(Long headquarterId,
+            Long speciesId) {
         List<Object[]> rows = appointmentRepository.findServiceDetailsForAppointment(headquarterId, speciesId);
 
         return rows.stream().map(row -> new BasicServiceForAppointmentDTO(
-                ((Number) row[0]).longValue(),                                // headquarterServiceId
-                ((Number) row[1]).longValue(),                                // serviceId
-                row[2].toString(),                                            // name
-                row[3].toString(),                                            // description
+                ((Number) row[0]).longValue(), // headquarterServiceId
+                ((Number) row[1]).longValue(), // serviceId
+                row[2].toString(), // name
+                row[3].toString(), // description
                 row[4] != null
                         ? new BigDecimal(row[4].toString()).setScale(2, RoundingMode.HALF_UP)
-                        : BigDecimal.ZERO,                                        // price con 2 decimales
-                ((Number) row[5]).intValue(),                                 // duration
-                row[6].toString(),                                            // specieName
-                row[7] != null ? row[7].toString() : null,                    // serviceImageUrl
-                row[8].toString()                                             // categoryName
+                        : BigDecimal.ZERO, // price con 2 decimales
+                ((Number) row[5]).intValue(), // duration
+                row[6].toString(), // specieName
+                row[7] != null ? row[7].toString() : null, // serviceImageUrl
+                row[8].toString() // categoryName
         )).toList();
     }
 
@@ -301,9 +310,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return dtos;
     }
 
+    @Override
+    public Page<AppointmentListDTO> searchAppointments(String day, String headquarter, String categoryService,
+            String appointmentStatus, Pageable pageable) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'searchAppointments'");
+    }
 
-
-
-
-
+   
 }
