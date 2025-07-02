@@ -81,4 +81,13 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("UPDATE Payment p SET p.status = :status WHERE p.paymentId = :paymentId")
     void updateStatus(@Param("paymentId") Long paymentId, @Param("status") PaymentStatus status);
 
+    @Modifying
+    @Query(value = "UPDATE payment SET care_id = :careId WHERE payment_id = :paymentId", nativeQuery = true)
+    void updateCareIdByPaymentId(@Param("paymentId") Long paymentId, @Param("careId") Long careId);
+
+    @Query("SELECT p.paymentId FROM Payment p WHERE p.appointment.appointmentId = :appointmentId")
+    Long findPaymentIdByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+
+
 }

@@ -1,19 +1,24 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
-import com.veterinaria.veterinaria_comoreyes.entity.Care;
-import com.veterinaria.veterinaria_comoreyes.entity.Payment;
-import com.veterinaria.veterinaria_comoreyes.entity.StatusCare;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import com.veterinaria.veterinaria_comoreyes.mapper.CareMapper;
+import com.veterinaria.veterinaria_comoreyes.repository.AppointmentRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.CareRepository;
+import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
 import com.veterinaria.veterinaria_comoreyes.repository.PaymentRepository;
+import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import com.veterinaria.veterinaria_comoreyes.service.ICareService;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,12 +28,17 @@ public class CareServiceImpl implements ICareService {
     private final CareRepository careRepository;
     private final CareMapper careMapper;
     private final PaymentRepository paymentRepository;
-
+    private final IAppointmentService appointmentService;
+    private final AppointmentRepository appointmentRepository;
+    private final EmployeeRepository employeeRepository;
     @Autowired
-    public CareServiceImpl(CareRepository careRepository, CareMapper careMapper, PaymentRepository paymentRepository) {
+    public CareServiceImpl(CareRepository careRepository, CareMapper careMapper, PaymentRepository paymentRepository, IAppointmentService appointmentService, AppointmentRepository appointmentRepository, EmployeeRepository employeeRepository) {
         this.careRepository = careRepository;
         this.careMapper = careMapper;
         this.paymentRepository = paymentRepository;
+        this.appointmentService = appointmentService;
+        this.appointmentRepository = appointmentRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     @Override
@@ -58,6 +68,16 @@ public class CareServiceImpl implements ICareService {
     public CareDTO createCare(CareDTO careDTO) {
         Care care = careMapper.toEntity(careDTO);
         care.setStatusCare(StatusCare.EN_CURSO);
+        care.setCareDateTime(LocalDateTime.now());
+        // ✅ SOLUCIÓN: Cargar el empleado desde la BD si viene el ID
+        if (careDTO.getEmployeeId() != null) {
+            Employee empleado = employeeRepository.findById(careDTO.getEmployeeId())
+                    .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + careDTO.getEmployeeId()));
+            care.setEmployee(empleado);
+        }
+        if (careDTO.getAppointmentId() == null) {
+            care.setAppointment(null); // Falta esto ❗
+        }
         Care saved = careRepository.save(care);
         return careMapper.toDTO(saved);
     }
@@ -106,6 +126,56 @@ public class CareServiceImpl implements ICareService {
 
         return userBuyerDTO;
     }
+
+
+    @Transactional
+    @Override
+    public CareDTO createCareFromAppointment(CreateCareFromAppointmentDTO dto) {
+        // 1. Obtener la cita
+        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada con ID: " + dto.getAppointmentId()));
+
+        // 2. Construir el CareDTO con la información desde Appointment
+        CareDTO careDTO = new CareDTO();
+        careDTO.setAppointmentId(appointment.getAppointmentId());
+        careDTO.setAnimalId(appointment.getAnimal().getAnimalId());
+        careDTO.setEmployeeId(dto.getEmployeeId());
+        careDTO.setHeadquarterVetServiceId(appointment.getHeadquarterVetService().getId());
+        careDTO.setDateTime(LocalDateTime.now()); // Fecha y hora actual de atención
+        careDTO.setStatusCare(StatusCare.EN_CURSO); // Estado inicial
+
+        // 3. Crear el registro de atención (Care)
+        CareDTO createdCare = createCare(careDTO);
+
+        Long careId = createdCare.getCareId();
+
+        Long paymentId = paymentRepository.findPaymentIdByAppointmentId(appointment.getAppointmentId());
+
+        paymentRepository.updateCareIdByPaymentId(paymentId, careId);
+
+        appointmentService.confirmAppointment(appointment.getAppointmentId());
+
+        return createdCare;
+    }
+
+    @Transactional
+    @Override
+    public CareDTO createCareFromRequest(CareRequestDTO dto) {
+        // 1. Armar el DTO del Care sin cita
+        CareDTO careDTO = new CareDTO();
+        careDTO.setAnimalId(dto.getAnimalId());
+        careDTO.setEmployeeId(dto.getEmployeeId());
+        careDTO.setHeadquarterVetServiceId(dto.getHeadquarterVetServiceId());
+        careDTO.setDateTime(LocalDateTime.now());
+        careDTO.setStatusCare(StatusCare.EN_CURSO);
+
+        // 2. Crear el Care
+        CareDTO createdCare = createCare(careDTO);
+
+        // 3. Retornar el resultado
+        return createdCare;
+    }
+
 
     // @Override
     // public void deleteCare(Long id) {

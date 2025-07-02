@@ -45,6 +45,6 @@ public class Appointment{
     private Employee employee;
 
     @ManyToOne
-    @JoinColumn(name = "animal_id")
+    @JoinColumn(name = "animal_id", nullable = true)
     private Animal animal;
 }

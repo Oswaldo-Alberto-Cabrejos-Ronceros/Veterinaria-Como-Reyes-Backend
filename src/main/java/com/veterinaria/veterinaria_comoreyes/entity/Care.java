@@ -44,4 +44,8 @@ public class Care{
     @ManyToOne
     @JoinColumn(name = "animal_id")
     private Animal animal;
+
+    @ManyToOne
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
 }

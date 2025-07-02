@@ -1,6 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ICareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +52,17 @@ public class CareController {
     public ResponseEntity<CareDTO> updateCare(@PathVariable Long id, @RequestBody CareDTO careDTO) {
         return ResponseEntity.ok(careService.updateCare(id, careDTO));
     }
-
+    // Crear atención a partir de una cita
+    @PostMapping("/from-appointment")
+    public ResponseEntity<CareDTO> createCareFromAppointment(@RequestBody CreateCareFromAppointmentDTO dto) {
+        CareDTO createdCare = careService.createCareFromAppointment(dto);
+        return ResponseEntity.ok(createdCare);
+    }
+    @PostMapping("/from-request")
+    public ResponseEntity<CareDTO> createCareFromRequest(@RequestBody CareRequestDTO dto) {
+        CareDTO createdCare = careService.createCareFromRequest(dto);
+        return ResponseEntity.ok(createdCare);
+    }
     // Eliminar atención
     // @DeleteMapping("/{id}")
     // public ResponseEntity<Void> deleteCare(@PathVariable Long id) {
