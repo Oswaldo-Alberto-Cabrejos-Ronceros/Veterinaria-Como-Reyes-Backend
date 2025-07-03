@@ -6,6 +6,9 @@ import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentD
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +37,8 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}")
-    public AppointmentResponseDTO updateAppointment(@PathVariable Long id, @Valid @RequestBody AppointmentRequestDTO dto) {
+    public AppointmentResponseDTO updateAppointment(@PathVariable Long id,
+            @Valid @RequestBody AppointmentRequestDTO dto) {
         return appointmentService.updateAppointment(id, dto);
     }
 
@@ -58,7 +62,8 @@ public class AppointmentController {
             @RequestParam("headquarterVetServiceId") Long headquarterVetServiceId,
             @RequestParam("date") String date) {
 
-        List<TimesForTurnDTO> availableTimes = appointmentService.getAvailableTimesForTurn(headquarterVetServiceId, date);
+        List<TimesForTurnDTO> availableTimes = appointmentService.getAvailableTimesForTurn(headquarterVetServiceId,
+                date);
 
         if (availableTimes.isEmpty()) {
             return ResponseEntity.noContent().build(); // 204 No Content si no hay horarios
@@ -72,8 +77,8 @@ public class AppointmentController {
             @RequestParam Long headquarterId,
             @RequestParam Long speciesId) {
 
-        List<BasicServiceForAppointmentDTO> services =
-                appointmentService.getServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
+        List<BasicServiceForAppointmentDTO> services = appointmentService
+                .getServicesByHeadquarterAndSpeciesForAppointment(headquarterId, speciesId);
 
         if (services.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -82,10 +87,26 @@ public class AppointmentController {
     }
 
     @GetMapping("/client/{clientId}/panel")
-    public ResponseEntity<List<InfoBasicAppointmentForPanelDTO>> getAppointmentsForClientPanel(@PathVariable Long clientId) {
+    public ResponseEntity<List<InfoBasicAppointmentForPanelDTO>> getAppointmentsForClientPanel(
+            @PathVariable Long clientId) {
         List<InfoBasicAppointmentForPanelDTO> appointments = appointmentService.getAppointmentsForClientPanel(clientId);
         return ResponseEntity.ok(appointments);
     }
 
+    @GetMapping("/search")
+    public Page<AppointmentListDTO> searchAppointments(
+            @RequestParam(required = false) String day,
+            @RequestParam(required = false) String headquarter,
+            @RequestParam(required = false) String categoryService,
+            @RequestParam(required = false) String appointmentStatus,
+            @PageableDefault(size = 10) Pageable pageable) {
 
+        // Validación del formato de fecha si es necesario
+        if (day != null && !day.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            throw new IllegalArgumentException("Formato de fecha inválido. Use YYYY-MM-DD");
+        }
+
+        return appointmentService.searchAppointments(
+                day, headquarter, categoryService, appointmentStatus, pageable);
+    }
 }

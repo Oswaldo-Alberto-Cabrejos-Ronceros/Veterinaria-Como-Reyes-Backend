@@ -1,9 +1,13 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,4 +51,11 @@ public class SpecieController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/search")
+    public Page<SpecieListDTO> searchSpecies(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Boolean status,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return specieService.searchSpecies(name, status, pageable);
+    }
 }

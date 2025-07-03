@@ -1,12 +1,15 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Category;
 import com.veterinaria.veterinaria_comoreyes.mapper.CategoryMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.CategoryRepository;
 import com.veterinaria.veterinaria_comoreyes.service.ICategoryService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +24,8 @@ public class CategoryServiceImpl implements ICategoryService {
     private final CategoryMapper categoryMapper;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, FilterStatus filterStatus, CategoryMapper categoryMapper) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, FilterStatus filterStatus,
+            CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.filterStatus = filterStatus;
         this.categoryMapper = categoryMapper;
@@ -80,6 +84,13 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public void activateCategory(Long categoryId) {
         categoryRepository.activateCategory(categoryId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CategoryListDTO> searchCategories(String name, Boolean status, Pageable pageable) {
+        filterStatus.activeFilterStatus(true);
+        return categoryRepository.searchCategoriesWithFilters(name, status, pageable);
     }
 
 }

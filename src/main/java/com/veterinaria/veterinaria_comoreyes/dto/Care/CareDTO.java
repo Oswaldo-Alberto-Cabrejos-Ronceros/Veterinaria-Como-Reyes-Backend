@@ -24,7 +24,7 @@ public class CareDTO {
     private LocalDateTime dateTime;
 
     @NotNull(message = "Status de atención es requerido")
-    private StatusCare statusCare;
+    private StatusCare statusCare= StatusCare.EN_CURSO;
 
 
     private Long headquarterVetServiceId;
