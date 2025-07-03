@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.external.reniec.service;
 
+import com.veterinaria.veterinaria_comoreyes.external.reniec.dto.ReniecResponseSimpleDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reniec.exception.ReniecDataMismatchException;
 import com.veterinaria.veterinaria_comoreyes.external.reniec.dto.ReniecResponseDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,6 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.Normalizer;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import static java.lang.Character.toTitleCase;
 
 @Service
 public class ReniecServiceImpl implements IReniecService {
@@ -80,4 +85,40 @@ public class ReniecServiceImpl implements IReniecService {
         // 4. Pasar a MAYÚSCULAS y recortar
         return onlyLetters.toUpperCase().trim();
     }
+
+    @Override
+    public ReniecResponseSimpleDTO consultDniSimple(String dni) {
+        String url = reniecApiUrl + "?numero=" + dni;
+
+        ResponseEntity<ReniecResponseDTO> response = reniecRestTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        ReniecResponseDTO body = response.getBody();
+        if (body == null || body.getNombres() == null) {
+            throw new RuntimeException("No se encontraron datos para el DNI: " + dni);
+        }
+
+        String formattedNames = toTitleCase(body.getNombres());
+        String formattedLastNames = toTitleCase(
+                (body.getApellidoPaterno() + " " + body.getApellidoMaterno()).trim()
+        );
+
+        return new ReniecResponseSimpleDTO(formattedNames, formattedLastNames);
+    }
+
+    private String toTitleCase(String input) {
+        if (input == null || input.isEmpty()) return input;
+
+        return Arrays.stream(input.toLowerCase().split(" "))
+                .map(word -> word.isEmpty()
+                        ? word
+                        : word.substring(0, 1).toUpperCase() + word.substring(1))
+                .collect(Collectors.joining(" "));
+    }
+
+
 }

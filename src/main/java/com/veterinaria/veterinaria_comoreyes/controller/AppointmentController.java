@@ -86,4 +86,6 @@ public class AppointmentController {
         List<InfoBasicAppointmentForPanelDTO> appointments = appointmentService.getAppointmentsForClientPanel(clientId);
         return ResponseEntity.ok(appointments);
     }
+
+
 }

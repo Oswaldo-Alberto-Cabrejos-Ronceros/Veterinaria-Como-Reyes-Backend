@@ -25,5 +25,4 @@ public interface AppointmentMapper {
     @Mapping(source = "assignedEmployeeId", target = "employee.employeeId")
     @Mapping(source = "animalId", target = "animal.animalId")
     void updateEntityFromDto(AppointmentRequestDTO dto, @MappingTarget Appointment entity);
-
 }

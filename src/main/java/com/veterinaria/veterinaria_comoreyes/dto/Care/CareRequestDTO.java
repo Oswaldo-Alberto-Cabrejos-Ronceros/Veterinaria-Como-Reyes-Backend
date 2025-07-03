@@ -21,5 +21,4 @@ public class CareRequestDTO {
     @NotNull(message = "Animal ID is required")
     private Long employeeId;
 
-
 }

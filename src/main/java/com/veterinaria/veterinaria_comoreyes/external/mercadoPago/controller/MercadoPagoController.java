@@ -41,4 +41,5 @@ public class MercadoPagoController {
         String preferenceUrl = mercadoPagoService.createPreferenceByIdCare(idCare);
         return ResponseEntity.ok(preferenceUrl);
     }
+
 }
