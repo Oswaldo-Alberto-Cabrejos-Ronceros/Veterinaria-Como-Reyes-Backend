@@ -27,7 +27,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -277,4 +276,17 @@ public class ClientServiceImpl implements IClientService {
         dto.setFullName((String) row[1]);
         return dto;
     }
+
+    @Override
+    public List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin() {
+        return clientRepository.findClientInfoPanelAdminRaw().stream()
+                .map(obj -> new ClientInfoPanelAdminDTO(
+                        ((Number) obj[0]).longValue(),
+                        (String) obj[1],
+                        (String) obj[2],
+                        (String) obj[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
 }

@@ -105,6 +105,12 @@ public class ClientController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/panel-admin")
+    public List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin() {
+        return clientService.getClientInfoPanelAdmin();
+    }
+
+
     /******************************************
      * Controllers user-client
      * ****************************************/
