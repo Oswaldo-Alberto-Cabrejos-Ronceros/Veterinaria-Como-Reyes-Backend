@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.repository;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Service.ServiceListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Service.ServicesInfoTopPanelAdminDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Category;
 import com.veterinaria.veterinaria_comoreyes.entity.VeterinaryService;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
@@ -46,4 +47,49 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
             @Param("category") String category,
             @Param("status") Boolean status,
             Pageable pageable);
+
+    @Query(value = """
+        SELECT 
+            vs.service_id AS service_id,
+            vs.name AS service_name,
+            c.name AS category_name,
+            COUNT(*) AS total_cares
+        FROM 
+            care ca
+        JOIN 
+            headquarter_vet_service hvs ON ca.headquarter_vetservice_id = hvs.id
+        JOIN 
+            veterinary_service vs ON hvs.id_service = vs.service_id
+        JOIN 
+            category c ON vs.id_category = c.category_id
+        GROUP BY 
+            vs.service_id,vs.name, c.name
+        ORDER BY 
+            total_cares DESC
+    """, nativeQuery = true)
+    List<Object[]> getTopServicesPanelAdmin();
+
+    @Query(value = """
+        SELECT 
+            vs.service_id AS service_id,
+            vs.name AS service_name,
+            c.name AS category_name,
+            COUNT(*) AS total_cares
+        FROM 
+            care ca
+        JOIN 
+            headquarter_vet_service hvs ON ca.headquarter_vetservice_id = hvs.id
+        JOIN 
+            veterinary_service vs ON hvs.id_service = vs.service_id
+        JOIN 
+            category c ON vs.id_category = c.category_id
+        WHERE 
+            hvs.id_headquarter = :headquarterId
+        GROUP BY 
+            vs.service_id, vs.name, c.name
+        ORDER BY 
+            total_cares DESC
+    """, nativeQuery = true)
+    List<Object[]> getTopServicesPanelManager(@Param("headquarterId") Long headquarterId);
+
 }
