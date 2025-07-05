@@ -20,8 +20,11 @@ import java.time.LocalDateTime;
 public class Appointment{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "appointment_seq")
+    @SequenceGenerator(name = "appointment_seq", sequenceName = "APPOINTMENT_SEQ", allocationSize = 1)
+    @Column(name = "appointment_id")
     private Long appointmentId;
+
 
     private LocalDateTime scheduleDateTime;
 
