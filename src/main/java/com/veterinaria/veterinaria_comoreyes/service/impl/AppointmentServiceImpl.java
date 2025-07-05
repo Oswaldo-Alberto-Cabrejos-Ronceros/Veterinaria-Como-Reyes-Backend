@@ -250,22 +250,20 @@ public class AppointmentServiceImpl implements IAppointmentService {
             String time = dto.getTime(); // Ejemplo: "09:20"
             int hour = Integer.parseInt(time.split(":")[0]);
 
-            if (hour >= 9 && hour < 12) {
+            if (hour >= 0 && hour < 12) {
                 manana.add(dto);
             } else if (hour >= 12 && hour < 17) {
                 tarde.add(dto);
-            } else if (hour >= 17) {
+            } else{
                 noche.add(dto);
             }
         }
 
         List<TimesForTurnDTO> result = new ArrayList<>();
-        if (!manana.isEmpty())
-            result.add(new TimesForTurnDTO("MAÑANA", manana));
-        if (!tarde.isEmpty())
-            result.add(new TimesForTurnDTO("TARDE", tarde));
-        if (!noche.isEmpty())
-            result.add(new TimesForTurnDTO("NOCHE", noche));
+
+        result.add(new TimesForTurnDTO("MAÑANA", manana));
+        result.add(new TimesForTurnDTO("TARDE", tarde));
+        result.add(new TimesForTurnDTO("NOCHE", noche));
 
         return result;
     }
