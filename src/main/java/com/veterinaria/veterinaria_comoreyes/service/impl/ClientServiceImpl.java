@@ -288,5 +288,18 @@ public class ClientServiceImpl implements IClientService {
                 ))
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<ClientInfoPanelAdminDTO> getClientInfoPanelByHeadquarterManager(Long headquarterId) {
+        return clientRepository.findClientInfoPanelByHeadquarterId(headquarterId).stream()
+                .map(obj -> new ClientInfoPanelAdminDTO(
+                        ((Number) obj[0]).longValue(),
+                        (String) obj[1],
+                        (String) obj[2],
+                        (String) obj[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
+
 
 }
