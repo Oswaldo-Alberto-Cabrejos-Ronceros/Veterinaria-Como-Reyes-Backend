@@ -1,5 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.dto.Headquarter;
 
+import java.time.LocalTime;
+
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,8 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- HeadquarterDTO of Headquarter(entity):
- To add or update the entire entity
+ * HeadquarterDTO of Headquarter(entity):
+ * To add or update the entire entity
  */
 @Getter
 @Setter
@@ -47,4 +49,9 @@ public class HeadquarterDTO {
     @Size(max = 50, message = "El departamento no puede tener más de 50 caracteres")
     private String department;
 
+    @NotNull(message = "La hora de apertura es obligatoria")
+    private LocalTime startTime;
+
+    @NotNull(message = "La hora de cierre es obligatoria")
+    private LocalTime endTime;
 }

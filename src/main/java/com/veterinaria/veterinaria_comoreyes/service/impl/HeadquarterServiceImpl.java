@@ -79,6 +79,8 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         hq.setDistrict(dto.getDistrict());
         hq.setProvince(dto.getProvince());
         hq.setDepartment(dto.getDepartment());
+        hq.setStartTime(dto.getStartTime());
+        hq.setEndTime(dto.getEndTime());
 
         Headquarter updated = headquarterRepository.save(hq);
         return headquarterMapper.mapToHeadquarterDTO(updated);

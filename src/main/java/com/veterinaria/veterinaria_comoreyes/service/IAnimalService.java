@@ -39,4 +39,7 @@ public interface IAnimalService {
             String specie, String breed,
             String gender, Boolean status,
             Pageable pageable);
+
+    AnimalDTO updateAnimalWeight(Long id, Float weight);
+
 }
