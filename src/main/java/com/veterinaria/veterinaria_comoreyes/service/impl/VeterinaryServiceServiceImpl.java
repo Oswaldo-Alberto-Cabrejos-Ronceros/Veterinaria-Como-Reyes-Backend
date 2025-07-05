@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Service.ServicesInfoTopPanelAdminDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Service.ServiceListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Service.VeterinaryServiceDTO;
@@ -136,6 +137,32 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
             Pageable pageable) {
         filterStatus.activeFilterStatus(true); // Aplica el filtro global de estado si se requiere
         return veterinaryServiceRepository.searchServicesWithFilters(name, specie, category, status, pageable);
+    }
+
+    @Override
+    public List<ServicesInfoTopPanelAdminDTO> getTopServicesPanelAdmin() {
+        List<Object[]> rows = veterinaryServiceRepository.getTopServicesPanelAdmin();
+        return rows.stream()
+                .map(row -> new ServicesInfoTopPanelAdminDTO(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        (String) row[2],
+                        ((Number) row[3]).longValue()
+                ))
+                .toList();
+    }
+
+    @Override
+    public List<ServicesInfoTopPanelAdminDTO> getTopServicesPanelManager(Long headquarterId) {
+        List<Object[]> rows = veterinaryServiceRepository.getTopServicesPanelManager(headquarterId);
+        return rows.stream()
+                .map(row -> new ServicesInfoTopPanelAdminDTO(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        (String) row[2],
+                        ((Number) row[3]).longValue()
+                ))
+                .toList();
     }
 
 }

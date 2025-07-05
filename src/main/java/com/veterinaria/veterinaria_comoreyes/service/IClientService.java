@@ -35,4 +35,8 @@ public interface IClientService {
     nMyInfoClientDTO getMyInfoAsClient(Long id);
 
     ClientBasicInfoByDniDTO getClientBasicInfoByDni(String dni);
+
+    List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin();
+
+    List<ClientInfoPanelAdminDTO> getClientInfoPanelByHeadquarterManager(Long headquarterId);
 }

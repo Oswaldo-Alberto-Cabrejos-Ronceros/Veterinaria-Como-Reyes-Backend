@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -45,4 +46,44 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
         WHERE c.dni = :dni
         """, nativeQuery = true)
     Object findBasicInfoByDni(@Param("dni") String dni);
+
+    @Query(value = """
+    SELECT 
+        client_id,
+        INITCAP(
+            REGEXP_SUBSTR(name, '^\\S+') || ' ' || REGEXP_SUBSTR(last_name, '^\\S+')
+        ) AS full_name,
+        UPPER(SUBSTR(name, 1, 1) || SUBSTR(last_name, 1, 1)) AS initials,
+        phone
+    FROM 
+        client
+    WHERE 
+        status = 1
+    ORDER BY 
+        client_id DESC
+""", nativeQuery = true)
+    List<Object[]> findClientInfoPanelAdminRaw();
+
+    @Query(value = """
+    SELECT 
+        client_id,
+        INITCAP(
+            REGEXP_SUBSTR(name, '^\\S+') || ' ' || REGEXP_SUBSTR(last_name, '^\\S+')
+        ) AS full_name,
+        UPPER(SUBSTR(name, 1, 1) || SUBSTR(last_name, 1, 1)) AS initials,
+        phone
+    FROM 
+        client
+    WHERE 
+        id_headquarter = :headquarterId
+        AND status = 1
+    ORDER BY 
+        client_id DESC
+""", nativeQuery = true)
+    List<Object[]> findClientInfoPanelByHeadquarterId(@Param("headquarterId") Long headquarterId);
+
+
+
+
+
 }

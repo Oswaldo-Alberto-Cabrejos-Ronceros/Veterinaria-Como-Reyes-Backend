@@ -104,6 +104,18 @@ public class ClientController {
         }
         return ResponseEntity.ok(dto);
     }
+    /****** Panel ADMIN ********/
+    @GetMapping("/panel-admin")
+    public List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin() {
+        return clientService.getClientInfoPanelAdmin();
+    }
+    /****** Panel MANAGER ********/
+    @GetMapping("/panel-manager/{headquarterId}")
+    public List<ClientInfoPanelAdminDTO> getClientInfoPanelByHeadquarterManager(@PathVariable Long headquarterId) {
+        return clientService.getClientInfoPanelByHeadquarterManager(headquarterId);
+    }
+
+
 
     /******************************************
      * Controllers user-client

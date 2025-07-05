@@ -163,6 +163,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                     WHEN :appointmentStatus = 'Cancelada' THEN a.status_appointments = 'CANCELADA'
                     ELSE 1=1
                 END)
+            ORDER BY appointment_id DESC
             """, countQuery = """
             SELECT COUNT(*)
             FROM appointment a
