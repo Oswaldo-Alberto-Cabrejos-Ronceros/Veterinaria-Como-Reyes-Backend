@@ -60,4 +60,5 @@ public class Employee extends EntityWithStatus {
     )
     private List<Role> roles;
 
+    private String blockReason;
 }

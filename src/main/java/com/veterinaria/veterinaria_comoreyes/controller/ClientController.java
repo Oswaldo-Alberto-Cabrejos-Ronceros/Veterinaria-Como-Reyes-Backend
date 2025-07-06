@@ -67,9 +67,8 @@ public class ClientController {
 
     // Block Client and Note of why
     @PatchMapping("/{id}/block")
-    public ResponseEntity<Void> blockClient(@PathVariable Long id, String note) {
+    public ResponseEntity<Void> blockClient(@PathVariable Long id, @RequestParam String note) {
         clientService.updateBlockNote(id, note);
-        clientService.blockClientById(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -89,12 +88,6 @@ public class ClientController {
         return ResponseEntity.ok("Actualizado correctamente");
     }
 
-    //update BlockNote in case of block
-    @PatchMapping("/{id}/blockNote")
-    public ResponseEntity<String> updateBlockNote(@PathVariable Long id, @RequestBody String lockNote) {
-        clientService.updateBlockNote(id, lockNote);
-        return ResponseEntity.ok("Comentario actualizada correctamente");
-    }
 
     @GetMapping("/by-dni")
     public ResponseEntity<ClientBasicInfoByDniDTO> getClientByDni(@RequestParam String dni) {
@@ -109,10 +102,20 @@ public class ClientController {
     public List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin() {
         return clientService.getClientInfoPanelAdmin();
     }
+    @GetMapping("/panel-admin/stats")
+    public ResponseEntity<ClientStatsPanelDTO> getClientStats() {
+        return ResponseEntity.ok(clientService.getClientStats());
+    }
+
     /****** Panel MANAGER ********/
     @GetMapping("/panel-manager/{headquarterId}")
     public List<ClientInfoPanelAdminDTO> getClientInfoPanelByHeadquarterManager(@PathVariable Long headquarterId) {
         return clientService.getClientInfoPanelByHeadquarterManager(headquarterId);
+    }
+    @GetMapping("/panel-manager/stats/{headquarterId}")
+    public ResponseEntity<ClientStatsPanelDTO> getClientStatsByHeadquarter(
+            @PathVariable Long headquarterId) {
+        return ResponseEntity.ok(clientService.getClientStatsByHeadquarter(headquarterId));
     }
 
 

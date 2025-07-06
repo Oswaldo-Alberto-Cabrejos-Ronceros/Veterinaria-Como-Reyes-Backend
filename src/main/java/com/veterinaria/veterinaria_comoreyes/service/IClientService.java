@@ -39,4 +39,8 @@ public interface IClientService {
     List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin();
 
     List<ClientInfoPanelAdminDTO> getClientInfoPanelByHeadquarterManager(Long headquarterId);
+
+    ClientStatsPanelDTO getClientStats();
+
+    ClientStatsPanelDTO getClientStatsByHeadquarter(Long headquarterId);
 }

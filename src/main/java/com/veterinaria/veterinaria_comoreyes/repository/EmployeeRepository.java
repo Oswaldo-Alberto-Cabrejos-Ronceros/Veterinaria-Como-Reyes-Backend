@@ -4,9 +4,11 @@ import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.User.UserDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -59,6 +61,15 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
             @Param("rolName") String rolName,
             @Param("nameHeadquarter") String nameHeadquarter,
             @Param("status") Boolean status,
-            Pageable pageable);    
+            Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+        UPDATE employee
+        SET status = 0, block_reason = :reason
+        WHERE employee_id = :employeeId
+    """, nativeQuery = true)
+    void blockEmployee(@Param("employeeId") Long employeeId, @Param("reason") String reason);
 
 }

@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServicesInfoTopPanelAdminDTO {
+
     private Long serviceId;
     private String serviceName;
     private String categoryName;
+    private String imageServiceUrl;
     private Long totalCares;
 }

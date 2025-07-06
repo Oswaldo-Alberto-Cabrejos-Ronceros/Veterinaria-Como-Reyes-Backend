@@ -54,4 +54,6 @@ public class Client extends EntityWithStatus {
     @Column(length = 100)
     private String blockNote;
 
+    private LocalDate createDate;
+
 }

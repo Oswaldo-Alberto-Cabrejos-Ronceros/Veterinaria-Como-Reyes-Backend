@@ -82,6 +82,52 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 """, nativeQuery = true)
     List<Object[]> findClientInfoPanelByHeadquarterId(@Param("headquarterId") Long headquarterId);
 
+    @Query(value = """
+    SELECT 
+        COUNT(*) AS total_clients,
+        SUM(CASE 
+                WHEN EXTRACT(MONTH FROM create_date) = :month
+                 AND EXTRACT(YEAR FROM create_date) = :year
+                THEN 1 ELSE 0 
+            END) AS current_month,
+        SUM(CASE 
+                WHEN EXTRACT(MONTH FROM create_date) = :previousMonth
+                 AND EXTRACT(YEAR FROM create_date) = :previousYear
+                THEN 1 ELSE 0 
+            END) AS previous_month
+    FROM client
+""", nativeQuery = true)
+    List<Object[]>  getClientStatsPanel(
+            @Param("month") int currentMonth,
+            @Param("year") int currentYear,
+            @Param("previousMonth") int previousMonth,
+            @Param("previousYear") int previousYear
+    );
+
+    @Query(value = """
+    SELECT 
+        COUNT(*) AS total_clients,
+        SUM(CASE 
+                WHEN EXTRACT(MONTH FROM cl.create_date) = :month
+                 AND EXTRACT(YEAR FROM cl.create_date) = :year
+                THEN 1 ELSE 0 
+            END) AS current_month,
+        SUM(CASE 
+                WHEN EXTRACT(MONTH FROM cl.create_date) = :previousMonth
+                 AND EXTRACT(YEAR FROM cl.create_date) = :previousYear
+                THEN 1 ELSE 0 
+            END) AS previous_month
+    FROM client cl
+    WHERE cl.id_headquarter = :headquarterId
+""", nativeQuery = true)
+    List<Object[]>  getClientStatsByHeadquarterPanel(
+            @Param("month") int currentMonth,
+            @Param("year") int currentYear,
+            @Param("previousMonth") int previousMonth,
+            @Param("previousYear") int previousYear,
+            @Param("headquarterId") Long headquarterId
+    );
+
 
 
 

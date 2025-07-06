@@ -117,4 +117,9 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthException("Credenciales inválidas", ErrorCodes.INVALID_CREDENTIALS.getCode()));
     }
+
+    @Override
+    public void blockUser(Long userId) {
+        userRepository.blockUser(userId);
+    }
 }

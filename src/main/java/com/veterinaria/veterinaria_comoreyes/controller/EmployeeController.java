@@ -52,12 +52,6 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeUpdated);
     }
 
-    // changes status to block
-    @PatchMapping("/{id}/block")
-    public ResponseEntity<?> blockEmployee(@PathVariable Long id) {
-        employeeService.blockEmployee(id);
-        return ResponseEntity.noContent().build();
-    }
 
     // changes status to active
     @PatchMapping("/{id}/restore")
@@ -94,6 +88,14 @@ public class EmployeeController {
             @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(employeeService.searchEmployees(
                 dni, cmvp, lastname, rolName, nameHeadquarter, status, pageable));
+    }
+
+    @PatchMapping("/{employeeId}/block")
+    public ResponseEntity<String> blockEmployee(
+            @PathVariable Long employeeId,
+            @RequestParam String reason) {
+        employeeService.blockEmployee(employeeId, reason);
+        return ResponseEntity.ok("Empleado bloqueado con éxito.");
     }
 
 }

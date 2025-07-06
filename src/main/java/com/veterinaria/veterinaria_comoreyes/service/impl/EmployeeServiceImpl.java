@@ -187,18 +187,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
         // lógica de eliminación si aplica
     }
 
-    @Override
-    public void blockEmployee(Long id) {
-        Employee employee = employeeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + id));
 
-        employee.setStatus(false);
-        if (employee.getUser() != null) {
-            employee.getUser().setStatus(false);
-        }
-
-        employeeRepository.save(employee);
-    }
 
     @Override
     public EmployeeDTO getEmployeeByDni(String dni) {
@@ -312,5 +301,15 @@ public class EmployeeServiceImpl implements IEmployeeService {
         return employeeRepository.searchEmployeesWithFilters(
                 dni, cmvp, lastname, rolName, nameHeadquarter, status, pageable);
     }
+
+    @Override
+    public void blockEmployee(Long employeeId, String reason) {
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con ID: " + employeeId));
+        userService.blockUser(employee.getUser().getUserId());
+        employeeRepository.blockEmployee(employeeId, reason);
+
+    }
+
 
 }
