@@ -46,10 +46,6 @@ public class PaymentServiceImpl implements IPaymentService {
     public PaymentDTO createPayment(PaymentDTO dto) {
         Payment payment = paymentMapper.toEntity(dto);
 
-        // Validaciones
-        Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
-        payment.setAppointment(appointment);
 
         if (dto.getCareId() != null) {
             Care care = careRepository.findById(dto.getCareId())
@@ -57,6 +53,15 @@ public class PaymentServiceImpl implements IPaymentService {
             payment.setCare(care);
         }else{
             payment.setCare(null);
+        }
+
+        // Validar y asignar cita si corresponde
+        if (dto.getAppointmentId() != null) {
+            Appointment appointment = appointmentRepository.findById(dto.getAppointmentId())
+                    .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+            payment.setAppointment(appointment);
+        } else {
+            payment.setAppointment(null);
         }
 
         PaymentMethod method = paymentMethodRepository.findById(dto.getPaymentMethodId())
