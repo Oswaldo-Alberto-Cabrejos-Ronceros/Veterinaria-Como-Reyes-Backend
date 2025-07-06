@@ -42,6 +42,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Boolean existsByAnimalAndScheduleDateTimeAndStatusAppointment(Animal animal, LocalDateTime scheduleDateTime,
             StatusAppointment statusAppointment);
 
+    // Buscar citas en un rango de fechas con un estado específico
+    List<Appointment> findByScheduleDateTimeBetweenAndStatusAppointment(
+            LocalDateTime start, LocalDateTime end, StatusAppointment status);
+
+    // Nuevo método con fetch de relaciones
+    @Query("SELECT a FROM Appointment a " +
+            "LEFT JOIN FETCH a.animal ani " +
+            "LEFT JOIN FETCH ani.client cli " +
+            "LEFT JOIN FETCH cli.user usr " +
+            "LEFT JOIN FETCH a.headquarterVetService hvs " +
+            "LEFT JOIN FETCH hvs.veterinaryService " +
+            "LEFT JOIN FETCH hvs.headquarter " +
+            "WHERE a.appointmentId = :id")
+    Optional<Appointment> findByIdWithRelations(@Param("id") Long id);
+
     @Query("""
             SELECT CASE WHEN (
                     SELECT COUNT(a) FROM Appointment a

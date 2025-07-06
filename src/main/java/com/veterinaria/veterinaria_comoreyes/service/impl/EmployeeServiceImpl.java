@@ -296,10 +296,10 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Override
     @Transactional(readOnly = true)
     public Page<EmployeeListDTO> searchEmployees(String dni, String cmvp, String lastname,
-            String rolName, String nameHeadquarter,
-            Boolean status, Pageable pageable) {
+                                                 String name, String rolName, String nameHeadquarter,
+                                                 Boolean status, Pageable pageable) {
         return employeeRepository.searchEmployeesWithFilters(
-                dni, cmvp, lastname, rolName, nameHeadquarter, status, pageable);
+                dni, cmvp, lastname, name, rolName, nameHeadquarter, status, pageable);
     }
 
     @Override

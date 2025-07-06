@@ -1,16 +1,19 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
+import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -121,4 +124,21 @@ public class AppointmentController {
         return ResponseEntity.ok(appointments);
     }
 
+    @PatchMapping("/{id}/email-confirm")
+    public ResponseEntity<?> confirmAppointmentByEmail(@PathVariable Long id) {
+        try {
+            AppointmentResponseDTO response = appointmentService.confirmAppointmentByEmail(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Cita confirmada exitosamente mediante email",
+                    "data", response
+            ));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Map.of("status", "error", "message", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("status", "error", "message", e.getMessage()));
+        }
+    }
 }

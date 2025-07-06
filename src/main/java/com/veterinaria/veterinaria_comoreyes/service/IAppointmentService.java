@@ -37,4 +37,7 @@ public interface IAppointmentService {
     List<AppointmentInfoPanelAdminDTO> getAppointmentsByDateForPanelAdmin();
 
     List<AppointmentInfoPanelAdminDTO> getAppointmentsInfoByDateAndHeadquarter(Long headquarterId);
+
+    AppointmentResponseDTO confirmAppointmentByEmail(Long id);
+
 }

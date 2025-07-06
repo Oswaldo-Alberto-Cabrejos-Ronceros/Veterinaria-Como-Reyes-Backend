@@ -34,30 +34,32 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Employee findByUserForAuth(@Param("user") User user);
 
     @Query("""
-                SELECT new com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO(
-                    e.employeeId,
-                    e.dni,
-                    e.cmvp,
-                    e.name,
-                    e.lastName,
-                    r.name,
-                    h.name,
-                    CASE WHEN e.status = true THEN 'Activo' ELSE 'Inactivo' END
-                )
-                FROM Employee e
-                JOIN e.roles r
-                JOIN e.headquarter h
-                WHERE (:dni IS NULL OR e.dni LIKE :dni)
-                  AND (:cmvp IS NULL OR e.cmvp LIKE :cmvp)
-                  AND (:lastname IS NULL OR e.lastName LIKE :lastname)
-                  AND (:rolName IS NULL OR r.name LIKE :rolName)
-                  AND (:nameHeadquarter IS NULL OR h.name LIKE :nameHeadquarter)
-                  AND (:status IS NULL OR e.status = :status)
-            """)
+        SELECT new com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO(
+            e.employeeId,
+            e.dni,
+            e.cmvp,
+            e.name,
+            e.lastName,
+            r.name,
+            h.name,
+            CASE WHEN e.status = true THEN 'Activo' ELSE 'Inactivo' END
+        )
+        FROM Employee e
+        JOIN e.roles r
+        JOIN e.headquarter h
+        WHERE (:dni IS NULL OR e.dni LIKE CONCAT('%', :dni, '%'))
+          AND (:cmvp IS NULL OR e.cmvp LIKE CONCAT('%', :cmvp, '%'))
+          AND (:lastname IS NULL OR e.lastName LIKE CONCAT('%', :lastname, '%'))
+          AND (:name IS NULL OR e.name LIKE CONCAT('%', :name, '%'))
+          AND (:rolName IS NULL OR r.name LIKE CONCAT('%', :rolName, '%'))
+          AND (:nameHeadquarter IS NULL OR h.name LIKE CONCAT('%', :nameHeadquarter, '%'))
+          AND (:status IS NULL OR e.status = :status)
+    """)
     Page<EmployeeListDTO> searchEmployeesWithFilters(
             @Param("dni") String dni,
             @Param("cmvp") String cmvp,
             @Param("lastname") String lastname,
+            @Param("name") String name,
             @Param("rolName") String rolName,
             @Param("nameHeadquarter") String nameHeadquarter,
             @Param("status") Boolean status,

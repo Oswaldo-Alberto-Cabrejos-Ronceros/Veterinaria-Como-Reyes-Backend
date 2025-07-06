@@ -42,7 +42,7 @@ public interface IEmployeeService {
 
 
     // Método para búsqueda personalizada
-    Page<EmployeeListDTO> searchEmployees(String dni, String cmvp, String lastname, String rolName,
+    Page<EmployeeListDTO> searchEmployees(String dni, String cmvp, String lastname,String name,  String rolName,
             String nameHeadquarter, Boolean status,
             Pageable pageable);
 
