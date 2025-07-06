@@ -262,6 +262,4 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
       AND hvs.id_headquarter = :headquarterId
 """, nativeQuery = true)
     List<Object[]> getTodayAppointmentStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
-
-
 }
