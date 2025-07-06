@@ -33,28 +33,35 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT e FROM Employee e WHERE e.user = :user")
     Employee findByUserForAuth(@Param("user") User user);
 
-    @Query("""
-        SELECT new com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeListDTO(
-            e.employeeId,
-            e.dni,
-            e.cmvp,
-            e.name,
-            e.lastName,
-            r.name,
-            h.name,
-            CASE WHEN e.status = true THEN 'Activo' ELSE 'Inactivo' END
-        )
-        FROM Employee e
-        JOIN e.roles r
-        JOIN e.headquarter h
-        WHERE (:dni IS NULL OR e.dni LIKE CONCAT('%', :dni, '%'))
-          AND (:cmvp IS NULL OR e.cmvp LIKE CONCAT('%', :cmvp, '%'))
-          AND (:lastname IS NULL OR e.lastName LIKE CONCAT('%', :lastname, '%'))
-          AND (:name IS NULL OR e.name LIKE CONCAT('%', :name, '%'))
-          AND (:rolName IS NULL OR r.name LIKE CONCAT('%', :rolName, '%'))
-          AND (:nameHeadquarter IS NULL OR h.name LIKE CONCAT('%', :nameHeadquarter, '%'))
-          AND (:status IS NULL OR e.status = :status)
-    """)
+    @Query(value = """
+                SELECT e.employee_id as employeeId, e.dni, e.cmvp, e.name, e.last_name as lastName,
+                       r.name as rolName, h.name as nameHeadquarter,
+                       CASE WHEN e.status = 1 THEN 'Activo' ELSE 'Inactivo' END as status
+                FROM employee e
+                JOIN employee_role er ON e.employee_id = er.id_employee
+                JOIN role r ON r.role_id = er.id_role
+                JOIN headquarter h ON h.headquarter_id = e.id_headquarter
+                WHERE (:dni IS NULL OR e.dni LIKE :dni || '%')
+                  AND (:cmvp IS NULL OR e.cmvp LIKE :cmvp || '%')
+                  AND (:lastname IS NULL OR e.last_name LIKE :lastname || '%')
+                  AND (:name IS NULL OR e.name LIKE :name || '%')
+                  AND (:rolName IS NULL OR r.name LIKE :rolName || '%')
+                  AND (:nameHeadquarter IS NULL OR h.name LIKE :nameHeadquarter || '%')
+                  AND (:status IS NULL OR e.status = :status)
+            """, countQuery = """
+                SELECT COUNT(*)
+                FROM employee e
+                JOIN employee_role er ON e.employee_id = er.id_employee
+                JOIN role r ON r.role_id = er.id_role
+                JOIN headquarter h ON h.headquarter_id = e.id_headquarter
+                WHERE (:dni IS NULL OR e.dni LIKE :dni || '%')
+                  AND (:cmvp IS NULL OR e.cmvp LIKE :cmvp || '%')
+                  AND (:lastname IS NULL OR e.last_name LIKE :lastname || '%')
+                  AND (:name IS NULL OR e.name LIKE :name || '%')
+                  AND (:rolName IS NULL OR r.name LIKE :rolName || '%')
+                  AND (:nameHeadquarter IS NULL OR h.name LIKE :nameHeadquarter || '%')
+                  AND (:status IS NULL OR e.status = :status)
+            """, nativeQuery = true)
     Page<EmployeeListDTO> searchEmployeesWithFilters(
             @Param("dni") String dni,
             @Param("cmvp") String cmvp,
@@ -68,10 +75,10 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Modifying
     @Transactional
     @Query(value = """
-        UPDATE employee
-        SET status = 0, block_reason = :reason
-        WHERE employee_id = :employeeId
-    """, nativeQuery = true)
+                UPDATE employee
+                SET status = 0, block_reason = :reason
+                WHERE employee_id = :employeeId
+            """, nativeQuery = true)
     void blockEmployee(@Param("employeeId") Long employeeId, @Param("reason") String reason);
 
 }
