@@ -26,8 +26,6 @@ public interface IEmployeeService {
 
     void deleteEmployee(Long id);
 
-    void blockEmployee(Long id);
-
     // Buscar empleado por DNI
     EmployeeDTO getEmployeeByDni(String dni);
 
@@ -54,4 +52,6 @@ public interface IEmployeeService {
 
     // METODOS DE EMPLOYEE FOR AUTH
     Employee getEmployeeByUserForAuth(User user);
+
+    void blockEmployee(Long employeeId, String reason);
 }

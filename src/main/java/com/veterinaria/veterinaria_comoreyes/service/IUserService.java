@@ -26,4 +26,5 @@ public interface IUserService {
 
     User getUserByEmailForAuth(String email);
 
+    void blockUser(Long userId);
 }

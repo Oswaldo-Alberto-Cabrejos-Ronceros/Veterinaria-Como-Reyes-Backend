@@ -52,4 +52,6 @@ public class EmployeeDTO {
     private User user;
 
     private List<RoleDTO> roles;
+
+    private String blockReason;
 }

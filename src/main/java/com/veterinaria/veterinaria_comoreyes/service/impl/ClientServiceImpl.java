@@ -204,8 +204,9 @@ public class ClientServiceImpl implements IClientService {
     public void updateBlockNote(Long clientId, String blockNote) {
         Client client = clientRepository.findById(clientId)
             .orElseThrow(() -> new ResourceNotFoundException("Cliente no encontrado con ID: " + clientId));
-
         client.setBlockNote(blockNote);
+        client.setStatus(false);
+        userService.blockUser(client.getUser().getUserId());
         clientRepository.save(client);
     }
 
