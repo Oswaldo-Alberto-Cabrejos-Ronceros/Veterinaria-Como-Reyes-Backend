@@ -33,4 +33,8 @@ public interface IAppointmentService {
 
     Page<AppointmentListDTO> searchAppointments(String day, String headquarter, String categoryService, String appointmentStatus,
             Pageable pageable);
+
+    List<AppointmentInfoPanelAdminDTO> getAppointmentsByDateForPanelAdmin();
+
+    List<AppointmentInfoPanelAdminDTO> getAppointmentsInfoByDateAndHeadquarter(Long headquarterId);
 }

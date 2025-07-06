@@ -109,4 +109,18 @@ public class AppointmentController {
         return appointmentService.searchAppointments(
                 day, headquarter, categoryService, appointmentStatus, pageable);
     }
+
+    @GetMapping("/panel-admin/by-date")
+    public ResponseEntity<List<AppointmentInfoPanelAdminDTO>> getAppointmentsByDate() {
+        List<AppointmentInfoPanelAdminDTO> result = appointmentService.getAppointmentsByDateForPanelAdmin();
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/panel-manager/{headquarterId}/by-date")
+    public ResponseEntity<List<AppointmentInfoPanelAdminDTO>> getAppointmentsForPanelManager(
+            @PathVariable Long headquarterId) {
+        List<AppointmentInfoPanelAdminDTO> appointments = appointmentService.getAppointmentsInfoByDateAndHeadquarter(headquarterId);
+        return ResponseEntity.ok(appointments);
+    }
+
 }

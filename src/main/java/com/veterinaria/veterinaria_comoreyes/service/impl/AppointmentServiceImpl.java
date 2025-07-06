@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -345,4 +346,41 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 return status;
         }
     }
+
+    @Override
+    public List<AppointmentInfoPanelAdminDTO> getAppointmentsByDateForPanelAdmin() {
+        LocalDate today = LocalDate.now(); // fecha actual del sistema
+        List<Object[]> rows = appointmentRepository.getAppointmentsInfoByDate(today);
+        List<AppointmentInfoPanelAdminDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            AppointmentInfoPanelAdminDTO dto = new AppointmentInfoPanelAdminDTO(
+                    ((Number) row[0]).longValue(),  // appointment_id
+                    (String) row[1],                    // animal_name
+                    (String) row[2],                    // service_name
+                    (String) row[3],                    // client_name
+                    (String) row[4],                    // hour
+                    (String) row[5]                     // status
+            );
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<AppointmentInfoPanelAdminDTO> getAppointmentsInfoByDateAndHeadquarter(Long headquarterId) {
+        LocalDate today = LocalDate.now();
+        List<Object[]> rows = appointmentRepository.getAppointmentsInfoByDateAndHeadquarter(today, headquarterId);
+
+        return rows.stream().map(row -> new AppointmentInfoPanelAdminDTO(
+                ((Number) row[0]).longValue(),  // appointment_id
+                (String) row[1],                    // animal_name
+                (String) row[2],                    // service_name
+                (String) row[3],                    // client_name
+                (String) row[4],                    // hour
+                (String) row[5]                     // status
+        )).toList();
+    }
+
 }

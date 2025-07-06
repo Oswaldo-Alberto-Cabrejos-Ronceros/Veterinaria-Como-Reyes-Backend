@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -189,5 +190,48 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("categoryService") String categoryService,
             @Param("appointmentStatus") String appointmentStatus,
             Pageable pageable);
+
+    @Query(value = """
+    SELECT 
+        a.appointment_id,
+        an.name AS animal_name,
+        vs.name AS service_name,
+        INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_name,
+        TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hour,
+        a.status_appointments AS status
+    FROM appointment a
+    JOIN animal an ON a.animal_id = an.animal_id
+    JOIN client cl ON an.client_id = cl.client_id
+    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+    JOIN veterinary_service vs ON hvs.id_service = vs.service_id
+    WHERE TRUNC(a.schedule_date_time) = :date
+    AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+    ORDER BY a.schedule_date_time ASC
+""", nativeQuery = true)
+    List<Object[]> getAppointmentsInfoByDate(@Param("date") LocalDate date);
+
+    @Query(value = """
+    SELECT 
+        a.appointment_id,
+        an.name AS animal_name,
+        vs.name AS service_name,
+        INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_name,
+        TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hour,
+        a.status_appointments AS status
+    FROM appointment a
+    JOIN animal an ON a.animal_id = an.animal_id
+    JOIN client cl ON an.client_id = cl.client_id
+    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+    JOIN veterinary_service vs ON hvs.id_service = vs.service_id
+    WHERE TRUNC(a.schedule_date_time) = :date
+    AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+    AND hvs.id_headquarter = :headquarterId
+    ORDER BY a.schedule_date_time ASC
+""", nativeQuery = true)
+    List<Object[]> getAppointmentsInfoByDateAndHeadquarter(
+            @Param("date") LocalDate date,
+            @Param("headquarterId") Long headquarterId
+    );
+
 
 }
