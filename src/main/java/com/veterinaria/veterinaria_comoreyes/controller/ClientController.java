@@ -102,10 +102,20 @@ public class ClientController {
     public List<ClientInfoPanelAdminDTO> getClientInfoPanelAdmin() {
         return clientService.getClientInfoPanelAdmin();
     }
+    @GetMapping("/panel-admin/stats")
+    public ResponseEntity<ClientStatsPanelDTO> getClientStats() {
+        return ResponseEntity.ok(clientService.getClientStats());
+    }
+
     /****** Panel MANAGER ********/
     @GetMapping("/panel-manager/{headquarterId}")
     public List<ClientInfoPanelAdminDTO> getClientInfoPanelByHeadquarterManager(@PathVariable Long headquarterId) {
         return clientService.getClientInfoPanelByHeadquarterManager(headquarterId);
+    }
+    @GetMapping("/panel-manager/stats/{headquarterId}")
+    public ResponseEntity<ClientStatsPanelDTO> getClientStatsByHeadquarter(
+            @PathVariable Long headquarterId) {
+        return ResponseEntity.ok(clientService.getClientStatsByHeadquarter(headquarterId));
     }
 
 

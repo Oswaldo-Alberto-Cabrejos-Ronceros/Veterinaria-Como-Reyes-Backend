@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -125,11 +126,10 @@ public class ClientServiceImpl implements IClientService {
             clientDTO.setUser(savedUser);
         }
 
-        System.out.println("User ID: " + clientDTO.getUser().getUserId());
-
-
         Client client = clientMapper.mapToClient(clientDTO);
         client.setStatus(true);
+        LocalDate createDate = LocalDate.now();
+        client.setCreateDate(createDate);
         return clientMapper.mapToClientDTO(clientRepository.save(client));
     }
 
@@ -300,6 +300,81 @@ public class ClientServiceImpl implements IClientService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public ClientStatsPanelDTO getClientStats() {
+        LocalDate today = LocalDate.now();
+        int currentMonth = today.getMonthValue();
+        int currentYear = today.getYear();
+
+        LocalDate previousMonthDate = today.minusMonths(1);
+        int previousMonth = previousMonthDate.getMonthValue();
+        int previousYear = previousMonthDate.getYear();
+
+        List<Object[]> results = clientRepository.getClientStatsPanel(
+                currentMonth,
+                currentYear,
+                previousMonth,
+                previousYear
+        );
+
+        Object[] row = results.get(0); // Extraemos la única fila esperada
+
+        Long totalClients = row[0] != null ? ((Number) row[0]).longValue() : 0L;
+        Long currentMonthClients = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+        Long previousMonthClients = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+
+        long difference = currentMonthClients - previousMonthClients;
+        String differenceWithSign = difference > 0 ? "+" + difference
+                : difference < 0 ? String.valueOf(difference)
+                : "0";
+
+        return new ClientStatsPanelDTO(
+                totalClients,
+                currentMonthClients,
+                previousMonthClients,
+                differenceWithSign
+        );
+    }
+
+    @Override
+    public ClientStatsPanelDTO getClientStatsByHeadquarter(Long headquarterId) {
+        LocalDate today = LocalDate.now();
+        int currentMonth = today.getMonthValue();
+        int currentYear = today.getYear();
+
+        LocalDate previousMonthDate = today.minusMonths(1);
+        int previousMonth = previousMonthDate.getMonthValue();
+        int previousYear = previousMonthDate.getYear();
+
+        List<Object[]> results = clientRepository.getClientStatsByHeadquarterPanel(
+                currentMonth,
+                currentYear,
+                previousMonth,
+                previousYear,
+                headquarterId
+        );
+
+        Object[] row = results.get(0); // Solo esperamos una fila
+
+        Long totalClients = row[0] != null ? ((Number) row[0]).longValue() : 0L;
+        Long currentMonthClients = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+        Long previousMonthClients = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+
+        long difference = currentMonthClients - previousMonthClients;
+        String differenceWithSign = difference > 0 ? "+" + difference
+                : difference < 0 ? String.valueOf(difference)
+                : "0";
+
+        return new ClientStatsPanelDTO(
+                totalClients,
+                currentMonthClients,
+                previousMonthClients,
+                differenceWithSign
+        );
+    }
+
+
 
 
 

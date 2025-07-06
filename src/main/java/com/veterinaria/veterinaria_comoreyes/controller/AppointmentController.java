@@ -1,8 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
