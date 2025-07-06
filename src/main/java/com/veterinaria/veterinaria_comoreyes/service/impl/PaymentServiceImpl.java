@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.mapper.PaymentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -168,4 +170,64 @@ public class PaymentServiceImpl implements IPaymentService {
     public void updatePaymentStatus(Long paymentId, PaymentStatus status) {
         paymentRepository.updateStatus(paymentId, status);
     }
+
+    @Override
+    public PaymentStatsForPanelAdminDTO getCompletedPaymentsStats() {
+        LocalDate today = LocalDate.now();
+        int currentMonth = today.getMonthValue();
+        int currentYear = today.getYear();
+
+        LocalDate previousMonthDate = today.minusMonths(1);
+        int previousMonth = previousMonthDate.getMonthValue();
+        int previousYear = previousMonthDate.getYear();
+
+        Object[] row = (Object[]) paymentRepository.getCompletedPaymentStats(
+                currentMonth, currentYear, previousMonth, previousYear
+        );
+
+        double currentTotal = ((Number) row[0]).doubleValue();
+        double previousTotal = ((Number) row[1]).doubleValue();
+
+        double percentageDiff = 0;
+        String percentageFormatted = "0%";
+
+        if (previousTotal > 0) {
+            percentageDiff = ((currentTotal - previousTotal) / previousTotal) * 100;
+            percentageFormatted = String.format("%s%.2f%%",
+                    percentageDiff >= 0 ? "+" : "", percentageDiff);
+        }
+
+        return new PaymentStatsForPanelAdminDTO(currentTotal, previousTotal, percentageFormatted);
+    }
+
+    @Override
+    public PaymentStatsForPanelAdminDTO getPaymentsStatsByHeadquarter(Long headquarterId) {
+        LocalDate today = LocalDate.now();
+        int currentMonth = today.getMonthValue();
+        int currentYear = today.getYear();
+
+        LocalDate previousMonthDate = today.minusMonths(1);
+        int previousMonth = previousMonthDate.getMonthValue();
+        int previousYear = previousMonthDate.getYear();
+
+        Object[] row = (Object[]) paymentRepository.getPaymentsStatsByHeadquarter(
+                currentMonth, currentYear, previousMonth, previousYear, headquarterId);
+
+        double currentTotal = ((Number) row[0]).doubleValue();
+        double previousTotal = ((Number) row[1]).doubleValue();
+
+        String percentageDifference;
+        if (previousTotal == 0 && currentTotal > 0) {
+            percentageDifference = "+100%";
+        } else if (previousTotal == 0) {
+            percentageDifference = "0%";
+        } else {
+            double diff = ((currentTotal - previousTotal) / previousTotal) * 100;
+            percentageDifference = (diff >= 0 ? "+" : "") + String.format("%.2f", diff) + "%";
+        }
+
+        return new PaymentStatsForPanelAdminDTO(currentTotal, previousTotal, percentageDifference);
+    }
+
+
 }

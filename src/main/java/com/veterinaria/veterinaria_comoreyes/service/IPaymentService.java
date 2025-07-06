@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -29,4 +30,8 @@ public interface IPaymentService {
 
     @Transactional
     void updatePaymentStatus(Long paymentId, PaymentStatus status);
+
+    PaymentStatsForPanelAdminDTO getCompletedPaymentsStats();
+
+    PaymentStatsForPanelAdminDTO getPaymentsStatsByHeadquarter(Long headquarterId);
 }

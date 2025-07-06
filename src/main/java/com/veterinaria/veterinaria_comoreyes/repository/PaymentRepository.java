@@ -88,6 +88,76 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT p.paymentId FROM Payment p WHERE p.appointment.appointmentId = :appointmentId")
     Long findPaymentIdByAppointmentId(@Param("appointmentId") Long appointmentId);
 
+    @Query(value = """
+    SELECT
+        NVL(SUM(CASE 
+            WHEN EXTRACT(MONTH FROM payment_date_time) = :currentMonth
+             AND EXTRACT(YEAR FROM payment_date_time) = :currentYear
+             AND status = 'COMPLETADA' THEN amount
+            ELSE 0 
+        END), 0) AS current_total,
+
+        NVL(SUM(CASE 
+            WHEN EXTRACT(MONTH FROM payment_date_time) = :previousMonth
+             AND EXTRACT(YEAR FROM payment_date_time) = :previousYear
+             AND status = 'COMPLETADA' THEN amount 
+            ELSE 0 
+        END), 0) AS previous_total
+    FROM payment
+""", nativeQuery = true)
+    Object getCompletedPaymentStats(
+            @Param("currentMonth") int currentMonth,
+            @Param("currentYear") int currentYear,
+            @Param("previousMonth") int previousMonth,
+            @Param("previousYear") int previousYear
+    );
+
+    @Query(value = """
+    SELECT
+        NVL(SUM(CASE 
+            WHEN EXTRACT(MONTH FROM p.payment_date_time) = :currentMonth
+             AND EXTRACT(YEAR FROM p.payment_date_time) = :currentYear
+             AND p.status = 'COMPLETADA'
+             AND (
+                (p.care_id IS NOT NULL AND c.headquarter_vetservice_id IN (
+                    SELECT hvs.id FROM headquarter_vet_service hvs WHERE hvs.id_headquarter = :headquarterId
+                ))
+                OR
+                (p.care_id IS NULL AND a.headquarter_vetservice_id IN (
+                    SELECT hvs.id FROM headquarter_vet_service hvs WHERE hvs.id_headquarter = :headquarterId
+                ))
+             )
+            THEN p.amount ELSE 0 
+        END), 0) AS current_total,
+
+        NVL(SUM(CASE 
+            WHEN EXTRACT(MONTH FROM p.payment_date_time) = :previousMonth
+             AND EXTRACT(YEAR FROM p.payment_date_time) = :previousYear
+             AND p.status = 'COMPLETADA'
+             AND (
+                (p.care_id IS NOT NULL AND c.headquarter_vetservice_id IN (
+                    SELECT hvs.id FROM headquarter_vet_service hvs WHERE hvs.id_headquarter = :headquarterId
+                ))
+                OR
+                (p.care_id IS NULL AND a.headquarter_vetservice_id IN (
+                    SELECT hvs.id FROM headquarter_vet_service hvs WHERE hvs.id_headquarter = :headquarterId
+                ))
+             )
+            THEN p.amount ELSE 0 
+        END), 0) AS previous_total
+    FROM payment p
+    LEFT JOIN care c ON p.care_id = c.care_id
+    LEFT JOIN appointment a ON p.appointment_id = a.appointment_id
+""", nativeQuery = true)
+    Object getPaymentsStatsByHeadquarter(
+            @Param("currentMonth") int currentMonth,
+            @Param("currentYear") int currentYear,
+            @Param("previousMonth") int previousMonth,
+            @Param("previousYear") int previousYear,
+            @Param("headquarterId") Long headquarterId
+    );
+
+
 
 
 }
