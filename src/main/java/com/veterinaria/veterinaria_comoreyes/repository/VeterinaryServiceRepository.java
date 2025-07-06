@@ -53,6 +53,7 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
             vs.service_id AS service_id,
             vs.name AS service_name,
             c.name AS category_name,
+            vs.dir_image AS image_url,
             COUNT(*) AS total_cares
         FROM 
             care ca
@@ -63,7 +64,7 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
         JOIN 
             category c ON vs.id_category = c.category_id
         GROUP BY 
-            vs.service_id,vs.name, c.name
+            vs.dir_image, vs.name, c.name, vs.service_id 
         ORDER BY 
             total_cares DESC
     """, nativeQuery = true)
@@ -74,6 +75,7 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
             vs.service_id AS service_id,
             vs.name AS service_name,
             c.name AS category_name,
+            vs.dir_image AS image_url,
             COUNT(*) AS total_cares
         FROM 
             care ca
@@ -86,7 +88,7 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
         WHERE 
             hvs.id_headquarter = :headquarterId
         GROUP BY 
-            vs.service_id, vs.name, c.name
+             vs.dir_image, vs.service_id, vs.name, c.name
         ORDER BY 
             total_cares DESC
     """, nativeQuery = true)
