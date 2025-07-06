@@ -3,10 +3,13 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import java.util.List;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ICareService {
 
@@ -29,6 +32,8 @@ public interface ICareService {
 
     @Transactional
     CareDTO createCareFromRequest(CareRequestDTO dto);
+
+    Page<CareListDTO> searchCares(String fecha, Long idHeadquarter, Long idService, String estado, Pageable pageable);
 
     // void deleteCare(Long id);
 } 

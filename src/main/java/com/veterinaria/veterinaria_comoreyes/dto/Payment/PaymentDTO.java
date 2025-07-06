@@ -32,8 +32,7 @@ public class PaymentDTO {
     @NotNull(message = "El estado del pago es obligatorio")
     private PaymentStatus status;
 
-    @NotNull(message = "Debe asociarse a una cita (appointmentId)")
-    private Long appointmentId;
+    private Long appointmentId = null; // Opcional, pero si se envía, debe ser válido
 
     // Opcional, pero si se envía, debe ser válido
     private Long careId = null;

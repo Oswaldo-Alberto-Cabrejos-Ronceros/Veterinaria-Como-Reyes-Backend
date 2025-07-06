@@ -28,4 +28,3 @@ public interface CareMapper {
     @Mapping(source = "employeeId", target = "employee.employeeId")
     void updateEntityFromDto(CareDTO dto, @MappingTarget Care entity);
 }
-

@@ -1,21 +1,22 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import com.veterinaria.veterinaria_comoreyes.mapper.CareMapper;
-import com.veterinaria.veterinaria_comoreyes.repository.AppointmentRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.CareRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
-import com.veterinaria.veterinaria_comoreyes.repository.PaymentRepository;
-import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
-import com.veterinaria.veterinaria_comoreyes.service.ICareService;
+import com.veterinaria.veterinaria_comoreyes.repository.*;
+import com.veterinaria.veterinaria_comoreyes.service.*;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,14 +32,19 @@ public class CareServiceImpl implements ICareService {
     private final IAppointmentService appointmentService;
     private final AppointmentRepository appointmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final IPaymentService paymentService;
+    private final IHeadquarterVetServiceService headquarterVetServiceService;
+
     @Autowired
-    public CareServiceImpl(CareRepository careRepository, CareMapper careMapper, PaymentRepository paymentRepository, IAppointmentService appointmentService, AppointmentRepository appointmentRepository, EmployeeRepository employeeRepository) {
+    public CareServiceImpl(CareRepository careRepository, CareMapper careMapper, PaymentRepository paymentRepository, IAppointmentService appointmentService, AppointmentRepository appointmentRepository, EmployeeRepository employeeRepository, IPaymentService paymentService, IHeadquarterVetServiceService headquarterVetServiceService) {
         this.careRepository = careRepository;
         this.careMapper = careMapper;
         this.paymentRepository = paymentRepository;
         this.appointmentService = appointmentService;
         this.appointmentRepository = appointmentRepository;
         this.employeeRepository = employeeRepository;
+        this.paymentService = paymentService;
+        this.headquarterVetServiceService = headquarterVetServiceService;
     }
 
     @Override
@@ -161,7 +167,7 @@ public class CareServiceImpl implements ICareService {
     @Transactional
     @Override
     public CareDTO createCareFromRequest(CareRequestDTO dto) {
-        // 1. Armar el DTO del Care sin cita
+        // 1. Armar el DTO del Care
         CareDTO careDTO = new CareDTO();
         careDTO.setAnimalId(dto.getAnimalId());
         careDTO.setEmployeeId(dto.getEmployeeId());
@@ -169,12 +175,53 @@ public class CareServiceImpl implements ICareService {
         careDTO.setDateTime(LocalDateTime.now());
         careDTO.setStatusCare(StatusCare.EN_CURSO);
 
-        // 2. Crear el Care
+        // 2. Crear y guardar el Care
         CareDTO createdCare = createCare(careDTO);
 
-        // 3. Retornar el resultado
+        System.out.println("ID generado: " + createdCare.getCareId());
+
+        // 3. Obtener precio del servicio
+        Double priceService = headquarterVetServiceService.priceService(dto.getHeadquarterVetServiceId());
+
+        // 4. Crear DTO del Payment
+        PaymentDTO paymentDTO = new PaymentDTO();
+        paymentDTO.setAppointmentId(null);
+        paymentDTO.setPaymentMethodId(dto.getPaymentMethodId());
+        paymentDTO.setStatus(PaymentStatus.PENDIENTE);
+        paymentDTO.setAmount(priceService);
+        paymentDTO.setPaymentDateTime(null); // Se puede dejar null si lo establece el service
+        paymentDTO.setCareId(createdCare.getCareId());
+        paymentDTO.setAppointmentId(null);
+
+        // 5. Crear el pago desde el servicio
+        paymentService.createPayment(paymentDTO);
+
+        // 6. Retornar el Care creado
         return createdCare;
     }
+    @Override
+    public Page<CareListDTO> searchCares(String fecha, Long idHeadquarter, Long idService, String estado, Pageable pageable) {
+        Page<Object[]> resultPage = careRepository.searchCaresNative(fecha, idHeadquarter, idService, estado, pageable);
+
+        List<CareListDTO> content = resultPage.getContent().stream().map(row -> {
+            CareListDTO dto = new CareListDTO();
+            dto.setCareId(((Number) row[0]).longValue());
+            dto.setCareDateTime((String) row[1]);
+            dto.setStatusCare((String) row[2]);
+            dto.setAnimalName((String) row[3]);
+            dto.setAnimalSpecies((String) row[4]);
+            dto.setAnimalBreed((String) row[5]);
+            dto.setEmployeeFullName((String) row[6]);
+            dto.setServiceName((String) row[7]);
+            dto.setServicePrice(((Number) row[8]).doubleValue());
+            dto.setHeadquarterName((String) row[9]);
+            dto.setAppointmentId(row[10] != null ? ((Number) row[10]).longValue() : null);
+            return dto;
+        }).toList();
+
+        return new PageImpl<>(content, pageable, resultPage.getTotalElements());
+    }
+
 
 
     // @Override

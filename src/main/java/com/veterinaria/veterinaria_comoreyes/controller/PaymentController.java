@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentStatus;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import jakarta.validation.Valid;
@@ -88,4 +89,16 @@ public class PaymentController {
         paymentService.updatePaymentStatus(paymentId, PaymentStatus.REEMBOLSADA);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/panel-admin/stats")
+    public ResponseEntity<PaymentStatsForPanelAdminDTO> getPaymentStats() {
+        return ResponseEntity.ok(paymentService.getCompletedPaymentsStats());
+    }
+    @GetMapping("/panel-manager/stats/{headquarterId}")
+    public ResponseEntity<PaymentStatsForPanelAdminDTO> getPaymentsStatsByHeadquarter(
+            @PathVariable Long headquarterId) {
+        return ResponseEntity.ok(paymentService.getPaymentsStatsByHeadquarter(headquarterId));
+    }
+
+
 }

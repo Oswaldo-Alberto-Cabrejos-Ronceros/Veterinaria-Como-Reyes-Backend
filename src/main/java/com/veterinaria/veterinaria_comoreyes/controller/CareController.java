@@ -1,10 +1,15 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.service.ICareService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,4 +74,17 @@ public class CareController {
     //     careService.deleteCare(id);
     //     return ResponseEntity.noContent().build();
     // }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<CareListDTO>> searchCares(
+            @RequestParam(required = false) String fecha,
+            @RequestParam(required = false) Long idHeadquarter,
+            @RequestParam(required = false) Long idService,
+            @RequestParam(required = false) String estado,
+            @PageableDefault(size = 10, sort = "care_Id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<CareListDTO> result = careService.searchCares(fecha, idHeadquarter, idService, estado, pageable);
+        return ResponseEntity.ok(result);
+    }
+
 }
