@@ -15,10 +15,13 @@ public class CareRequestDTO {
     @NotNull(message = "Care ID is required")
     private Long headquarterVetServiceId;
 
-    @NotNull(message = "Appointment ID is required")
+    @NotNull(message = "Animal ID is required")
     private Long animalId;
 
-    @NotNull(message = "Animal ID is required")
+    @NotNull(message = "Employee ID is required")
     private Long employeeId;
+
+    @NotNull(message = "Payment Method ID is required")
+    private Long paymentMethodId;
 
 }

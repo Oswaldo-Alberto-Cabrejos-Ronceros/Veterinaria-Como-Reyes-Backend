@@ -382,5 +382,28 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 (String) row[5]                     // status
         )).toList();
     }
+    @Override
+    public AppointmentStatsTodayDTO getTodayAppointmentStats() {
+        List<Object[]> resultList = appointmentRepository.getTodayAppointmentStats();
+        Object[] row = resultList.get(0);
 
-}
+        Long total = row[0] != null ? ((Number) row[0]).longValue() : 0L;
+        Long todayAppointments = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+
+        return new AppointmentStatsTodayDTO(total, todayAppointments);
+    }
+
+    @Override
+    public AppointmentStatsTodayDTO getTodayAppointmentStatsByHeadquarter(Long headquarterId) {
+        List<Object[]> resultList = appointmentRepository.getTodayAppointmentStatsByHeadquarter(headquarterId);
+        Object[] row = resultList.get(0);
+
+        Long total = row[0] != null ? ((Number) row[0]).longValue() : 0L;
+        Long todayAppointments = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+
+        return new AppointmentStatsTodayDTO(total, todayAppointments);
+    }
+
+
+
+    }

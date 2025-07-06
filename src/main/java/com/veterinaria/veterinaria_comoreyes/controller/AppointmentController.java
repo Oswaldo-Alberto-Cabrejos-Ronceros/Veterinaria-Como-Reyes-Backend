@@ -108,11 +108,21 @@ public class AppointmentController {
                 day, headquarter, categoryService, appointmentStatus, pageable);
     }
 
+    /************** PANEL ADMIN ********/
+
     @GetMapping("/panel-admin/by-date")
     public ResponseEntity<List<AppointmentInfoPanelAdminDTO>> getAppointmentsByDate() {
         List<AppointmentInfoPanelAdminDTO> result = appointmentService.getAppointmentsByDateForPanelAdmin();
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/panel-admin/stats/today")
+    public ResponseEntity<AppointmentStatsTodayDTO> getTodayAppointmentStats() {
+        return ResponseEntity.ok(appointmentService.getTodayAppointmentStats());
+    }
+
+
+    /************** PANEL MANAGER ********/
 
     @GetMapping("/panel-manager/{headquarterId}/by-date")
     public ResponseEntity<List<AppointmentInfoPanelAdminDTO>> getAppointmentsForPanelManager(
@@ -120,5 +130,12 @@ public class AppointmentController {
         List<AppointmentInfoPanelAdminDTO> appointments = appointmentService.getAppointmentsInfoByDateAndHeadquarter(headquarterId);
         return ResponseEntity.ok(appointments);
     }
+
+    @GetMapping("/panel-manager/stats/{headquarterId}/today")
+    public ResponseEntity<AppointmentStatsTodayDTO> getTodayAppointmentStatsByHeadquarter(@PathVariable Long headquarterId) {
+        return ResponseEntity.ok(appointmentService.getTodayAppointmentStatsByHeadquarter(headquarterId));
+    }
+
+
 
 }

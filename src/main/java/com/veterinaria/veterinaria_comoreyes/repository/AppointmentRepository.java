@@ -233,5 +233,33 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("headquarterId") Long headquarterId
     );
 
+    @Query(value = """
+    SELECT 
+        COUNT(*) AS total,
+        NVL(SUM(CASE 
+            WHEN TRUNC(creation_date) = TRUNC(SYSDATE)
+             AND TRUNC(schedule_date_time) = TRUNC(SYSDATE)
+            THEN 1 ELSE 0 
+        END), 0) AS today_appointments
+    FROM appointment
+    WHERE TRUNC(schedule_date_time) = TRUNC(SYSDATE)
+      AND status_appointments IN ('PROGRAMADA', 'CONFIRMADA', 'COMPLETADA')
+""", nativeQuery = true)
+    List<Object[]> getTodayAppointmentStats();
 
+    @Query(value = """
+    SELECT 
+        COUNT(*) AS total,
+        NVL(SUM(CASE 
+            WHEN TRUNC(a.creation_date) = TRUNC(SYSDATE)
+             AND TRUNC(a.schedule_date_time) = TRUNC(SYSDATE)
+            THEN 1 ELSE 0 
+        END), 0) AS today_appointments
+    FROM appointment a
+    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+    WHERE TRUNC(a.schedule_date_time) = TRUNC(SYSDATE)
+      AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA', 'COMPLETADA')
+      AND hvs.id_headquarter = :headquarterId
+""", nativeQuery = true)
+    List<Object[]> getTodayAppointmentStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
 }
