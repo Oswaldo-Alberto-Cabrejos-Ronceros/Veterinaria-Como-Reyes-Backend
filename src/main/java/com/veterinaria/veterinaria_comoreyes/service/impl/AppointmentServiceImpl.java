@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareAndAppointmentPanelEmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
@@ -404,6 +405,23 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return new AppointmentStatsTodayDTO(total, todayAppointments);
     }
 
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getCareAndAppointmentsForEmployee(Long employeeId) {
+        List<Object[]> rows = appointmentRepository.findCareAndAppointmentForEmployee(employeeId);
 
-
+        return rows.stream().map(row -> {
+            return new CareAndAppointmentPanelEmployeeDTO(
+                    ((Number) row[0]).longValue(),   // id
+                    (String) row[1],                 // type
+                    (String) row[2],                 // animalName
+                    (String) row[3],                 // serviceName
+                    (String) row[4],                 // clientName
+                    (String) row[5],                 // date
+                    (String) row[6],                 // hour
+                    (String) row[7]                  // status
+            );
+        }).collect(Collectors.toList());
     }
+
+
+}

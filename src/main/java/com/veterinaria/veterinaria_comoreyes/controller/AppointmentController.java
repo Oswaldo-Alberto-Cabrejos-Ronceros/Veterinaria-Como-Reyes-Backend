@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.CareAndAppointmentPanelEmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,6 +135,13 @@ public class AppointmentController {
     @GetMapping("/panel-manager/stats/{headquarterId}/today")
     public ResponseEntity<AppointmentStatsTodayDTO> getTodayAppointmentStatsByHeadquarter(@PathVariable Long headquarterId) {
         return ResponseEntity.ok(appointmentService.getTodayAppointmentStatsByHeadquarter(headquarterId));
+    }
+
+    /************** PANEL EMPLOYEE ********/
+    @GetMapping("/panel-employee/{employeeId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsAndCaresForEmployee(@PathVariable Long employeeId) {
+        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getCareAndAppointmentsForEmployee(employeeId);
+        return ResponseEntity.ok(data);
     }
 
 
