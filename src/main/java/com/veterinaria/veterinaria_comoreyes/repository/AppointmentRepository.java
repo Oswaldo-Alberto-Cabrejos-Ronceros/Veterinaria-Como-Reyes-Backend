@@ -262,4 +262,48 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
       AND hvs.id_headquarter = :headquarterId
 """, nativeQuery = true)
     List<Object[]> getTodayAppointmentStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
+
+    @Query(value = """
+        SELECT *
+        FROM (
+          SELECT
+            a.appointment_id AS id,
+            'CITA' AS type,
+            an.name AS animal_name,
+            vs.name AS service_name,
+            cl.name || ' ' || cl.last_name AS client_name,
+            TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
+            TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
+            a.status_appointments AS status
+          FROM appointment a
+          JOIN animal an ON an.animal_id = a.animal_id
+          JOIN client cl ON cl.client_id = an.client_id
+          JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+          JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+          WHERE a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+            AND a.employee_id = :employeeId
+
+          UNION ALL
+
+          SELECT
+            c.care_id AS id,
+            'ATENCIÓN' AS type,
+            an.name AS animal_name,
+            vs.name AS service_name,
+            cl.name || ' ' || cl.last_name AS client_name,
+            TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
+            TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
+            c.status_care AS status
+          FROM care c
+          JOIN animal an ON an.animal_id = c.animal_id
+          JOIN client cl ON cl.client_id = an.client_id
+          JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
+          JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+          WHERE c.status_care = 'EN_CURSO'
+            AND c.employee_id = :employeeId
+        )
+        ORDER BY fecha ASC, hora ASC
+        """,
+            nativeQuery = true)
+    List<Object[]> findCareAndAppointmentForEmployee(@Param("employeeId") Long employeeId);
 }
