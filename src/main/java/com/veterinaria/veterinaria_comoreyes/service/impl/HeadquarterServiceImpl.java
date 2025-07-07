@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeInfoPublicDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
 import com.veterinaria.veterinaria_comoreyes.exception.HeadquarterNotValidException;
@@ -12,6 +13,8 @@ import com.veterinaria.veterinaria_comoreyes.repository.HeadquarterRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -130,5 +133,15 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     public void activateHeadquarter(Long headquarterId) {
         headquarterRepository.activateHeadquarter(headquarterId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<HeadquarterListDTO> searchHeadquarters(
+            String name, String phone, String address, 
+            String email, String district, String province, 
+            Pageable pageable) {
+        return headquarterRepository.searchHeadquartersWithFilters(
+                name, phone, address, email, district, province, pageable);
     }
 }
