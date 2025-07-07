@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareAndAppointmentPanelEmployeeDTO;
 import org.springframework.data.domain.Page;
@@ -46,4 +47,6 @@ public interface IAppointmentService {
     AppointmentStatsTodayDTO getTodayAppointmentStatsByHeadquarter(Long headquarterId);
 
     List<CareAndAppointmentPanelEmployeeDTO> getCareAndAppointmentsForEmployee(Long employeeId);
+
+    Optional<InfoAppointmentForPanelDTO> getAppointmentInfoForPanel(Long appointmentId);
 }

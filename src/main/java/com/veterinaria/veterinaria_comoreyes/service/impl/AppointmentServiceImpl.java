@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -415,11 +416,41 @@ public class AppointmentServiceImpl implements IAppointmentService {
         if (appointment.getStatusAppointment() != StatusAppointment.PROGRAMADA) {
             throw new IllegalStateException("Solo se pueden confirmar citas en estado PROGRAMADA mediante email");
         }
-
         // Cambiar el estado a CONFIRMADA
         appointment.setStatusAppointment(StatusAppointment.CONFIRMADA);
         Appointment confirmedAppointment = appointmentRepository.save(appointment);
 
         return appointmentMapper.toResponseDTO(confirmedAppointment);
     }
+
+    @Override
+    public Optional<InfoAppointmentForPanelDTO> getAppointmentInfoForPanel(Long appointmentId) {
+        List<Object[]> results = appointmentRepository.findAppointmentInfoForPanel(appointmentId);
+
+        if (results == null || results.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Object[] result = results.get(0); // ← importante
+        return Optional.of(mapToDto(result));
+    }
+
+    private InfoAppointmentForPanelDTO mapToDto(Object[] result) {
+        InfoAppointmentForPanelDTO dto = new InfoAppointmentForPanelDTO();
+
+        // El orden debe coincidir exactamente con la consulta SQL
+        dto.setIdAppointment(result[0] != null ? Long.valueOf(result[0].toString()) : null);
+        dto.setTimeAppointment(result[1] != null ? result[1].toString() : null);
+        dto.setComment(result[2] != null ? result[2].toString() : null);
+        dto.setServiceId(result[3] != null ? Long.valueOf(result[3].toString()) : null);
+        dto.setServiceTime(result[4] != null ? Integer.parseInt(result[4].toString()) : 0);
+        dto.setServiceName(result[5] != null ? result[5].toString() : null);
+        dto.setEmployeeId(result[6] != null ? Long.valueOf(result[6].toString()) : null); // 👈 corregido
+        dto.setEmployeeName(result[7] != null ? result[7].toString() : null);
+        dto.setEmployeeRole(result[8] != null ? result[8].toString() : null);
+
+        return dto;
+    }
+
+
 }

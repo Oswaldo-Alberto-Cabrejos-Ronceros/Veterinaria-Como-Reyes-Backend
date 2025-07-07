@@ -16,9 +16,9 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // Permitir todos los orígenes (solo recomendado para desarrollo)
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173", "https://veterinaria-como-reyes-frontend-8r8do2qku.vercel.app"));
         config.setAllowCredentials(true);
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Set-Cookie"));
 

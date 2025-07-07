@@ -163,7 +163,13 @@ public class AppointmentController {
         List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getCareAndAppointmentsForEmployee(employeeId);
         return ResponseEntity.ok(data);
     }
-
-
+    /************** VIEW INFO APPOINTMENT ********/
+    @GetMapping("/panel-info/{appointmentId}")
+    public ResponseEntity<InfoAppointmentForPanelDTO> getAppointmentPanelInfo(
+            @PathVariable Long appointmentId) {
+        return appointmentService.getAppointmentInfoForPanel(appointmentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 
 }
