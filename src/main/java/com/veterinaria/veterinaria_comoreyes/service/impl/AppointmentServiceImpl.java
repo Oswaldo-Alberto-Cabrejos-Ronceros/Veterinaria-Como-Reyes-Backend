@@ -424,4 +424,22 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
 
+    // En tu AppointmentServiceImpl.java
+    @Transactional
+    @Override
+    public AppointmentResponseDTO confirmAppointmentByEmail(Long id) {
+        Appointment appointment = appointmentRepository.findByAppointmentId(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada"));
+
+        // Validar que la cita esté programada
+        if (appointment.getStatusAppointment() != StatusAppointment.PROGRAMADA) {
+            throw new IllegalStateException("Solo se pueden confirmar citas en estado PROGRAMADA mediante email");
+        }
+
+        // Cambiar el estado a CONFIRMADA
+        appointment.setStatusAppointment(StatusAppointment.CONFIRMADA);
+        Appointment confirmedAppointment = appointmentRepository.save(appointment);
+
+        return appointmentMapper.toResponseDTO(confirmedAppointment);
+    }
 }

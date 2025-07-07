@@ -82,12 +82,13 @@ public class EmployeeController {
             @RequestParam(required = false) String dni,
             @RequestParam(required = false) String cmvp,
             @RequestParam(required = false) String lastname,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) String rolName,
             @RequestParam(required = false) String nameHeadquarter,
             @RequestParam(required = false) Boolean status,
             @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(employeeService.searchEmployees(
-                dni, cmvp, lastname, rolName, nameHeadquarter, status, pageable));
+                dni, cmvp, lastname, name, rolName, nameHeadquarter, status, pageable));
     }
 
     @PatchMapping("/{employeeId}/block")
