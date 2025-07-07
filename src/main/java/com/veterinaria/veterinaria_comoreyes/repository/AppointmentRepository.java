@@ -42,6 +42,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Boolean existsByAnimalAndScheduleDateTimeAndStatusAppointment(Animal animal, LocalDateTime scheduleDateTime,
             StatusAppointment statusAppointment);
 
+    // Buscar citas en un rango de fechas con un estado específico
+    List<Appointment> findByScheduleDateTimeBetweenAndStatusAppointment(
+            LocalDateTime start, LocalDateTime end, StatusAppointment status);
+
+    // Nuevo método con fetch de relaciones
+    @Query("SELECT a FROM Appointment a " +
+            "LEFT JOIN FETCH a.animal ani " +
+            "LEFT JOIN FETCH ani.client cli " +
+            "LEFT JOIN FETCH cli.user usr " +
+            "LEFT JOIN FETCH a.headquarterVetService hvs " +
+            "LEFT JOIN FETCH hvs.veterinaryService " +
+            "LEFT JOIN FETCH hvs.headquarter " +
+            "WHERE a.appointmentId = :id")
+    Optional<Appointment> findByIdWithRelations(@Param("id") Long id);
+
     @Query("""
             SELECT CASE WHEN (
                     SELECT COUNT(a) FROM Appointment a
@@ -141,170 +156,144 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """, nativeQuery = true)
     List<Object[]> findInfoBasicAppointmentsByClientId(@Param("clientId") Long clientId);
 
-    @Query(value = """
-            SELECT
-                a.appointment_id,
-                TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') as day,
-                h.name as headquarter,
-                c.name as category_service,
-                a.status_appointments as status
-            FROM appointment a
-            JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
-            JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
-            JOIN veterinary_service vs ON vs.service_id = hvs.id_service
-            JOIN category c ON c.category_id = vs.id_category
-            WHERE (:day IS NULL OR TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') = :day)
-            AND (:headquarter IS NULL OR h.name LIKE '%' || :headquarter || '%')
-            AND (:categoryService IS NULL OR c.name LIKE '%' || :categoryService || '%')
-            AND (:appointmentStatus IS NULL OR
-                CASE
-                    WHEN :appointmentStatus = 'Programada' THEN a.status_appointments = 'PROGRAMADA'
-                    WHEN :appointmentStatus = 'Confirmada' THEN a.status_appointments = 'CONFIRMADA'
-                    WHEN :appointmentStatus = 'Completada' THEN a.status_appointments = 'COMPLETADA'
-                    WHEN :appointmentStatus = 'Cancelada' THEN a.status_appointments = 'CANCELADA'
-                    ELSE 1=1
-                END)
-            ORDER BY appointment_id DESC
-            """, countQuery = """
-            SELECT COUNT(*)
-            FROM appointment a
-            JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
-            JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
-            JOIN veterinary_service vs ON vs.service_id = hvs.id_service
-            JOIN category c ON c.category_id = vs.id_category
-            WHERE (:day IS NULL OR TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') = :day)
-            AND (:headquarter IS NULL OR h.name LIKE '%' || :headquarter || '%')
-            AND (:categoryService IS NULL OR c.name LIKE '%' || :categoryService || '%')
-            AND (:appointmentStatus IS NULL OR
-                CASE
-                    WHEN :appointmentStatus = 'Programada' THEN a.status_appointments = 'PROGRAMADA'
-                    WHEN :appointmentStatus = 'Confirmada' THEN a.status_appointments = 'CONFIRMADA'
-                    WHEN :appointmentStatus = 'Completada' THEN a.status_appointments = 'COMPLETADA'
-                    WHEN :appointmentStatus = 'Cancelada' THEN a.status_appointments = 'CANCELADA'
-                    ELSE 1=1
-                END)
-            """, nativeQuery = true)
-    Page<Object[]> searchAppointmentsNative(
+    @Query("""
+            SELECT new com.veterinaria.veterinaria_comoreyes.dto.Appointment.AppointmentListDTO(
+                a.appointmentId,
+                TO_CHAR(a.scheduleDateTime, 'YYYY-MM-DD'),
+                h.name,
+                c.name,
+                a.statusAppointment
+            )
+            FROM Appointment a
+            JOIN a.headquarterVetService hvs
+            JOIN hvs.headquarter h
+            JOIN hvs.veterinaryService vs
+            JOIN vs.category c
+            WHERE (:day IS NULL OR TO_CHAR(a.scheduleDateTime, 'YYYY-MM-DD') = :day)
+            AND (:headquarter IS NULL OR h.name LIKE %:headquarter%)
+            AND (:categoryService IS NULL OR c.name LIKE %:categoryService%)
+            AND (:appointmentStatus IS NULL OR a.statusAppointment = :appointmentStatus)
+            ORDER BY a.appointmentId DESC
+            """)
+    Page<AppointmentListDTO> searchAppointments(
             @Param("day") String day,
             @Param("headquarter") String headquarter,
             @Param("categoryService") String categoryService,
-            @Param("appointmentStatus") String appointmentStatus,
+            @Param("appointmentStatus") StatusAppointment appointmentStatus,
             Pageable pageable);
 
     @Query(value = """
-    SELECT 
-        a.appointment_id,
-        an.name AS animal_name,
-        vs.name AS service_name,
-        INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_name,
-        TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hour,
-        a.status_appointments AS status
-    FROM appointment a
-    JOIN animal an ON a.animal_id = an.animal_id
-    JOIN client cl ON an.client_id = cl.client_id
-    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
-    JOIN veterinary_service vs ON hvs.id_service = vs.service_id
-    WHERE TRUNC(a.schedule_date_time) = :date
-    AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
-    ORDER BY a.schedule_date_time ASC
-""", nativeQuery = true)
+                SELECT
+                    a.appointment_id,
+                    an.name AS animal_name,
+                    vs.name AS service_name,
+                    INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_name,
+                    TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hour,
+                    a.status_appointments AS status
+                FROM appointment a
+                JOIN animal an ON a.animal_id = an.animal_id
+                JOIN client cl ON an.client_id = cl.client_id
+                JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+                JOIN veterinary_service vs ON hvs.id_service = vs.service_id
+                WHERE TRUNC(a.schedule_date_time) = :date
+                AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+                ORDER BY a.schedule_date_time ASC
+            """, nativeQuery = true)
     List<Object[]> getAppointmentsInfoByDate(@Param("date") LocalDate date);
 
     @Query(value = """
-    SELECT 
-        a.appointment_id,
-        an.name AS animal_name,
-        vs.name AS service_name,
-        INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_name,
-        TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hour,
-        a.status_appointments AS status
-    FROM appointment a
-    JOIN animal an ON a.animal_id = an.animal_id
-    JOIN client cl ON an.client_id = cl.client_id
-    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
-    JOIN veterinary_service vs ON hvs.id_service = vs.service_id
-    WHERE TRUNC(a.schedule_date_time) = :date
-    AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
-    AND hvs.id_headquarter = :headquarterId
-    ORDER BY a.schedule_date_time ASC
-""", nativeQuery = true)
+                SELECT
+                    a.appointment_id,
+                    an.name AS animal_name,
+                    vs.name AS service_name,
+                    INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_name,
+                    TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hour,
+                    a.status_appointments AS status
+                FROM appointment a
+                JOIN animal an ON a.animal_id = an.animal_id
+                JOIN client cl ON an.client_id = cl.client_id
+                JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+                JOIN veterinary_service vs ON hvs.id_service = vs.service_id
+                WHERE TRUNC(a.schedule_date_time) = :date
+                AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+                AND hvs.id_headquarter = :headquarterId
+                ORDER BY a.schedule_date_time ASC
+            """, nativeQuery = true)
     List<Object[]> getAppointmentsInfoByDateAndHeadquarter(
             @Param("date") LocalDate date,
-            @Param("headquarterId") Long headquarterId
-    );
+            @Param("headquarterId") Long headquarterId);
 
     @Query(value = """
-    SELECT 
-        COUNT(*) AS total,
-        NVL(SUM(CASE 
-            WHEN TRUNC(creation_date) = TRUNC(SYSDATE)
-             AND TRUNC(schedule_date_time) = TRUNC(SYSDATE)
-            THEN 1 ELSE 0 
-        END), 0) AS today_appointments
-    FROM appointment
-    WHERE TRUNC(schedule_date_time) = TRUNC(SYSDATE)
-      AND status_appointments IN ('PROGRAMADA', 'CONFIRMADA', 'COMPLETADA')
-""", nativeQuery = true)
+                SELECT
+                    COUNT(*) AS total,
+                    NVL(SUM(CASE
+                        WHEN TRUNC(creation_date) = TRUNC(SYSDATE)
+                         AND TRUNC(schedule_date_time) = TRUNC(SYSDATE)
+                        THEN 1 ELSE 0
+                    END), 0) AS today_appointments
+                FROM appointment
+                WHERE TRUNC(schedule_date_time) = TRUNC(SYSDATE)
+                  AND status_appointments IN ('PROGRAMADA', 'CONFIRMADA', 'COMPLETADA')
+            """, nativeQuery = true)
     List<Object[]> getTodayAppointmentStats();
 
     @Query(value = """
-    SELECT 
-        COUNT(*) AS total,
-        NVL(SUM(CASE 
-            WHEN TRUNC(a.creation_date) = TRUNC(SYSDATE)
-             AND TRUNC(a.schedule_date_time) = TRUNC(SYSDATE)
-            THEN 1 ELSE 0 
-        END), 0) AS today_appointments
-    FROM appointment a
-    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
-    WHERE TRUNC(a.schedule_date_time) = TRUNC(SYSDATE)
-      AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA', 'COMPLETADA')
-      AND hvs.id_headquarter = :headquarterId
-""", nativeQuery = true)
+                SELECT
+                    COUNT(*) AS total,
+                    NVL(SUM(CASE
+                        WHEN TRUNC(a.creation_date) = TRUNC(SYSDATE)
+                         AND TRUNC(a.schedule_date_time) = TRUNC(SYSDATE)
+                        THEN 1 ELSE 0
+                    END), 0) AS today_appointments
+                FROM appointment a
+                JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+                WHERE TRUNC(a.schedule_date_time) = TRUNC(SYSDATE)
+                  AND a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA', 'COMPLETADA')
+                  AND hvs.id_headquarter = :headquarterId
+            """, nativeQuery = true)
     List<Object[]> getTodayAppointmentStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
     @Query(value = """
-        SELECT *
-        FROM (
-          SELECT
-            a.appointment_id AS id,
-            'CITA' AS type,
-            an.name AS animal_name,
-            vs.name AS service_name,
-            cl.name || ' ' || cl.last_name AS client_name,
-            TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
-            TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
-            a.status_appointments AS status
-          FROM appointment a
-          JOIN animal an ON an.animal_id = a.animal_id
-          JOIN client cl ON cl.client_id = an.client_id
-          JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
-          JOIN veterinary_service vs ON vs.service_id = hvs.id_service
-          WHERE a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
-            AND a.employee_id = :employeeId
+            SELECT *
+            FROM (
+              SELECT
+                a.appointment_id AS id,
+                'CITA' AS type,
+                an.name AS animal_name,
+                vs.name AS service_name,
+                cl.name || ' ' || cl.last_name AS client_name,
+                TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
+                TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
+                a.status_appointments AS status
+              FROM appointment a
+              JOIN animal an ON an.animal_id = a.animal_id
+              JOIN client cl ON cl.client_id = an.client_id
+              JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+              JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+              WHERE a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+                AND a.employee_id = :employeeId
 
-          UNION ALL
+              UNION ALL
 
-          SELECT
-            c.care_id AS id,
-            'ATENCIÓN' AS type,
-            an.name AS animal_name,
-            vs.name AS service_name,
-            cl.name || ' ' || cl.last_name AS client_name,
-            TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
-            TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
-            c.status_care AS status
-          FROM care c
-          JOIN animal an ON an.animal_id = c.animal_id
-          JOIN client cl ON cl.client_id = an.client_id
-          JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
-          JOIN veterinary_service vs ON vs.service_id = hvs.id_service
-          WHERE c.status_care = 'EN_CURSO'
-            AND c.employee_id = :employeeId
-        )
-        ORDER BY fecha ASC, hora ASC
-        """,
-            nativeQuery = true)
+              SELECT
+                c.care_id AS id,
+                'ATENCIÓN' AS type,
+                an.name AS animal_name,
+                vs.name AS service_name,
+                cl.name || ' ' || cl.last_name AS client_name,
+                TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
+                TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
+                c.status_care AS status
+              FROM care c
+              JOIN animal an ON an.animal_id = c.animal_id
+              JOIN client cl ON cl.client_id = an.client_id
+              JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
+              JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+              WHERE c.status_care = 'EN_CURSO'
+                AND c.employee_id = :employeeId
+            )
+            ORDER BY fecha ASC, hora ASC
+            """, nativeQuery = true)
     List<Object[]> findCareAndAppointmentForEmployee(@Param("employeeId") Long employeeId);
 
     @Query(nativeQuery = true, value = """

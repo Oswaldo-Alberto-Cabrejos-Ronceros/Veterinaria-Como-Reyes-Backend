@@ -31,7 +31,7 @@ public class AnimalDTO {
 
     @NotNull(message = "El peso es obligatorio")
     @Digits(integer = 3,fraction = 2, message = "El peso debe tener como maximo 2 digitos")
-    private float weight;
+    private Float weight;
 
     @Past
     @JsonFormat(shape = JsonFormat.Shape.STRING)

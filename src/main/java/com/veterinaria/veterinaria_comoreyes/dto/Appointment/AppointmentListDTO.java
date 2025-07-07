@@ -1,5 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.dto.Appointment;
 
+import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,9 +13,9 @@ import lombok.Setter;
 @Setter
 public class AppointmentListDTO {
 
-    Long appointmentId;
-    String day; //scheduleDateTime (solo el dia)
-    String headquarter; // headquarterVetService (dentro esta el headquarter)
-    String categoryService;
-    String appointmentStatus;
+    private Long appointmentId;
+    private String day; //scheduleDateTime (solo el dia)
+    private String headquarter; // headquarterVetService (dentro esta el headquarter)
+    private String categoryService;
+    private StatusAppointment appointmentStatus;
 }
