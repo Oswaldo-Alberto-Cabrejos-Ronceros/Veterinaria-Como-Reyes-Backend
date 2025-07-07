@@ -3,7 +3,10 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalWeightUpdateDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +14,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/animal")
@@ -81,4 +86,18 @@ public class AnimalController {
             @PageableDefault(size = 10) Pageable pageable) {
         return animalService.searchAnimals(name, owner, specie, breed, gender, status, pageable);
     }
+
+    @PatchMapping("/{id}/weight")
+    public ResponseEntity<Map<String, Object>> updateAnimalWeight(
+            @PathVariable Long id,
+            @RequestBody @Valid AnimalWeightUpdateDTO dto) {
+
+        AnimalDTO updated = animalService.updateAnimalWeight(id, dto.getWeight());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("name", updated.getName());
+        response.put("weight", updated.getWeight());
+
+        return ResponseEntity.ok(response);
+    }    
 }

@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalWeightUpdateDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
@@ -14,16 +15,24 @@ import com.veterinaria.veterinaria_comoreyes.repository.ClientRepository;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
 import com.veterinaria.veterinaria_comoreyes.service.IClientService;
 import com.veterinaria.veterinaria_comoreyes.util.FilterStatus;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,6 +207,17 @@ public class AnimalServiceImpl implements IAnimalService {
 
         return animalRepository.searchAnimalsWithFullDetails(
                 name, owner, specie, breed, gender, status, pageable);
+    }
+
+    @Transactional
+    @Override
+    public AnimalDTO updateAnimalWeight(Long id, Float weight) {
+        filterStatus.activeFilterStatus(true);
+        Animal animal = animalRepository.findByAnimalIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Animal no encontrado con id: " + id));
+
+        animal.setWeight(weight);
+        return animalMapper.mapToAnimalDTO(animalRepository.save(animal));
     }
 
 }
