@@ -306,4 +306,40 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         """,
             nativeQuery = true)
     List<Object[]> findCareAndAppointmentForEmployee(@Param("employeeId") Long employeeId);
+
+    @Query(nativeQuery = true, value = """
+        SELECT 
+            a.appointment_id, 
+            TO_CHAR(a.schedule_date_time, 'HH24:MI'), 
+            a.comentario, 
+            vs.service_id, 
+            vs.duration, 
+            vs.name, 
+            e.employee_id, 
+            CASE 
+                WHEN e.employee_id IS NULL THEN NULL
+                ELSE e.name || ' ' || e.last_name
+            END,
+            CASE
+                WHEN e.employee_id IS NULL THEN NULL
+                WHEN EXISTS (
+                    SELECT 1 FROM employee_role er
+                    JOIN role r ON r.role_id = er.id_role
+                    WHERE er.id_employee = e.employee_id AND UPPER(r.name) = 'VETERINARIO'
+                ) THEN 'VETERINARIO'
+                WHEN EXISTS (
+                    SELECT 1 FROM employee_role er
+                    JOIN role r ON r.role_id = er.id_role
+                    WHERE er.id_employee = e.employee_id AND UPPER(r.name) = 'PRACTICANTE'
+                ) THEN 'PRACTICANTE'
+                ELSE 'ASISTENTE'
+            END
+        FROM appointment a 
+        JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id 
+        JOIN veterinary_service vs ON vs.service_id = hvs.id_service 
+        LEFT JOIN employee e ON e.employee_id = a.employee_id 
+        WHERE a.appointment_id = :appointmentId
+        """)
+    List<Object[]> findAppointmentInfoForPanel(@Param("appointmentId") Long appointmentId);
+
 }
