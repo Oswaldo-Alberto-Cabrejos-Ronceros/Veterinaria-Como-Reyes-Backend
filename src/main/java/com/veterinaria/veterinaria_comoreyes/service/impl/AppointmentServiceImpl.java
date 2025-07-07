@@ -256,7 +256,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 manana.add(dto);
             } else if (hour >= 12 && hour < 17) {
                 tarde.add(dto);
-            } else{
+            } else {
                 noche.add(dto);
             }
         }
@@ -315,37 +315,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
     public Page<AppointmentListDTO> searchAppointments(String day, String headquarter, String categoryService,
             String appointmentStatus, Pageable pageable) {
 
-        Page<Object[]> results = appointmentRepository.searchAppointmentsNative(
-                day, headquarter, categoryService, appointmentStatus, pageable);
-
-        List<AppointmentListDTO> dtoList = results.getContent().stream()
-                .map(obj -> new AppointmentListDTO(
-                        ((Number) obj[0]).longValue(), // appointmentId
-                        (String) obj[1], // day
-                        (String) obj[2], // headquarter
-                        (String) obj[3], // categoryService
-                        mapStatus((String) obj[4]) // appointmentStatus
-                ))
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(dtoList, pageable, results.getTotalElements());
-    }
-
-    private String mapStatus(String status) {
-        if (status == null)
-            return null;
-        switch (status) {
-            case "PROGRAMADA":
-                return "Programada";
-            case "CONFIRMADA":
-                return "Confirmada";
-            case "COMPLETADA":
-                return "Completada";
-            case "CANCELADA":
-                return "Cancelada";
-            default:
-                return status;
+        StatusAppointment statusEnum = null;
+        if (appointmentStatus != null) {
+            try {
+                statusEnum = StatusAppointment.valueOf(appointmentStatus.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Estado de cita no válido: " + appointmentStatus);
+            }
         }
+
+        return appointmentRepository.searchAppointments(
+                day, headquarter, categoryService, statusEnum, pageable);
     }
 
     @Override
@@ -356,12 +336,12 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         for (Object[] row : rows) {
             AppointmentInfoPanelAdminDTO dto = new AppointmentInfoPanelAdminDTO(
-                    ((Number) row[0]).longValue(),  // appointment_id
-                    (String) row[1],                    // animal_name
-                    (String) row[2],                    // service_name
-                    (String) row[3],                    // client_name
-                    (String) row[4],                    // hour
-                    (String) row[5]                     // status
+                    ((Number) row[0]).longValue(), // appointment_id
+                    (String) row[1], // animal_name
+                    (String) row[2], // service_name
+                    (String) row[3], // client_name
+                    (String) row[4], // hour
+                    (String) row[5] // status
             );
             result.add(dto);
         }
@@ -375,14 +355,15 @@ public class AppointmentServiceImpl implements IAppointmentService {
         List<Object[]> rows = appointmentRepository.getAppointmentsInfoByDateAndHeadquarter(today, headquarterId);
 
         return rows.stream().map(row -> new AppointmentInfoPanelAdminDTO(
-                ((Number) row[0]).longValue(),  // appointment_id
-                (String) row[1],                    // animal_name
-                (String) row[2],                    // service_name
-                (String) row[3],                    // client_name
-                (String) row[4],                    // hour
-                (String) row[5]                     // status
+                ((Number) row[0]).longValue(), // appointment_id
+                (String) row[1], // animal_name
+                (String) row[2], // service_name
+                (String) row[3], // client_name
+                (String) row[4], // hour
+                (String) row[5] // status
         )).toList();
     }
+
     @Override
     public AppointmentStatsTodayDTO getTodayAppointmentStats() {
         List<Object[]> resultList = appointmentRepository.getTodayAppointmentStats();
@@ -411,18 +392,17 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         return rows.stream().map(row -> {
             return new CareAndAppointmentPanelEmployeeDTO(
-                    ((Number) row[0]).longValue(),   // id
-                    (String) row[1],                 // type
-                    (String) row[2],                 // animalName
-                    (String) row[3],                 // serviceName
-                    (String) row[4],                 // clientName
-                    (String) row[5],                 // date
-                    (String) row[6],                 // hour
-                    (String) row[7]                  // status
+                    ((Number) row[0]).longValue(), // id
+                    (String) row[1], // type
+                    (String) row[2], // animalName
+                    (String) row[3], // serviceName
+                    (String) row[4], // clientName
+                    (String) row[5], // date
+                    (String) row[6], // hour
+                    (String) row[7] // status
             );
         }).collect(Collectors.toList());
     }
-
 
     // En tu AppointmentServiceImpl.java
     @Transactional
