@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterListDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.StatusCare;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,5 +38,6 @@ public interface IHeadquarterService {
             String email,
             String district,
             String province,
+            Boolean status, // Cambiado de StatusCare a Boolean
             Pageable pageable);
 }

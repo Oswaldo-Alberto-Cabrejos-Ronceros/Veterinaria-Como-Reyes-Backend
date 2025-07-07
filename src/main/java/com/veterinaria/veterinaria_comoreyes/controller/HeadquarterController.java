@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployeesDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterListDTO;
+import com.veterinaria.veterinaria_comoreyes.entity.StatusCare;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -77,8 +78,9 @@ public class HeadquarterController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) String district,
             @RequestParam(required = false) String province,
+            @RequestParam(required = false) Boolean status,
             @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(headquarterService.searchHeadquarters(
-                name, phone, address, email, district, province, pageable));
+                name, phone, address, email, district, province, status, pageable));
     }
 }

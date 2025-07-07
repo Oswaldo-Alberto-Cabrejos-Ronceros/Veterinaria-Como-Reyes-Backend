@@ -2,7 +2,11 @@ package com.veterinaria.veterinaria_comoreyes.dto.Headquarter;
 
 import java.time.LocalTime;
 
+import com.veterinaria.veterinaria_comoreyes.entity.StatusCare;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import lombok.AllArgsConstructor;
@@ -23,4 +27,5 @@ public class HeadquarterListDTO {
     private String email;
     private String district;
     private String province;
+    private String status;
 }

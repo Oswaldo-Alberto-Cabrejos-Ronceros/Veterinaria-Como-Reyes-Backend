@@ -6,6 +6,7 @@ import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterEmployee
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter.HeadquarterListDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
+import com.veterinaria.veterinaria_comoreyes.entity.StatusCare;
 import com.veterinaria.veterinaria_comoreyes.exception.HeadquarterNotValidException;
 import com.veterinaria.veterinaria_comoreyes.mapper.HeadquarterMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.EmployeeRepository;
@@ -34,11 +35,12 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     private EmployeeRepository employeeRepository;
 
     @Autowired
-    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository,EmployeeRepository employeeRepository, HeadquarterMapper headquarterMapper, FilterStatus filterStatus){
-        this.headquarterRepository=headquarterRepository;
-        this.headquarterMapper=headquarterMapper;
-        this.filterStatus=filterStatus;
-        this.employeeRepository=employeeRepository;
+    public HeadquarterServiceImpl(HeadquarterRepository headquarterRepository, EmployeeRepository employeeRepository,
+            HeadquarterMapper headquarterMapper, FilterStatus filterStatus) {
+        this.headquarterRepository = headquarterRepository;
+        this.headquarterMapper = headquarterMapper;
+        this.filterStatus = filterStatus;
+        this.employeeRepository = employeeRepository;
     }
 
     @Transactional(readOnly = true)
@@ -104,8 +106,8 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     // Validar si la sede existe y esta disponible
     @Override
     public void validateHeadquarterAvailable(Long id) {
-        boolean exist= headquarterRepository.existsByHeadquarterIdAndStatusIsTrue(id);
-        if(!exist){
+        boolean exist = headquarterRepository.existsByHeadquarterIdAndStatusIsTrue(id);
+        if (!exist) {
             throw new HeadquarterNotValidException("Sede no disponoble");
         }
     }
@@ -118,7 +120,8 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
         // Mapear cada sede con sus empleados activos
         return headquarters.stream().map(hq -> {
             // Buscar empleados activos para cada sede
-            List<Employee> activeEmployees = employeeRepository.findByHeadquarter_HeadquarterIdAndStatusTrue(hq.getHeadquarterId());
+            List<Employee> activeEmployees = employeeRepository
+                    .findByHeadquarter_HeadquarterIdAndStatusTrue(hq.getHeadquarterId());
 
             // Mapear empleados a DTO
             List<EmployeeInfoPublicDTO> employeeInfoList = activeEmployees.stream()
@@ -138,10 +141,10 @@ public class HeadquarterServiceImpl implements IHeadquarterService {
     @Override
     @Transactional(readOnly = true)
     public Page<HeadquarterListDTO> searchHeadquarters(
-            String name, String phone, String address, 
-            String email, String district, String province, 
-            Pageable pageable) {
+            String name, String phone, String address,
+            String email, String district, String province,
+            Boolean status, Pageable pageable) {
         return headquarterRepository.searchHeadquartersWithFilters(
-                name, phone, address, email, district, province, pageable);
+                name, phone, address, email, district, province, status, pageable);
     }
 }
