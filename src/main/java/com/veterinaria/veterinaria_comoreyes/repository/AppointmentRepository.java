@@ -331,4 +331,55 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         """)
     List<Object[]> findAppointmentInfoForPanel(@Param("appointmentId") Long appointmentId);
 
+    @Query(value = """
+    SELECT 
+        an.animal_id,
+        TO_CHAR(an.birth_date, 'dd/MM/yyyy') AS birth_date,
+        an.name,
+        an.url_image,
+        an.weight,
+        b.name AS breed_name,
+        s.name AS species_name,
+        an.animal_comment
+    FROM appointment a
+    JOIN animal an ON a.animal_id = an.animal_id
+    JOIN breed b ON an.breed_id = b.breed_id
+    JOIN specie s ON b.id_specie = s.specie_id
+    WHERE a.appointment_id = :appointmentId
+    """, nativeQuery = true)
+    List<Object[]> findAnimalInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+    @Query(value = """
+        SELECT 
+            cl.client_id,
+            cl.name || ' ' || cl.last_name AS full_name,
+            cl.phone,
+            u.email,
+            cl.address
+        FROM appointment a
+        JOIN animal an ON a.animal_id = an.animal_id
+        JOIN client cl ON cl.client_id = an.client_id
+        LEFT JOIN users u ON u.user_id = cl.id_user
+        WHERE a.appointment_id = :appointmentId
+        """, nativeQuery = true)
+    List<Object[]> findClientInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+    @Query(value = """
+    SELECT 
+        p.payment_id,
+        p.amount,
+        vs.name AS service_name,
+        pm.payment_method_id,
+        pm.name AS payment_method,
+        p.status
+    FROM payment p
+    JOIN appointment a ON a.appointment_id = p.appointment_id
+    JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    JOIN payment_method pm ON pm.payment_method_id = p.payment_method_id
+    WHERE p.appointment_id = :appointmentId
+""", nativeQuery = true)
+    List<Object[]> findPaymentInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+
 }
