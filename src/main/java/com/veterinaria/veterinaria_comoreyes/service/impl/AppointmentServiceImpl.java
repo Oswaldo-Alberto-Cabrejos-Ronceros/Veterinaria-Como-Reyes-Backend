@@ -390,22 +390,23 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
-    public List<CareAndAppointmentPanelEmployeeDTO> getCareAndAppointmentsForEmployee(Long employeeId) {
-        List<Object[]> rows = appointmentRepository.findCareAndAppointmentForEmployee(employeeId);
+    public List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsForEmployee(Long employeeId) {
+        List<Object[]> rows = appointmentRepository.findAppointmentsByEmployeeId(employeeId);
 
-        return rows.stream().map(row -> {
-            return new CareAndAppointmentPanelEmployeeDTO(
-                    ((Number) row[0]).longValue(), // id
-                    (String) row[1], // type
-                    (String) row[2], // animalName
-                    (String) row[3], // serviceName
-                    (String) row[4], // clientName
-                    (String) row[5], // date
-                    (String) row[6], // hour
-                    (String) row[7] // status
-            );
-        }).collect(Collectors.toList());
+        System.out.println("Filas encontradas para empleado ID " + employeeId + ": " + rows.size());
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                row[0] != null ? ((Number) row[0]).longValue() : null, // id
+                row[1] != null ? row[1].toString() : null,             // type
+                row[2] != null ? row[2].toString() : null,             // animalName
+                row[3] != null ? row[3].toString() : null,             // serviceName
+                row[4] != null ? row[4].toString() : null,             // clientName
+                row[5] != null ? row[5].toString() : null,             // date
+                row[6] != null ? row[6].toString() : null,             // hour
+                row[7] != null ? row[7].toString() : null              // status
+        )).collect(Collectors.toList());
     }
+
 
 
     @Transactional

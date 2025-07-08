@@ -43,13 +43,13 @@ public interface IAppointmentService {
 
     List<AppointmentInfoPanelAdminDTO> getAppointmentsInfoByDateAndHeadquarter(Long headquarterId);
 
+    List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsForEmployee(Long employeeId);
+
     AppointmentResponseDTO confirmAppointmentByEmail(Long id);
 
     AppointmentStatsTodayDTO getTodayAppointmentStats();
 
     AppointmentStatsTodayDTO getTodayAppointmentStatsByHeadquarter(Long headquarterId);
-
-    List<CareAndAppointmentPanelEmployeeDTO> getCareAndAppointmentsForEmployee(Long employeeId);
 
     Optional<InfoAppointmentForPanelDTO> getAppointmentInfoForPanel(Long appointmentId);
 

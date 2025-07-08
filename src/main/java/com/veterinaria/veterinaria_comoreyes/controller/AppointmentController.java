@@ -162,8 +162,8 @@ public class AppointmentController {
 
     /************** PANEL EMPLOYEE ********/
     @GetMapping("/panel-employee/{employeeId}")
-    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsAndCaresForEmployee(@PathVariable Long employeeId) {
-        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getCareAndAppointmentsForEmployee(employeeId);
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsForEmployee(@PathVariable Long employeeId) {
+        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getAppointmentsForEmployee(employeeId);
         return ResponseEntity.ok(data);
     }
     /************** VIEW INFO APPOINTMENT ********/
@@ -193,8 +193,5 @@ public class AppointmentController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-
-
 
 }
