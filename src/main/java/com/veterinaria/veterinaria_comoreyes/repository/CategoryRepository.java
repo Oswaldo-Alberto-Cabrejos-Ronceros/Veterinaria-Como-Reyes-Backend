@@ -33,4 +33,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             @Param("name") String name,
             @Param("status") Boolean status,
             Pageable pageable);
+
+    @Modifying
+    @Query(value = "UPDATE veterinary_service SET status = 0 WHERE id_category = :categoryId", nativeQuery = true)
+    void disableVeterinaryServicesByCategory(@Param("categoryId") Long categoryId);
+
 }

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -68,4 +69,17 @@ public class HeadquarterVetServiceController {
         }
         return ResponseEntity.ok(vets);
     }
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<Void> enable(@PathVariable Long id) {
+        headquarterVetServiceService.enableHeadquarterVetService(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PatchMapping("/{id}/capacity")
+    public ResponseEntity<Void> updateCapacity(@PathVariable Long id,
+                                               @RequestBody Map<String, Integer> body) {
+        Integer capacity = body.get("simultaneousCapacity");
+        headquarterVetServiceService.updateSimultaneousCapacity(id, capacity);
+        return ResponseEntity.noContent().build();
+    }
+
 }

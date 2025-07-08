@@ -78,6 +78,7 @@ public class SpecieServiceImpl implements ISpecieService {
         Specie specie = specieRepository.findBySpecieIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Specie not found with id: " + id));
         specie.setStatus(false);
+        specieRepository.disableBreedsBySpecieId(id); // Desactiva las razas asociadas
         specieRepository.save(specie);
     }
 

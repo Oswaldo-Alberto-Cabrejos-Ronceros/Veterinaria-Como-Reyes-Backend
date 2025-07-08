@@ -31,4 +31,6 @@ public class HeadquarterVetService extends EntityWithStatus{
     @JoinColumn(name = "id_service")
     private VeterinaryService veterinaryService;
 
+    private Integer simultaneousCapacity;
+
 }
