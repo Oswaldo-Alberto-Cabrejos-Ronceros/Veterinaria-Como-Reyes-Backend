@@ -159,7 +159,7 @@ public class CareServiceImpl implements ICareService {
 
         paymentRepository.updateCareIdByPaymentId(paymentId, careId);
 
-        appointmentService.confirmAppointment(appointment.getAppointmentId());
+        appointmentService.completeAppointment(appointment.getAppointmentId());
 
         return createdCare;
     }

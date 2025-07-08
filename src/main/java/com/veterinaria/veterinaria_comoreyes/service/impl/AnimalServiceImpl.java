@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForClientDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalWeightUpdateDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.*;
 import com.veterinaria.veterinaria_comoreyes.entity.Animal;
 import com.veterinaria.veterinaria_comoreyes.entity.Breed;
 import com.veterinaria.veterinaria_comoreyes.entity.Client;
@@ -33,6 +30,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
