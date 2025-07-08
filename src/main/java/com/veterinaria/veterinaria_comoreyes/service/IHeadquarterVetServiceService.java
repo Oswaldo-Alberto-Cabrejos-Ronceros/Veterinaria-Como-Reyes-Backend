@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface IHeadquarterVetServiceService {
 
@@ -29,4 +30,10 @@ public interface IHeadquarterVetServiceService {
     Double priceService(Long id);
 
     List<EmployeeBasicInfoDTO> getVeterinariansByHvs(Long hvsId);
+
+    @Transactional
+    void updateSimultaneousCapacity(Long id, Integer newCapacity);
+
+    @Transactional
+    void enableHeadquarterVetService(Long id);
 }

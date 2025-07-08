@@ -20,4 +20,8 @@ public class HeadquarterVetServiceDTO {
 
     @NotNull(message = "El servicio veterinario no puede ser nulo")
     private VeterinaryServiceDTO service;
+
+    private Integer simultaneousCapacity;
+
+    private String status;
 }

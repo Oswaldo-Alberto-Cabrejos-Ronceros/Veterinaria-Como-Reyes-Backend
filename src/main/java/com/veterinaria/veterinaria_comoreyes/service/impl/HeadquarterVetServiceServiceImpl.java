@@ -90,9 +90,17 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
             throw new RuntimeException("La relación ya existe entre esta sede y servicio.");
         }
 
-        HeadquarterVetService entity = new HeadquarterVetService(null, headquarter, service);
-        return headquarterVetServiceMapper.mapToHeadquarterVetServiceDTO(headquarterVetServiceRepository.save(entity));
+        HeadquarterVetService entity = new HeadquarterVetService();
+        entity.setHeadquarter(headquarter);
+        entity.setVeterinaryService(service);
+        entity.setSimultaneousCapacity(dto.getSimultaneousCapacity());
+        entity.setStatus(true); // Activado por defecto al crear
+
+        return headquarterVetServiceMapper.mapToHeadquarterVetServiceDTO(
+                headquarterVetServiceRepository.save(entity)
+        );
     }
+
 
     @Transactional
     @Override
@@ -109,10 +117,12 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
 
         existing.setHeadquarter(headquarter);
         existing.setVeterinaryService(service);
+        existing.setSimultaneousCapacity(dto.getSimultaneousCapacity());
 
         return headquarterVetServiceMapper
                 .mapToHeadquarterVetServiceDTO(headquarterVetServiceRepository.save(existing));
     }
+
 
     @Transactional
     @Override
@@ -157,6 +167,27 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
                         (String) row[1]
                 ))
                 .toList();
+    }
+
+    @Transactional
+    @Override
+    public void updateSimultaneousCapacity(Long id, Integer newCapacity) {
+        HeadquarterVetService entity = headquarterVetServiceRepository.findByIdAndStatusIsTrue(id)
+                .orElseThrow(() -> new RuntimeException("Relación no encontrada con ID: " + id));
+
+        entity.setSimultaneousCapacity(newCapacity);
+        headquarterVetServiceRepository.save(entity);
+    }
+
+    @Transactional
+    @Override
+    public void enableHeadquarterVetService(Long id) {
+        // No usamos el filtro de activos para buscar también los inactivos
+        HeadquarterVetService entity = headquarterVetServiceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Relación no encontrada con ID: " + id));
+
+        entity.setStatus(true);
+        headquarterVetServiceRepository.save(entity);
     }
 
 
