@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomeStatsTodayDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.*;
 import com.veterinaria.veterinaria_comoreyes.entity.PaymentStatus;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import jakarta.validation.Valid;
@@ -106,5 +103,11 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getTodayIncomeStats());
     }
 
+    @GetMapping("/recent-completed/{headquarterId}")
+    public ResponseEntity<List<RecentPaymentsDTO>> getRecentCompletedPayments(
+            @PathVariable Long headquarterId) {
+        List<RecentPaymentsDTO> data = paymentService.getRecentCompletedPayments(headquarterId);
+        return ResponseEntity.ok(data);
+    }
 
 }

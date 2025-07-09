@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
@@ -167,7 +168,35 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 """, nativeQuery = true)
     BigDecimal getTodayIncome(@Param("today") String today);
 
-
-
+    @Query(value = """
+    SELECT
+        p.payment_id,
+        INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_full_name,
+        UPPER(SUBSTR(cl.name, 1, 1) || SUBSTR(cl.last_name, 1, 1)) AS client_initials,
+        an.name AS animal_name,
+        vs.name AS service_name,
+        p.amount,
+        CASE 
+            WHEN p.status = 'COMPLETADA' THEN TO_CHAR(p.payment_date_time, 'DD/MM/YYYY') 
+            ELSE NULL 
+        END AS payment_date,
+        CASE 
+            WHEN p.status = 'COMPLETADA' THEN TO_CHAR(p.payment_date_time, 'HH24:MI') 
+            ELSE NULL 
+        END AS payment_time,
+        p.status
+    FROM payment p
+    LEFT JOIN care c ON c.care_id = p.care_id
+    LEFT JOIN appointment a ON a.appointment_id = p.appointment_id AND p.care_id IS NULL
+    LEFT JOIN animal an ON an.animal_id = COALESCE(c.animal_id, a.animal_id)
+    LEFT JOIN client cl ON cl.client_id = an.client_id
+    LEFT JOIN headquarter_vet_service hvs ON hvs.id = COALESCE(c.headquarter_vetservice_id, a.headquarter_vetservice_id)
+    LEFT JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    WHERE p.status = 'COMPLETADA'
+      AND hvs.id_headquarter = :headquarterId
+    ORDER BY p.payment_date_time DESC
+    FETCH FIRST 10 ROWS ONLY
+""", nativeQuery = true)
+    List<Object[]> findRecentCompletedPaymentsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
 }
