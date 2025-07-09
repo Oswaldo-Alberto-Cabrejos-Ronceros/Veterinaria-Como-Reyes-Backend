@@ -92,7 +92,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                      AND ap.hora_clave_str = TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI')
                 WHERE hs.id = :headquarterServiceId
                   AND (h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE')) < h.end_time
-                  AND NVL(ap.total_citas, 0) < s.simultaneous_capacity
+                  AND NVL(ap.total_citas, 0) < hs.simultaneous_capacity
                   AND (
                     TO_DATE(:fechaSeleccionada, 'YYYY-MM-DD') > TRUNC(SYSDATE)
                     OR (
