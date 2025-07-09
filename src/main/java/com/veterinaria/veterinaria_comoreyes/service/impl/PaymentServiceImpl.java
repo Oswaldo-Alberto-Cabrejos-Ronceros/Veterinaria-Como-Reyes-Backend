@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -268,5 +269,36 @@ public class PaymentServiceImpl implements IPaymentService {
         )).collect(Collectors.toList());
     }
 
+    @Override
+    public WeeklyIncomeDTO getWeeklyIncomeGeneral() {
+        String startDate = getStartOfWeekDate();
+        List<Object[]> rows = paymentRepository.getWeeklyIncomeGeneral(startDate);
+        return mapToDTO(rows);
+    }
+
+    @Override
+    public WeeklyIncomeDTO getWeeklyIncomeByHeadquarter(Long headquarterId) {
+        String startDate = getStartOfWeekDate();
+        List<Object[]> rows = paymentRepository.getWeeklyIncomeByHeadquarter(startDate, headquarterId);
+        return mapToDTO(rows);
+    }
+
+    private String getStartOfWeekDate() {
+        LocalDate today = LocalDate.now();
+        LocalDate start = today.minusDays(6);
+        return start.toString(); // Formato yyyy-MM-dd
+    }
+
+    private WeeklyIncomeDTO mapToDTO(List<Object[]> rows) {
+        List<String> days = new ArrayList<>();
+        List<BigDecimal> totals = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            days.add(((String) row[0]).strip());
+            totals.add((BigDecimal) row[1]);
+        }
+
+        return new WeeklyIncomeDTO(days, totals);
+    }
 
 }

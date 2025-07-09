@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/panel/veterinarians")
+@RequestMapping("/api/panel/veterinarians")
 public class VeterinarianController {
 
     private final IVeterinaryRecordService veterinaryRecordService;
