@@ -43,4 +43,6 @@ public interface IClientService {
     ClientStatsPanelDTO getClientStats();
 
     ClientStatsPanelDTO getClientStatsByHeadquarter(Long headquarterId);
+
+    ClientStatsTodayDTO getClientStatsToday();
 }

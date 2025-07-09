@@ -34,4 +34,9 @@ public interface SpecieRepository extends JpaRepository<Specie, Long> {
             @Param("name") String name,
             @Param("status") Boolean status,
             Pageable pageable);
+
+    @Modifying
+    @Query(value = "UPDATE breed SET status = 0 WHERE id_specie = :specieId", nativeQuery = true)
+    void disableBreedsBySpecieId(@Param("specieId") Long specieId);
+
 }

@@ -92,7 +92,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                      AND ap.hora_clave_str = TO_CHAR(h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE'), 'HH24:MI')
                 WHERE hs.id = :headquarterServiceId
                   AND (h.start_time + NUMTODSINTERVAL((gen.lvl - 1) * s.duration, 'MINUTE')) < h.end_time
-                  AND NVL(ap.total_citas, 0) < s.simultaneous_capacity
+                  AND NVL(ap.total_citas, 0) < hs.simultaneous_capacity
                   AND (
                     TO_DATE(:fechaSeleccionada, 'YYYY-MM-DD') > TRUNC(SYSDATE)
                     OR (
@@ -254,47 +254,28 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Object[]> getTodayAppointmentStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
     @Query(value = """
-            SELECT *
-            FROM (
-              SELECT
-                a.appointment_id AS id,
-                'CITA' AS type,
-                an.name AS animal_name,
-                vs.name AS service_name,
-                cl.name || ' ' || cl.last_name AS client_name,
-                TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
-                TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
-                a.status_appointments AS status
-              FROM appointment a
-              JOIN animal an ON an.animal_id = a.animal_id
-              JOIN client cl ON cl.client_id = an.client_id
-              JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
-              JOIN veterinary_service vs ON vs.service_id = hvs.id_service
-              WHERE a.status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
-                AND a.employee_id = :employeeId
+    SELECT
+        a.appointment_id AS id,
+        'CITA' AS type,
+        an.animal_id AS animal_id,
+        an.name AS animal_name,
+        vs.name AS service_name,
+        cl.name || ' ' || cl.last_name AS client_name,
+        TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
+        TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
+        a.status_appointments AS status,
+        a.comentario
+    FROM appointment a
+    JOIN animal an ON an.animal_id = a.animal_id
+    JOIN client cl ON cl.client_id = an.client_id
+    JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    WHERE TRIM(a.status_appointments) IN ('PROGRAMADA', 'CONFIRMADA')
+      AND a.employee_id = :employeeId
+    ORDER BY fecha ASC, hora ASC
+""", nativeQuery = true)
+    List<Object[]> findAppointmentsByEmployeeId(@Param("employeeId") Long employeeId);
 
-              UNION ALL
-
-              SELECT
-                c.care_id AS id,
-                'ATENCIÓN' AS type,
-                an.name AS animal_name,
-                vs.name AS service_name,
-                cl.name || ' ' || cl.last_name AS client_name,
-                TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
-                TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
-                c.status_care AS status
-              FROM care c
-              JOIN animal an ON an.animal_id = c.animal_id
-              JOIN client cl ON cl.client_id = an.client_id
-              JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
-              JOIN veterinary_service vs ON vs.service_id = hvs.id_service
-              WHERE c.status_care = 'EN_CURSO'
-                AND c.employee_id = :employeeId
-            )
-            ORDER BY fecha ASC, hora ASC
-            """, nativeQuery = true)
-    List<Object[]> findCareAndAppointmentForEmployee(@Param("employeeId") Long employeeId);
 
     @Query(nativeQuery = true, value = """
         SELECT 
@@ -330,5 +311,88 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         WHERE a.appointment_id = :appointmentId
         """)
     List<Object[]> findAppointmentInfoForPanel(@Param("appointmentId") Long appointmentId);
+
+    @Query(value = """
+    SELECT 
+        an.animal_id,
+        TO_CHAR(an.birth_date, 'dd/MM/yyyy') AS birth_date,
+        an.name,
+        an.url_image,
+        an.weight,
+        b.name AS breed_name,
+        s.name AS species_name,
+        an.animal_comment
+    FROM appointment a
+    JOIN animal an ON a.animal_id = an.animal_id
+    JOIN breed b ON an.breed_id = b.breed_id
+    JOIN specie s ON b.id_specie = s.specie_id
+    WHERE a.appointment_id = :appointmentId
+    """, nativeQuery = true)
+    List<Object[]> findAnimalInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+    @Query(value = """
+        SELECT 
+            cl.client_id,
+            cl.name || ' ' || cl.last_name AS full_name,
+            cl.phone,
+            u.email,
+            cl.address
+        FROM appointment a
+        JOIN animal an ON a.animal_id = an.animal_id
+        JOIN client cl ON cl.client_id = an.client_id
+        LEFT JOIN users u ON u.user_id = cl.id_user
+        WHERE a.appointment_id = :appointmentId
+        """, nativeQuery = true)
+    List<Object[]> findClientInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+    @Query(value = """
+    SELECT 
+        p.payment_id,
+        p.amount,
+        vs.name AS service_name,
+        pm.payment_method_id,
+        pm.name AS payment_method,
+        p.status
+    FROM payment p
+    JOIN appointment a ON a.appointment_id = p.appointment_id
+    JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    JOIN payment_method pm ON pm.payment_method_id = p.payment_method_id
+    WHERE p.appointment_id = :appointmentId
+""", nativeQuery = true)
+    List<Object[]> findPaymentInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
+
+    @Query(value = """
+        SELECT 
+            COUNT(*) AS totalAppointments,
+            COUNT(CASE WHEN a.status_appointments = 'CONFIRMADA' THEN 1 END) AS confirmedAppointments,
+            COUNT(CASE WHEN a.status_appointments = 'PROGRAMADA' THEN 1 END) AS pendingAppointments
+        FROM appointment a
+        WHERE TRUNC(a.schedule_date_time) = TO_DATE(:dateStr, 'yyyy-MM-dd')
+        """, nativeQuery = true)
+    List<Object[]> getAppointmentStatsByDate(@Param("dateStr") String dateStr);
+
+    @Query(value = """
+    SELECT
+        a.appointment_id AS id,
+        'CITA' AS type,
+        an.animal_id AS animal_id,
+        an.name AS animal_name,
+        vs.name AS service_name,
+        cl.name || ' ' || cl.last_name AS client_name,
+        TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
+        TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
+        a.status_appointments AS status,
+        a.comentario
+    FROM appointment a
+    JOIN animal an ON an.animal_id = a.animal_id
+    JOIN client cl ON cl.client_id = an.client_id
+    JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    WHERE TRIM(a.status_appointments) IN ('PROGRAMADA', 'CONFIRMADA')
+      AND hvs.id_headquarter = :headquarterId
+    ORDER BY fecha ASC, hora ASC
+""", nativeQuery = true)
+    List<Object[]> findAppointmentsByHeadquarterId(@Param("headquarterId") Long headquarterId);
 
 }

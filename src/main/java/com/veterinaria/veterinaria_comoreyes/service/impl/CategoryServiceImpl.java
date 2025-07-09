@@ -77,6 +77,7 @@ public class CategoryServiceImpl implements ICategoryService {
         Category category = categoryRepository.findByCategoryIdAndStatusIsTrue(id)
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
         category.setStatus(false); // Inactivo
+        categoryRepository.disableVeterinaryServicesByCategory(id); // Desactivar servicios asociados
         categoryRepository.save(category);
     }
 

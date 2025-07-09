@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.*;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
@@ -19,7 +16,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,7 +72,7 @@ public class CareServiceImpl implements ICareService {
     @Override
     public CareDTO createCare(CareDTO careDTO) {
         Care care = careMapper.toEntity(careDTO);
-        care.setStatusCare(StatusCare.EN_CURSO);
+        care.setStatusCare(StatusCare.EN_ESPERA);
         care.setCareDateTime(LocalDateTime.now());
         // ✅ SOLUCIÓN: Cargar el empleado desde la BD si viene el ID
         if (careDTO.getEmployeeId() != null) {
@@ -93,6 +92,14 @@ public class CareServiceImpl implements ICareService {
         Care care = careRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Atención no encontrada con id: " + id));
         care.setStatusCare(StatusCare.COMPLETADO);
+        Care updated = careRepository.save(care);
+        return careMapper.toDTO(updated);
+    }
+    @Override
+    public CareDTO onGoingCare(Long id) {
+        Care care = careRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Atención no encontrada con id: " + id));
+        care.setStatusCare(StatusCare.EN_CURSO);
         Care updated = careRepository.save(care);
         return careMapper.toDTO(updated);
     }
@@ -148,7 +155,7 @@ public class CareServiceImpl implements ICareService {
         careDTO.setEmployeeId(dto.getEmployeeId());
         careDTO.setHeadquarterVetServiceId(appointment.getHeadquarterVetService().getId());
         careDTO.setDateTime(LocalDateTime.now()); // Fecha y hora actual de atención
-        careDTO.setStatusCare(StatusCare.EN_CURSO); // Estado inicial
+        careDTO.setStatusCare(StatusCare.EN_ESPERA); // Estado inicial
 
         // 3. Crear el registro de atención (Care)
         CareDTO createdCare = createCare(careDTO);
@@ -159,7 +166,7 @@ public class CareServiceImpl implements ICareService {
 
         paymentRepository.updateCareIdByPaymentId(paymentId, careId);
 
-        appointmentService.confirmAppointment(appointment.getAppointmentId());
+        appointmentService.completeAppointment(appointment.getAppointmentId());
 
         return createdCare;
     }
@@ -222,6 +229,58 @@ public class CareServiceImpl implements ICareService {
         return new PageImpl<>(content, pageable, resultPage.getTotalElements());
     }
 
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getCaresForEmployee(Long employeeId) {
+        List<Object[]> rows = careRepository.findCaresByEmployeeId(employeeId);
+
+        return rows.stream().map(row -> {
+            return new CareAndAppointmentPanelEmployeeDTO(
+                    ((Number) row[0]).longValue(), // id
+                    (String) row[1], // type
+                    row[2] != null ? ((Number) row[2]).longValue() : null, // animalId
+                    (String) row[2], // animalName
+                    (String) row[3], // serviceName
+                    (String) row[4], // clientName
+                    (String) row[5], // date
+                    (String) row[6], // hour
+                    (String) row[7], // status
+                    (String) row[8] // comentAppointment -> null
+            );
+        }).collect(Collectors.toList());
+    }
+    @Override
+    public CareStatsTodayDTO getCareStatsToday() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        List<Object[]> rows = careRepository.getCareStatsToday(today);
+
+        if (rows.isEmpty()) {
+            return new CareStatsTodayDTO(0L, 0L);
+        }
+
+        Object[] row = rows.get(0);
+        return new CareStatsTodayDTO(
+                ((Number) row[0]).longValue(), // totalCares
+                ((Number) row[1]).longValue()  // todayCares
+        );
+    }
+
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getCaresByHeadquarterId(Long headquarterId) {
+        List<Object[]> rows = careRepository.findCaresByHeadquarterId(headquarterId);
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                ((Number) row[0]).longValue(),        // id
+                (String) row[1],                      // type ("ATENCIÓN")
+                ((Number) row[2]).longValue(),        // animalId
+                (String) row[3],                      // animalName
+                (String) row[4],                      // serviceName
+                (String) row[5],                      // clientName
+                (String) row[6],                      // date
+                (String) row[7],                      // hour
+                (String) row[8],                      // status
+                (String) row[9]                       // commentAppointment (vacío)
+        )).collect(Collectors.toList());
+    }
 
 
     // @Override

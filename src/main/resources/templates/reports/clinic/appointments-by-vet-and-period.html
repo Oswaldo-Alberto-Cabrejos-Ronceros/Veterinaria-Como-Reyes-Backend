@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Reporte - Citas por Veterinario y Periodo</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th {
+            background-color: #2980b9;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            font-size: 13px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        p {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 th:text="${title}">Reporte de Citas</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Veterinario</th>
+                <th>Periodo</th>
+                <th>Citas Completadas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${data}">
+                <td th:text="${item.vetName}">Nombre Veterinario</td>
+                <td th:text="${item.period}">Periodo</td>
+                <td th:text="${item.completedAppointments}">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Total de Citas: <span th:text="${total}">0</span></p>
+</body>
+
+</html>

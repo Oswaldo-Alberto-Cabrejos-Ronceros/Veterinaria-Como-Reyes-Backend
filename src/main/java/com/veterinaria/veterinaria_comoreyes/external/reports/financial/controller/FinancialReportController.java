@@ -5,12 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.veterinaria.veterinaria_comoreyes.exception.ReportGenerationException;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.dto.IncomeByPeriodDTO;
@@ -18,10 +13,12 @@ import com.veterinaria.veterinaria_comoreyes.external.reports.financial.enums.Re
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.service.FinancialReportService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/reports/financial")
 @RequiredArgsConstructor
+@Slf4j
 public class FinancialReportController {
 
     private final FinancialReportService financialReportService;
@@ -46,7 +43,15 @@ public class FinancialReportController {
                 return buildPdfResponse(pdf, period);
             }
         } catch (ReportGenerationException e) {
-            return handleReportError(e);
+            log.error("Error al generar el reporte PDF/Excel: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(("Error al generar el reporte: " + e.getMessage()).getBytes());
+        } catch (Exception e) {
+            log.error("Error inesperado: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body(("Error interno del servidor: " + e.getMessage()).getBytes());
         }
     }
 
@@ -67,27 +72,91 @@ public class FinancialReportController {
                 .body(excel);
     }
 
-    private ResponseEntity<ErrorResponse> handleReportError(ReportGenerationException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        "REPORT_GENERATION_ERROR",
-                        "Error al generar el reporte: " + e.getMessage(),
-                        e.getCause() != null ? e.getCause().getMessage() : null));
+    @GetMapping("/income/by-service")
+    public ResponseEntity<byte[]> getIncomeByServicePdf() {
+        try {
+            var data = financialReportService.getIncomeByService();
+
+            if (data == null || data.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            byte[] pdf = financialReportService.generateIncomeByServicePdf(data);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header("Content-Disposition", "inline; filename=ingresos_por_servicio.pdf")
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error al generar PDF ingresos por servicio", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(
-                        "INTERNAL_SERVER_ERROR",
-                        "Error interno del servidor",
-                        ex.getMessage()));
+    @GetMapping("/income/by-specie")
+    public ResponseEntity<byte[]> getIncomeBySpeciePdf() {
+        try {
+            var data = financialReportService.getIncomeBySpecie();
+
+            if (data == null || data.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            byte[] pdf = financialReportService.generateIncomeBySpeciePdf(data);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header("Content-Disposition", "inline; filename=ingresos_por_especie.pdf")
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error al generar PDF ingresos por especie", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    @RequiredArgsConstructor
-    private static class ErrorResponse {
-        private final String code;
-        private final String message;
-        private final String detail;
+    @GetMapping("/payment-method")
+    public ResponseEntity<byte[]> getPaymentMethodExcel() {
+        try {
+            var data = financialReportService.getIncomeByPaymentMethod();
+
+            if (data == null || data.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            byte[] excel = financialReportService.generatePaymentMethodExcel(data);
+            return ResponseEntity.ok()
+                    .contentType(MediaType
+                            .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .header("Content-Disposition", "attachment; filename=metodos_pago.xlsx")
+                    .body(excel);
+        } catch (Exception e) {
+            log.error("Error al generar Excel de métodos de pago", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
+
+
+    @GetMapping("/income/by-period-service/{period}")
+public ResponseEntity<byte[]> getIncomeByPeriodAndServicePdf(
+        @PathVariable ReportPeriod period) {
+
+    try {
+        var data = financialReportService.getIncomeByPeriodAndService(period);
+
+        if (data == null || data.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        byte[] pdf = financialReportService.generateIncomeByPeriodAndServicePdf(data, period);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header("Content-Disposition",
+                        "inline; filename=ingresos_por_periodo_servicio_" + period.name().toLowerCase() + ".pdf")
+                .body(pdf);
+
+    } catch (Exception e) {
+        log.error("Error al generar PDF ingresos por servicio y periodo", e);
+        return ResponseEntity.internalServerError().build();
+    }
+}
+
 }

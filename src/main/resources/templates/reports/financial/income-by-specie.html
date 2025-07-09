@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}">Reporte de Ingresos por Especie</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 30px; }
+        h2 { text-align: center; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        img { height: 40px; width: auto; }
+        .total-row { font-weight: bold; background-color: #f0f0f0; }
+        .footer { margin-top: 30px; font-size: 10px; color: #777; text-align: center; }
+    </style>
+</head>
+<body>
+<h2 th:text="${title}">Ingresos por Especie</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Especie</th>
+            <th>Total</th>
+            <th>Cantidad</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="item : ${data}">
+            <td th:text="${item.specieName}">Perro</td>
+            <td th:text="${item.total}">S/0.00</td>
+            <td th:text="${item.count}">0</td>
+        </tr>
+        <tr class="total-row">
+            <td>Total General</td>
+            <td th:text="${total}" colspan="2">S/0.00</td>
+        </tr>
+    </tbody>
+</table>
+<div class="footer">
+    Generado el <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">fecha</span>
+</div>
+</body>
+</html>

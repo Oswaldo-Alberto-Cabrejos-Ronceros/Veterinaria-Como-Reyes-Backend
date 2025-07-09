@@ -1,6 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientInfoForAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentInfoForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareAndAppointmentPanelEmployeeDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
@@ -159,8 +162,8 @@ public class AppointmentController {
 
     /************** PANEL EMPLOYEE ********/
     @GetMapping("/panel-employee/{employeeId}")
-    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsAndCaresForEmployee(@PathVariable Long employeeId) {
-        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getCareAndAppointmentsForEmployee(employeeId);
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsForEmployee(@PathVariable Long employeeId) {
+        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getAppointmentsForEmployee(employeeId);
         return ResponseEntity.ok(data);
     }
     /************** VIEW INFO APPOINTMENT ********/
@@ -170,6 +173,38 @@ public class AppointmentController {
         return appointmentService.getAppointmentInfoForPanel(appointmentId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/panel-info/{appointmentId}/animal-info")
+    public ResponseEntity<AnimalInfoForAppointmentDTO> getAnimalInfo(@PathVariable Long appointmentId) {
+        return appointmentService.getAnimalInfoByAppointmentId(appointmentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/panel-info/{appointmentId}/client-info")
+    public ResponseEntity<ClientInfoForAppointmentDTO> getClientInfoByAppointmentId(@PathVariable Long appointmentId) {
+        return appointmentService.getClientInfoForAppointment(appointmentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/panel-info/{appointmentId}/payment-info")
+    public ResponseEntity<PaymentInfoForAppointmentDTO> getPaymentInfoByAppointment(
+            @PathVariable Long appointmentId) {
+        return appointmentService.getPaymentInfoByAppointmentId(appointmentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /************** Panel Receptionist ********/
+    @GetMapping("/panel-receptionist/stats")
+    public ResponseEntity<AppointmentStatsForReceptionistDTO> getStatsByDate() {
+        return ResponseEntity.ok(appointmentService.getStatsByDate());
+    }
+    @GetMapping("/panel-receptionist/{headquarterId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsByHeadquarterId(
+            @PathVariable Long headquarterId) {
+
+        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getAppointmentsByHeadquarterId(headquarterId);
+        return ResponseEntity.ok(data);
     }
 
 }

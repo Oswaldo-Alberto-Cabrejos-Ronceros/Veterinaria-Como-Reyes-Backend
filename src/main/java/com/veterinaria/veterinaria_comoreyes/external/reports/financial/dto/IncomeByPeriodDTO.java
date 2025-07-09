@@ -4,13 +4,13 @@ public class IncomeByPeriodDTO {
     private String period;
     private Double total;
     
-    // Constructor explícitamente mapeado para Hibernate
-    public IncomeByPeriodDTO(String period, Double total) {
+    // Constructor modificado para aceptar diferentes tipos numéricos
+    public IncomeByPeriodDTO(String period, Number total) {
         this.period = period;
-        this.total = total;
+        this.total = total != null ? total.doubleValue() : 0.0;
     }
     
-    // Getters necesarios
+    // Getters
     public String getPeriod() {
         return period;
     }
@@ -19,7 +19,6 @@ public class IncomeByPeriodDTO {
         return total;
     }
     
-    // Métodos adicionales
     public String getFormattedTotal() {
         return String.format("S/%,.2f", total);
     }

@@ -2,10 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import java.util.List;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.*;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -23,6 +20,8 @@ public interface ICareService {
 
     CareDTO completeCare(Long id);
 
+    CareDTO onGoingCare(Long id);
+
     CareDTO updateCare(Long id, CareDTO careDTO);
 
     UserBuyerDTO getInfoForPaymentMerPago(Long careId);
@@ -34,6 +33,12 @@ public interface ICareService {
     CareDTO createCareFromRequest(CareRequestDTO dto);
 
     Page<CareListDTO> searchCares(String fecha, Long idHeadquarter, Long idService, String estado, Pageable pageable);
+
+    List<CareAndAppointmentPanelEmployeeDTO> getCaresForEmployee(Long employeeId);
+
+    CareStatsTodayDTO getCareStatsToday();
+
+    List<CareAndAppointmentPanelEmployeeDTO> getCaresByHeadquarterId(Long headquarterId);
 
     // void deleteCare(Long id);
 } 

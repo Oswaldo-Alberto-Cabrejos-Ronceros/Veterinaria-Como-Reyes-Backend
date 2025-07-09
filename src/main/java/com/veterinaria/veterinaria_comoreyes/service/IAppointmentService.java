@@ -3,7 +3,10 @@ package com.veterinaria.veterinaria_comoreyes.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareAndAppointmentPanelEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientInfoForAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentInfoForAppointmentDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -40,13 +43,23 @@ public interface IAppointmentService {
 
     List<AppointmentInfoPanelAdminDTO> getAppointmentsInfoByDateAndHeadquarter(Long headquarterId);
 
+    List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsForEmployee(Long employeeId);
+
     AppointmentResponseDTO confirmAppointmentByEmail(Long id);
 
     AppointmentStatsTodayDTO getTodayAppointmentStats();
 
     AppointmentStatsTodayDTO getTodayAppointmentStatsByHeadquarter(Long headquarterId);
 
-    List<CareAndAppointmentPanelEmployeeDTO> getCareAndAppointmentsForEmployee(Long employeeId);
-
     Optional<InfoAppointmentForPanelDTO> getAppointmentInfoForPanel(Long appointmentId);
+
+    Optional<AnimalInfoForAppointmentDTO> getAnimalInfoByAppointmentId(Long appointmentId);
+
+    Optional<ClientInfoForAppointmentDTO> getClientInfoForAppointment(Long appointmentId);
+
+    Optional<PaymentInfoForAppointmentDTO> getPaymentInfoByAppointmentId(Long appointmentId);
+
+    AppointmentStatsForReceptionistDTO getStatsByDate();
+
+    List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId);
 }

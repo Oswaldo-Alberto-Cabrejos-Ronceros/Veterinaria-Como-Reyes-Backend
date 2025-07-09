@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Reporte - Citas por Periodo</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            font-size: 13px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        p {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 th:text="${title}">Citas por Periodo</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Periodo</th>
+                <th>Cantidad de Citas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row : ${data}">
+                <td th:text="${row.period}">Periodo</td>
+                <td th:text="${row.count}">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Total: <span th:text="${total}">0</span></p>
+</body>
+
+</html>

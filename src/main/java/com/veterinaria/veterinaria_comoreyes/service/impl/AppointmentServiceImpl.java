@@ -1,8 +1,11 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.AnimalInfoForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.*;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.CareAndAppointmentPanelEmployeeDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Client.ClientInfoForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentInfoForAppointmentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.exception.ResourceNotFoundException;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
@@ -11,7 +14,6 @@ import com.veterinaria.veterinaria_comoreyes.repository.*;
 import com.veterinaria.veterinaria_comoreyes.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -388,24 +390,27 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
-    public List<CareAndAppointmentPanelEmployeeDTO> getCareAndAppointmentsForEmployee(Long employeeId) {
-        List<Object[]> rows = appointmentRepository.findCareAndAppointmentForEmployee(employeeId);
+    public List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsForEmployee(Long employeeId) {
+        List<Object[]> rows = appointmentRepository.findAppointmentsByEmployeeId(employeeId);
 
-        return rows.stream().map(row -> {
-            return new CareAndAppointmentPanelEmployeeDTO(
-                    ((Number) row[0]).longValue(), // id
-                    (String) row[1], // type
-                    (String) row[2], // animalName
-                    (String) row[3], // serviceName
-                    (String) row[4], // clientName
-                    (String) row[5], // date
-                    (String) row[6], // hour
-                    (String) row[7] // status
-            );
-        }).collect(Collectors.toList());
+        System.out.println("Filas encontradas para empleado ID " + employeeId + ": " + rows.size());
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                row[0] != null ? ((Number) row[0]).longValue() : null, // id
+                row[1] != null ? row[1].toString() : null,             // type
+                row[2] != null ? ((Number) row[2]).longValue() : null, // animalId
+                row[3] != null ? row[3].toString() : null,             // animalName
+                row[4] != null ? row[4].toString() : null,             // serviceName
+                row[5] != null ? row[5].toString() : null,             // clientName
+                row[6] != null ? row[6].toString() : null,             // date
+                row[7] != null ? row[7].toString() : null,             // hour
+                row[8] != null ? row[8].toString() : null,              // status
+                row[9] != null ? row[9].toString() : null              // statusAppointment
+        )).collect(Collectors.toList());
     }
 
-    // En tu AppointmentServiceImpl.java
+
+
     @Transactional
     @Override
     public AppointmentResponseDTO confirmAppointmentByEmail(Long id) {
@@ -451,6 +456,100 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
         return dto;
     }
+
+    @Override
+    public Optional<AnimalInfoForAppointmentDTO> getAnimalInfoByAppointmentId(Long appointmentId) {
+        List<Object[]> result = appointmentRepository.findAnimalInfoByAppointmentId(appointmentId);
+
+        if (result.isEmpty()) return Optional.empty();
+
+        Object[] row = result.get(0);
+
+        AnimalInfoForAppointmentDTO dto = new AnimalInfoForAppointmentDTO(
+                row[0] != null ? Long.valueOf(row[0].toString()) : null,           // animalId
+                row[1] != null ? row[1].toString() : null,                         // birthDate (formateado)
+                row[2] != null ? row[2].toString() : null,                         // name
+                row[3] != null ? row[3].toString() : null,                         // urlImage
+                row[4] != null ? new BigDecimal(row[4].toString()) : null,        // weight
+                row[5] != null ? row[5].toString() : null,                         // breedName
+                row[6] != null ? row[6].toString() : null,                         // speciesName
+                row[7] != null ? row[7].toString() : null                          // animalComment
+        );
+
+        return Optional.of(dto);
+    }
+
+    @Override
+    public Optional<ClientInfoForAppointmentDTO> getClientInfoForAppointment(Long appointmentId) {
+        List<Object[]>  result = appointmentRepository.findClientInfoByAppointmentId(appointmentId);
+
+        if (result.isEmpty()) return Optional.empty();
+
+        Object[] row = result.get(0);
+
+        ClientInfoForAppointmentDTO dto = new ClientInfoForAppointmentDTO();
+        dto.setClientId(row[0] != null ? row[0].toString() : null);
+        dto.setFullName(row[1] != null ? row[1].toString() : null);
+        dto.setPhoneNumber(row[2] != null ? row[2].toString() : null);
+        dto.setEmail(row[3] != null ? row[3].toString() : null);
+        dto.setAddress(row[4] != null ? row[4].toString() : null);
+
+        return Optional.of(dto);
+    }
+
+    @Override
+    public Optional<PaymentInfoForAppointmentDTO> getPaymentInfoByAppointmentId(Long appointmentId) {
+        List<Object[]> result = appointmentRepository.findPaymentInfoByAppointmentId(appointmentId);
+        if (result.isEmpty()) return Optional.empty();
+
+        Object[] row = result.get(0);
+        PaymentInfoForAppointmentDTO dto = new PaymentInfoForAppointmentDTO();
+
+        dto.setPaymentId(row[0] != null ? Long.valueOf(row[0].toString()) : null);
+        dto.setAmount(row[1] != null ? new BigDecimal(row[1].toString()) : null);
+        dto.setServiceName(row[2] != null ? row[2].toString() : null);
+        dto.setPaymentMethodId(row[3] != null ? Long.valueOf(row[3].toString()) : null);
+        dto.setPaymentMethod(row[4] != null ? row[4].toString() : null);
+        dto.setPaymentStatus(row[5] != null ? row[5].toString() : null);
+
+        return Optional.of(dto);
+    }
+
+    @Override
+    public AppointmentStatsForReceptionistDTO getStatsByDate(){
+        String dateStr = LocalDate.now().toString(); // Obtener la fecha actual en formato yyyy-MM-dd
+        List<Object[]> rows = appointmentRepository.getAppointmentStatsByDate(dateStr);
+        if (rows.isEmpty()) {
+            return new AppointmentStatsForReceptionistDTO(0, 0, 0);
+        }
+
+        Object[] row = rows.get(0);
+        return new AppointmentStatsForReceptionistDTO(
+                ((Number) row[0]).intValue(), // totalAppointments
+                ((Number) row[1]).intValue(), // confirmedAppointments
+                ((Number) row[2]).intValue()  // pendingAppointments
+        );
+    }
+
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId) {
+        List<Object[]> rows = appointmentRepository.findAppointmentsByHeadquarterId(headquarterId);
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                ((Number) row[0]).longValue(),   // id
+                (String) row[1],                 // type ("CITA")
+                ((Number) row[2]).longValue(),   // animalId
+                (String) row[3],                 // animalName
+                (String) row[4],                 // serviceName
+                (String) row[5],                 // clientName
+                (String) row[6],                 // date (YYYY-MM-DD)
+                (String) row[7],                 // hour (HH:mm)
+                (String) row[8],                 // status
+                (String) row[9]                  // commentAppointment
+        )).collect(Collectors.toList());
+    }
+
+
 
 
 }

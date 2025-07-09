@@ -1,9 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CareRequestDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Care.CreateCareFromAppointmentDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.*;
 import com.veterinaria.veterinaria_comoreyes.service.ICareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -52,6 +49,12 @@ public class CareController {
         return ResponseEntity.ok(careService.completeCare(id));
     }
 
+    // Marcar atención como EN_CURSO
+    @PatchMapping("/{id}/on-going")
+    public ResponseEntity<CareDTO> onGoingCare(@PathVariable Long id) {
+        return ResponseEntity.ok(careService.onGoingCare(id));
+    }
+
     // Actualizar atención (completo)
     @PutMapping("/{id}")
     public ResponseEntity<CareDTO> updateCare(@PathVariable Long id, @RequestBody CareDTO careDTO) {
@@ -86,6 +89,26 @@ public class CareController {
     ) {
         Page<CareListDTO> result = careService.searchCares(fecha, idHeadquarter, idService, estado, pageable);
         return ResponseEntity.ok(result);
+    }
+
+    /************** PANEL EMPLOYEE ********/
+    @GetMapping("/panel-employee/{employeeId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresForEmployee(@PathVariable Long employeeId) {
+        List<CareAndAppointmentPanelEmployeeDTO> data = careService.getCaresForEmployee(employeeId);
+        return ResponseEntity.ok(data);
+    }
+
+    /************** Panel Receptionist ********/
+    @GetMapping("/panel-receptionist/stats-today")
+    public ResponseEntity<CareStatsTodayDTO> getCareStatsToday() {
+        return ResponseEntity.ok(careService.getCareStatsToday());
+    }
+    @GetMapping("/panel-receptionist/{headquarterId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresByHeadquarterId(
+            @PathVariable Long headquarterId) {
+
+        List<CareAndAppointmentPanelEmployeeDTO> data = careService.getCaresByHeadquarterId(headquarterId);
+        return ResponseEntity.ok(data);
     }
 
 }
