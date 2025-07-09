@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,4 +120,27 @@ public class VeterinaryRecordServiceImpl implements IVeterinaryRecordService {
                 ((Number) row[3]).intValue()  // OBSERVACION
         );
     }
+
+    @Override
+    public List<InfoVeterinaryRecordForTableDTO> getRecordsByAnimalId(Long animalId) {
+        List<Object[]> rows = repository.findRecordsByAnimalId(animalId);
+        List<InfoVeterinaryRecordForTableDTO> result = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            InfoVeterinaryRecordForTableDTO dto = new InfoVeterinaryRecordForTableDTO();
+            dto.setId(((Number) row[0]).longValue());
+            dto.setDate((String) row[1]);
+            dto.setNameHeadquarter((String) row[2]);
+            dto.setNameEmployee((String) row[3]);
+            dto.setDiagnosis((String) row[4]);
+            dto.setTreatment((String) row[5]);
+            dto.setObservation((String) row[6]);
+            dto.setResultUrl((String) row[7]);
+            dto.setStatus(StatusVeterinaryRecord.valueOf((String) row[8]));
+            result.add(dto);
+        }
+
+        return result;
+    }
+
 }

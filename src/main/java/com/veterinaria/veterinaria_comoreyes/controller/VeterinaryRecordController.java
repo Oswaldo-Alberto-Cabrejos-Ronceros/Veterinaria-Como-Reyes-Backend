@@ -66,4 +66,5 @@ public class VeterinaryRecordController {
         return service.getAllInfoVeterinaryRecordsByAnimal(animalId, pageable);
     }
 
+
 }
