@@ -264,6 +264,24 @@ public class CareServiceImpl implements ICareService {
         );
     }
 
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getCaresByHeadquarterId(Long headquarterId) {
+        List<Object[]> rows = careRepository.findCaresByHeadquarterId(headquarterId);
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                ((Number) row[0]).longValue(),        // id
+                (String) row[1],                      // type ("ATENCIÓN")
+                ((Number) row[2]).longValue(),        // animalId
+                (String) row[3],                      // animalName
+                (String) row[4],                      // serviceName
+                (String) row[5],                      // clientName
+                (String) row[6],                      // date
+                (String) row[7],                      // hour
+                (String) row[8],                      // status
+                (String) row[9]                       // commentAppointment (vacío)
+        )).collect(Collectors.toList());
+    }
+
 
     // @Override
     // public void deleteCare(Long id) {

@@ -102,5 +102,12 @@ public class CareController {
     public ResponseEntity<CareStatsTodayDTO> getCareStatsToday() {
         return ResponseEntity.ok(careService.getCareStatsToday());
     }
+    @GetMapping("/panel-receptionist/{headquarterId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresByHeadquarterId(
+            @PathVariable Long headquarterId) {
+
+        List<CareAndAppointmentPanelEmployeeDTO> data = careService.getCaresByHeadquarterId(headquarterId);
+        return ResponseEntity.ok(data);
+    }
 
 }

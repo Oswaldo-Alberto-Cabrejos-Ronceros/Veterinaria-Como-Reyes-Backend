@@ -531,6 +531,25 @@ public class AppointmentServiceImpl implements IAppointmentService {
         );
     }
 
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId) {
+        List<Object[]> rows = appointmentRepository.findAppointmentsByHeadquarterId(headquarterId);
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                ((Number) row[0]).longValue(),   // id
+                (String) row[1],                 // type ("CITA")
+                ((Number) row[2]).longValue(),   // animalId
+                (String) row[3],                 // animalName
+                (String) row[4],                 // serviceName
+                (String) row[5],                 // clientName
+                (String) row[6],                 // date (YYYY-MM-DD)
+                (String) row[7],                 // hour (HH:mm)
+                (String) row[8],                 // status
+                (String) row[9]                  // commentAppointment
+        )).collect(Collectors.toList());
+    }
+
+
 
 
 }
