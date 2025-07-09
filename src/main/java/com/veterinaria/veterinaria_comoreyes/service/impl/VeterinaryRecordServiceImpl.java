@@ -1,7 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.InfoVeterinaryRecordForTableDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.RecentMedicalRecordDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusVeterinaryRecord;
 import com.veterinaria.veterinaria_comoreyes.entity.VeterinaryRecord;
 import com.veterinaria.veterinaria_comoreyes.mapper.VeterinaryRecordMapper;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -80,5 +83,40 @@ public class VeterinaryRecordServiceImpl implements IVeterinaryRecordService {
         dto.setResultUrl((String) row[7]);
         dto.setStatus(StatusVeterinaryRecord.valueOf((String) row[8]));
         return dto;
+    }
+
+    @Override
+    public List<RecentMedicalRecordDTO> getRecentRecordsByEmployee(Long employeeId) {
+        List<Object[]> rows = repository.findRecentMedicalRecordsByEmployee(employeeId);
+
+        return rows.stream().map(row -> new RecentMedicalRecordDTO(
+                ((Number) row[0]).longValue(),       // veterinaryRecordId
+                ((Number) row[1]).longValue(),       // careId
+                (String) row[2],                    // animalName
+                (String) row[3],                    // breedName
+                (String) row[4],                    // clientFullName
+                (String) row[5],                    // serviceName
+                (String) row[6],                    // recordMedicalDate
+                (String) row[7],                    // diagnosis
+                (String) row[8],                    // treatment
+                (String) row[9],                    // observations
+                (String) row[10]                     // status
+        )).collect(Collectors.toList());
+    }
+
+    @Override
+    public VeterinaryRecordStatsDTO getVeterinaryRecordStatsByEmployee(Long employeeId) {
+        List<Object[]> result = repository.getVeterinaryRecordStatsByEmployee(employeeId);
+        if (result.isEmpty()) {
+            return new VeterinaryRecordStatsDTO(0, 0, 0, 0);
+        }
+
+        Object[] row = result.get(0);
+        return new VeterinaryRecordStatsDTO(
+                ((Number) row[0]).intValue(), // total
+                ((Number) row[1]).intValue(), // EN_CURSO
+                ((Number) row[2]).intValue(), // COMPLETADO
+                ((Number) row[3]).intValue()  // OBSERVACION
+        );
     }
 }

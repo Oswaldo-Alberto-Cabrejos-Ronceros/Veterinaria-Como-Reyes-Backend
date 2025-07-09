@@ -18,5 +18,8 @@ public class CareAndAppointmentPanelEmployeeDTO {
     private String date; // yyyy-MM-dd
     private String hour; // HH:mm
     private String status;
-    private String commentAppointment; // Comentarios de la cita
+    private String commentAppointment;
+    private Long employeeId;// Comentarios de la cita
+    private String employeeName; // Nombre del empleado que atiende
+    private String breedName; // Nombre de la raza del animal
 }
