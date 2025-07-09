@@ -1,6 +1,7 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.RecentPatientsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.InfoVeterinaryRecordForTableDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.RecentMedicalRecordDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IAnimalService;
@@ -45,6 +46,12 @@ public class VeterinarianController {
     @GetMapping("/care/recent-patients/{employeeId}")
     public ResponseEntity<List<RecentPatientsDTO>> getRecentPatients(@PathVariable Long employeeId) {
         return ResponseEntity.ok(careService.getRecentPatients(employeeId));
+    }
+
+    @GetMapping("/veterinary-records/animal/{animalId}")
+    public ResponseEntity<List<InfoVeterinaryRecordForTableDTO>> getRecordsByAnimalId(@PathVariable Long animalId) {
+        List<InfoVeterinaryRecordForTableDTO> records = veterinaryRecordService.getRecordsByAnimalId(animalId);
+        return ResponseEntity.ok(records);
     }
 
 }
