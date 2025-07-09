@@ -29,6 +29,8 @@ public interface IPaymentService {
     @Transactional
     void updatePaymentStatus(Long paymentId, PaymentStatus status);
 
+    void updatePaymentStatusToCompleted(Long paymentId);
+
     PaymentStatsForPanelAdminDTO getCompletedPaymentsStats();
 
     PaymentStatsForPanelAdminDTO getPaymentsStatsByHeadquarter(Long headquarterId);

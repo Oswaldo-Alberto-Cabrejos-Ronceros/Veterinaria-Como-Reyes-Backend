@@ -66,7 +66,7 @@ public class PaymentController {
 
     @PutMapping("/{paymentId}/status/completed")
     public ResponseEntity<Void> setCompleted(@PathVariable Long paymentId) {
-        paymentService.updatePaymentStatus(paymentId, PaymentStatus.COMPLETADA);
+        paymentService.updatePaymentStatusToCompleted(paymentId);
         return ResponseEntity.ok().build();
     }
 
