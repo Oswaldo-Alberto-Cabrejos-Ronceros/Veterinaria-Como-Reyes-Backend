@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
@@ -156,6 +157,15 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("previousYear") int previousYear,
             @Param("headquarterId") Long headquarterId
     );
+
+    @Query(value = """
+    SELECT 
+        COALESCE(SUM(p.amount), 0)
+    FROM payment p
+    WHERE p.status = 'COMPLETADA'
+      AND TRUNC(p.payment_date_time) = TO_DATE(:today, 'YYYY/MM/DD')
+""", nativeQuery = true)
+    BigDecimal getTodayIncome(@Param("today") String today);
 
 
 

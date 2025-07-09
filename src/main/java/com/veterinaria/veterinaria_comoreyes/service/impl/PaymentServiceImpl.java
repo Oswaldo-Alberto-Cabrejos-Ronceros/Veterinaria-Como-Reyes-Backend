@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomeStatsTodayDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -234,5 +236,11 @@ public class PaymentServiceImpl implements IPaymentService {
         return new PaymentStatsForPanelAdminDTO(currentTotal, previousTotal, percentageDifference);
     }
 
+    @Override
+    public IncomeStatsTodayDTO getTodayIncomeStats() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        BigDecimal income = paymentRepository.getTodayIncome(today);
+        return new IncomeStatsTodayDTO(income);
+    }
 
 }

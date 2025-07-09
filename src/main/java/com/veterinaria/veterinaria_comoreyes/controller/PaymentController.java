@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomeStatsTodayDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
@@ -98,6 +99,11 @@ public class PaymentController {
     public ResponseEntity<PaymentStatsForPanelAdminDTO> getPaymentsStatsByHeadquarter(
             @PathVariable Long headquarterId) {
         return ResponseEntity.ok(paymentService.getPaymentsStatsByHeadquarter(headquarterId));
+    }
+    /************** Panel Receptionist ********/
+    @GetMapping("/panel-receptionist/income-today")
+    public ResponseEntity<IncomeStatsTodayDTO> getTodayIncomeStats() {
+        return ResponseEntity.ok(paymentService.getTodayIncomeStats());
     }
 
 

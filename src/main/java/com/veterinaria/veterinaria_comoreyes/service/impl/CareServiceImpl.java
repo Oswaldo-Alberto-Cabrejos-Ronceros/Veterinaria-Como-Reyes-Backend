@@ -16,7 +16,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -243,6 +245,21 @@ public class CareServiceImpl implements ICareService {
                     (String) row[7] // status
             );
         }).collect(Collectors.toList());
+    }
+    @Override
+    public CareStatsTodayDTO getCareStatsToday() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        List<Object[]> rows = careRepository.getCareStatsToday(today);
+
+        if (rows.isEmpty()) {
+            return new CareStatsTodayDTO(0L, 0L);
+        }
+
+        Object[] row = rows.get(0);
+        return new CareStatsTodayDTO(
+                ((Number) row[0]).longValue(), // totalCares
+                ((Number) row[1]).longValue()  // todayCares
+        );
     }
 
 

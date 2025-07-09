@@ -127,6 +127,18 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
             @Param("previousYear") int previousYear,
             @Param("headquarterId") Long headquarterId
     );
+    @Query(value = """
+    SELECT 
+        COUNT(DISTINCT cl_all.client_id) AS totalClientsAttended,
+        COUNT(DISTINCT CASE 
+            WHEN TRUNC(c.care_date_time) = TO_DATE(:today, 'YYYY/MM/DD') THEN cl_all.client_id
+        END) AS todayClientsAttended
+    FROM care c
+    JOIN animal an_all ON an_all.animal_id = c.animal_id
+    JOIN client cl_all ON cl_all.client_id = an_all.client_id
+    WHERE c.status_care = 'COMPLETADO'
+""", nativeQuery = true)
+    List<Object[]> getClientStatsByDate(@Param("today") String today);
 
 
 

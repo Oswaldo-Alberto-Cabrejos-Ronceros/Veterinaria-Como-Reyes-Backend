@@ -119,6 +119,12 @@ public class ClientController {
     }
 
 
+    /****** Panel RECEPCIONIST ********/
+    @GetMapping("/panel-receptionist/stats")
+    public ResponseEntity<ClientStatsTodayDTO> getClientStatsToday() {
+        return ResponseEntity.ok(clientService.getClientStatsToday());
+    }
+
 
     /******************************************
      * Controllers user-client

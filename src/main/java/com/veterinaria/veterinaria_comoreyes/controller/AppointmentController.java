@@ -194,4 +194,10 @@ public class AppointmentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /************** Panel Receptionist ********/
+    @GetMapping("/panel-receptionist/stats")
+    public ResponseEntity<AppointmentStatsForReceptionistDTO> getStatsByDate() {
+        return ResponseEntity.ok(appointmentService.getStatsByDate());
+    }
+
 }
