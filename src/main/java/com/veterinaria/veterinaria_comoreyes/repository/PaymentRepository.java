@@ -157,7 +157,4 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("headquarterId") Long headquarterId
     );
 
-
-
-
 }

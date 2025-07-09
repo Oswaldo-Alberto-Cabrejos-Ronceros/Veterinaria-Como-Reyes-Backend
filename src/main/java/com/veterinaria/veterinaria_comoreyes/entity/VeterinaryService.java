@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
-
-import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -21,7 +18,7 @@ import java.time.LocalTime;
 @Filter(name = "statusActive", condition = "status = :status")
 public class VeterinaryService extends EntityWithStatus{
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long serviceId;
 
     private String name;

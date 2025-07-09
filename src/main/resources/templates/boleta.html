@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Boleta de Pago</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 10px; /* Base font size */
+            width: 80mm;
+            margin: 0 auto;
+            padding: 5px 5px;
+            color: #000000; /* ALL TEXT COLOR: BLACK */
+            line-height: 1.2;
+            font-weight: 700; /* Strong bold for all text */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #c8e6c9; /* Subtle green border */
+        }
+
+        .business-name {
+            font-weight: 900; /* Even stronger bold for business name */
+            font-size: 15px;
+            margin-bottom: 3px;
+            color: #000000; /* Business name color: BLACK */
+            letter-spacing: 0.2px;
+        }
+
+        .business-info {
+            font-size: 9px;
+            margin-bottom: 4px;
+            color: #000000; /* Black text */
+        }
+
+        .ticket-title {
+            text-align: center;
+            font-weight: 800; /* Strong bold */
+            font-size: 12px;
+            margin: 8px 0;
+            padding: 4px 0;
+            background-color: #e8f5e9; /* Light green background */
+            border-radius: 2px;
+            color: #000000; /* Title text color: BLACK */
+        }
+
+        .section {
+            margin-bottom: 8px;
+            padding: 0 2px;
+        }
+
+        .info-block {
+            background-color: #f0fdf0; /* Very light green background (as it wasn't requested to be changed) */
+            padding: 6px;
+            border-radius: 2px;
+            margin-bottom: 8px;
+            color: #000000; /* Black text inside info block */
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .label {
+            font-weight: 700; /* Strong bold for labels */
+            color: #000000; /* Black text for labels */
+            width: 45%;
+            text-align: left;
+        }
+
+        .value {
+            font-weight: 700; /* Strong bold for values */
+            color: #000000; /* Black text for values */
+            text-align: right;
+            flex-grow: 1;
+        }
+        
+        .value-small {
+            font-weight: 700;
+            color: #000000; /* Black text */
+            text-align: right;
+            flex-grow: 1;
+            font-size: 9px;
+        }
+
+        .item-line {
+            padding: 3px 0;
+            border-bottom: 1px dashed #c8e6c9; /* Greenish dashed line */
+            margin-bottom: 3px;
+        }
+
+        .total-section {
+            background-color: #f0f0f0; /* BACKGROUND COLOR: LIGHT GREY */
+            padding: 6px;
+            border-radius: 2px;
+            margin-top: 10px;
+            color: #000000; /* Black text for total section */
+        }
+
+        .total-row {
+            font-weight: 800; /* Extra bold for total rows */
+            font-size: 11px;
+        }
+
+        .grand-total-row {
+            font-weight: 900; /* Strongest bold for grand total */
+            font-size: 13px;
+            color: #000000; /* Grand total text color: BLACK */
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed #cccccc; /* Grey dashed border for consistency with black text */
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 9px;
+            color: #000000; /* Black text for the footer */
+            padding-top: 5px;
+            border-top: 1px solid #c8e6c9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="business-name">VETERINARIA COMOREYES</div>
+        <div class="business-info">
+            RUC: <span th:text="${ticket.ruc}">20123456789</span><br />
+            <span th:text="${ticket.sedeDireccion}">Av. Los Árboles 123, Lima - Perú</span><br />
+            Telf: <span th:text="${ticket.sedeTelefono}">987654321</span>
+        </div>
+    </div>
+
+    <div class="ticket-title">BOLETA DE PAGO</div>
+
+    <div class="info-block">
+        <div class="row">
+            <span class="label">N° Boleta:</span>
+            <span class="value" th:text="${ticket.numeroBoleta}">000-00001234</span>
+        </div>
+        <div class="row">
+            <span class="label">Fecha emisión:</span>
+            <span class="value" th:text="${ticket.fechaEmision}">08/07/2025 22:50</span>
+        </div>
+    </div>
+
+    <div class="info-block">
+        <div class="row">
+            <span class="label">Cliente:</span>
+            <span class="value" th:text="${ticket.clienteNombre}">Carlo Huaman Melgar</span>
+        </div>
+        <div class="row">
+            <span class="label">DNI:</span>
+            <span class="value" th:text="${ticket.clienteDni}">72373268</span>
+        </div>
+        <div class="row">
+            <span class="label">Mascota:</span>
+            <span class="value-small" th:text="${ticket.mascotaNombre + ' (' + ticket.mascotaEspecie + ', ' + ticket.mascotaRaza + ')'}">Daiko (Perro, PERRO A)</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="row item-line">
+            <span class="label">Servicio:</span>
+            <span class="value" th:text="|${ticket.servicioNombre}: S/. ${#numbers.formatDecimal(ticket.servicioPrecio, 1, 2)}|">Baños para perros: S/. 70.00</span>
+        </div>
+    </div>
+
+    <div class="total-section">
+        <div class="row total-row">
+            <span class="label">Subtotal:</span>
+            <span class="value" th:text="|S/. ${#numbers.formatDecimal(ticket.subtotal, 1, 2)}|">S/. 59.32</span>
+        </div>
+        <div class="row total-row">
+            <span class="label">IGV (18%):</span>
+            <span class="value" th:text="|S/. ${#numbers.formatDecimal(ticket.igv, 1, 2)}|">S/. 10.68</span>
+        </div>
+        <div class="row grand-total-row">
+            <span class="label">TOTAL:</span>
+            <span class="value" th:text="|S/. ${#numbers.formatDecimal(ticket.total, 1, 2)} (${ticket.totalEnLetras})|">S/. 70.00 (setenta soles)</span>
+        </div>
+    </div>
+
+    <div class="info-block" style="margin-top: 8px;">
+        <div class="row">
+            <span class="label">Método de pago:</span>
+            <span class="value" th:text="${ticket.metodoPago}">Tarjeta</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        ¡Gracias por su preferencia!
+    </div>
+</body>
+
+</html>

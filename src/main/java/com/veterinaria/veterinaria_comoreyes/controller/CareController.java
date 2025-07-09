@@ -63,6 +63,7 @@ public class CareController {
         CareDTO createdCare = careService.createCareFromAppointment(dto);
         return ResponseEntity.ok(createdCare);
     }
+    
     @PostMapping("/from-request")
     public ResponseEntity<CareDTO> createCareFromRequest(@RequestBody CareRequestDTO dto) {
         CareDTO createdCare = careService.createCareFromRequest(dto);

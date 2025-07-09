@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${title}">Reporte de Ingresos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 10px;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <!-- Opcional: Mostrar logo -->
+        <img th:src="@{/images/logo.png}" class="logo" alt="Logo Veterinaria" th:if="${#bools.isTrue(showLogo)}" />
+
+        <h2 th:text="${title}">Reporte de Ingresos</h2>
+        <div class="subtitle" th:text="'Período: ' + ${period}">Período: Mensual</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Período</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${data}">
+                <td th:text="${item.period}">2025-07</td>
+                <td th:text="${item.getFormattedTotal()}">S/1,500.00</td>
+            </tr>
+            <tr class="total-row">
+                <td>Total General</td>
+                <td th:text="${total}">S/0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Generado el <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">01/01/2023 00:00</span>
+        <div th:if="${pageNumber != null}" th:text="'Página ' + ${pageNumber}"></div>
+    </div>
+
+</body>
+
+</html>
