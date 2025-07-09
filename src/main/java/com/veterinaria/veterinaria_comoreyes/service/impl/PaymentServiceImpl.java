@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -173,6 +174,17 @@ public class PaymentServiceImpl implements IPaymentService {
     @Override
     public void updatePaymentStatus(Long paymentId, PaymentStatus status) {
         paymentRepository.updateStatus(paymentId, status);
+    }
+
+    @Override
+    public void updatePaymentStatusToCompleted(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("No se encontró el pago con ID: " + paymentId));
+
+        payment.setStatus(PaymentStatus.COMPLETADA);
+        payment.setPaymentDateTime(LocalDateTime.now());
+
+        paymentRepository.save(payment);
     }
 
     @Override
