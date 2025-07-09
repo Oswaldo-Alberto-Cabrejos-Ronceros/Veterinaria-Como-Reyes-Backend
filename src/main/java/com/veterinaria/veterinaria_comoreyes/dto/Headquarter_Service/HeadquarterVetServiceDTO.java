@@ -23,5 +23,5 @@ public class HeadquarterVetServiceDTO {
 
     private Integer simultaneousCapacity;
 
-    private String status;
+    private Boolean status;
 }

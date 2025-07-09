@@ -99,9 +99,9 @@ public class CareController {
     }
 
     /************** Panel Receptionist ********/
-    @GetMapping("/panel-receptionist/stats-today")
-    public ResponseEntity<CareStatsTodayDTO> getCareStatsToday() {
-        return ResponseEntity.ok(careService.getCareStatsToday());
+    @GetMapping("/panel-receptionist/{headquarterId}/stats-today")
+    public ResponseEntity<CareStatsTodayDTO> getCareStatsToday(@PathVariable Long headquarterId) {
+        return ResponseEntity.ok(careService.getCareStatsToday(headquarterId));
     }
     @GetMapping("/panel-receptionist/{headquarterId}")
     public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresByHeadquarterId(

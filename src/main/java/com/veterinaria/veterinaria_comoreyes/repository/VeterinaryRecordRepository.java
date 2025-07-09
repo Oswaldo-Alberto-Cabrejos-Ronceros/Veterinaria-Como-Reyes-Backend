@@ -43,4 +43,42 @@ public interface VeterinaryRecordRepository extends JpaRepository<VeterinaryReco
     Page<Object[]> findAllInfoVeterinaryRecordsByAnimalId(@Param("animalId") Long animalId, Pageable pageable);
 
 
+    @Query(value = """
+    SELECT 
+        vr.id AS veterinary_record_id,
+        vr.id_care AS care_id,
+        an.name AS animal_name,
+        br.name AS breed_name,
+        INITCAP(REGEXP_SUBSTR(cl.name, '^\\S+')) || ' ' || INITCAP(REGEXP_SUBSTR(cl.last_name, '^\\S+')) AS client_full_name,
+        vs.name AS service_name,
+        TO_CHAR(vr.date_created, 'DD/MM/YYYY') AS record_date,
+        vr.diagnosis,
+        vr.treatment,
+        vr.observations,
+        vr.status_veterinary_record
+    FROM veterinary_record vr
+    JOIN care c ON c.care_id = vr.id_care
+    JOIN animal an ON an.animal_id = c.animal_id
+    JOIN breed br ON br.breed_id = an.breed_id
+    JOIN client cl ON cl.client_id = an.client_id
+    JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    WHERE vr.id_employee = :employeeId
+    ORDER BY vr.date_created DESC
+    FETCH FIRST 10 ROWS ONLY
+    """, nativeQuery = true)
+    List<Object[]> findRecentMedicalRecordsByEmployee(@Param("employeeId") Long employeeId);
+
+    @Query(value = """
+    SELECT
+        COUNT(*) AS total,
+        COUNT(CASE WHEN vr.status_veterinary_record = 'EN_CURSO' THEN 1 END),
+        COUNT(CASE WHEN vr.status_veterinary_record = 'COMPLETADO' THEN 1 END),
+        COUNT(CASE WHEN vr.status_veterinary_record = 'OBSERVACION' THEN 1 END)
+    FROM veterinary_record vr
+    WHERE vr.id_employee = :employeeId
+""", nativeQuery = true)
+    List<Object[]> getVeterinaryRecordStatsByEmployee(@Param("employeeId") Long employeeId);
+
+
 }

@@ -59,7 +59,7 @@ public interface IAppointmentService {
 
     Optional<PaymentInfoForAppointmentDTO> getPaymentInfoByAppointmentId(Long appointmentId);
 
-    AppointmentStatsForReceptionistDTO getStatsByDate();
+    AppointmentStatsForReceptionistDTO getStatsByDate(Long headquarterId);
 
     List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId);
 }
