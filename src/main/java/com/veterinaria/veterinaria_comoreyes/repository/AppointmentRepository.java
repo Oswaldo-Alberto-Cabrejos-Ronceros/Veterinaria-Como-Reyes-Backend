@@ -264,6 +264,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
         TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
         a.status_appointments AS status
+        a.comentario
     FROM appointment a
     JOIN animal an ON an.animal_id = a.animal_id
     JOIN client cl ON cl.client_id = an.client_id

@@ -237,13 +237,14 @@ public class CareServiceImpl implements ICareService {
             return new CareAndAppointmentPanelEmployeeDTO(
                     ((Number) row[0]).longValue(), // id
                     (String) row[1], // type
-                    row[2] != null ? ((Number) row[0]).longValue() : null, // animalId
+                    row[2] != null ? ((Number) row[2]).longValue() : null, // animalId
                     (String) row[2], // animalName
                     (String) row[3], // serviceName
                     (String) row[4], // clientName
                     (String) row[5], // date
                     (String) row[6], // hour
-                    (String) row[7] // status
+                    (String) row[7], // status
+                    (String) row[8] // comentAppointment -> null
             );
         }).collect(Collectors.toList());
     }

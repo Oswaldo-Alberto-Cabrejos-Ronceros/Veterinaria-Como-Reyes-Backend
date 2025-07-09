@@ -77,6 +77,7 @@ public interface CareRepository extends JpaRepository<Care, Long> {
         TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
         TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
         c.status_care AS status
+        '' AS commentAppointment
     FROM care c
     JOIN animal an ON an.animal_id = c.animal_id
     JOIN client cl ON cl.client_id = an.client_id

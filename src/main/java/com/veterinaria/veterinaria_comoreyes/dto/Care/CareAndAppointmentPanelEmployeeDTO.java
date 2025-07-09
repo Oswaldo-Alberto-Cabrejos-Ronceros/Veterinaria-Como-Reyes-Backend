@@ -18,4 +18,5 @@ public class CareAndAppointmentPanelEmployeeDTO {
     private String date; // yyyy-MM-dd
     private String hour; // HH:mm
     private String status;
+    private String commentAppointment; // Comentarios de la cita
 }
