@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/panel-admin")
+@RequestMapping("/api/panel-admin")
 public class AdminController {
 
     private final ISpecieService specieService;

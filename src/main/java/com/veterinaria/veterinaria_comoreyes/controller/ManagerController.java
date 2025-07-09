@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/panel-manager")
+@RequestMapping("/api/panel-manager")
 public class ManagerController {
 
     private final ISpecieService specieService;
