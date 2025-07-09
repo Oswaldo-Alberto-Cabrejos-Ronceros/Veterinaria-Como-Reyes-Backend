@@ -257,6 +257,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     SELECT
         a.appointment_id AS id,
         'CITA' AS type,
+        an.animal_id AS animal_id,
         an.name AS animal_name,
         vs.name AS service_name,
         cl.name || ' ' || cl.last_name AS client_name,

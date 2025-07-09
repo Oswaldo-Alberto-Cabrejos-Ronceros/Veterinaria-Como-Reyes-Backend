@@ -92,7 +92,7 @@ public class CareController {
 
     /************** PANEL EMPLOYEE ********/
     @GetMapping("/panel-employee/{employeeId}")
-    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsAndCaresForEmployee(@PathVariable Long employeeId) {
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresForEmployee(@PathVariable Long employeeId) {
         List<CareAndAppointmentPanelEmployeeDTO> data = careService.getCaresForEmployee(employeeId);
         return ResponseEntity.ok(data);
     }

@@ -70,6 +70,7 @@ public interface CareRepository extends JpaRepository<Care, Long> {
     SELECT
         c.care_id AS id,
         'ATENCIÓN' AS type,
+        an.animal_id AS animalId,
         an.name AS animal_name,
         vs.name AS service_name,
         cl.name || ' ' || cl.last_name AS client_name,

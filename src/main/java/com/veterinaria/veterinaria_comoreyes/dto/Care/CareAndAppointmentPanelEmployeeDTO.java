@@ -11,6 +11,7 @@ public class CareAndAppointmentPanelEmployeeDTO {
 
     private Long id;
     private String type; // "CITA" o "ATENCIÓN"
+    private Long animalId;
     private String animalName;
     private String serviceName;
     private String clientName;

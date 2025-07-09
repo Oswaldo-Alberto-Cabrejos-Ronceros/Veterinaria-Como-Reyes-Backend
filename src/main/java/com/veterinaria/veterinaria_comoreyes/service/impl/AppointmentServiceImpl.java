@@ -398,12 +398,13 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
                 row[0] != null ? ((Number) row[0]).longValue() : null, // id
                 row[1] != null ? row[1].toString() : null,             // type
-                row[2] != null ? row[2].toString() : null,             // animalName
-                row[3] != null ? row[3].toString() : null,             // serviceName
-                row[4] != null ? row[4].toString() : null,             // clientName
-                row[5] != null ? row[5].toString() : null,             // date
-                row[6] != null ? row[6].toString() : null,             // hour
-                row[7] != null ? row[7].toString() : null              // status
+                row[2] != null ? ((Number) row[0]).longValue() : null, // animalId
+                row[3] != null ? row[2].toString() : null,             // animalName
+                row[4] != null ? row[3].toString() : null,             // serviceName
+                row[5] != null ? row[4].toString() : null,             // clientName
+                row[6] != null ? row[5].toString() : null,             // date
+                row[7] != null ? row[6].toString() : null,             // hour
+                row[8] != null ? row[7].toString() : null              // status
         )).collect(Collectors.toList());
     }
 
