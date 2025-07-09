@@ -70,12 +70,14 @@ public interface CareRepository extends JpaRepository<Care, Long> {
     SELECT
         c.care_id AS id,
         'ATENCIÓN' AS type,
+        an.animal_id AS animalId,
         an.name AS animal_name,
         vs.name AS service_name,
         cl.name || ' ' || cl.last_name AS client_name,
         TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
         TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
-        c.status_care AS status
+        c.status_care AS status,
+        '' AS commentAppointment
     FROM care c
     JOIN animal an ON an.animal_id = c.animal_id
     JOIN client cl ON cl.client_id = an.client_id
@@ -98,6 +100,30 @@ public interface CareRepository extends JpaRepository<Care, Long> {
         WHERE c.status_care = 'COMPLETADO'
     """, nativeQuery = true)
     List<Object[]> getCareStatsToday(@Param("todayDate") String todayDate);
+
+    @Query(value = """
+    SELECT
+        c.care_id AS id,
+        'ATENCIÓN' AS type,
+        an.animal_id AS animalId,
+        an.name AS animal_name,
+        vs.name AS service_name,
+        cl.name || ' ' || cl.last_name AS client_name,
+        TO_CHAR(c.care_date_time, 'YYYY-MM-DD') AS fecha,
+        TO_CHAR(c.care_date_time, 'HH24:MI') AS hora,
+        c.status_care AS status,
+        '' AS commentAppointment
+    FROM care c
+    JOIN animal an ON an.animal_id = c.animal_id
+    JOIN client cl ON cl.client_id = an.client_id
+    JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    WHERE c.status_care IN ('EN_CURSO', 'EN_ESPERA')
+      AND hvs.id_headquarter = :headquarterId
+    ORDER BY fecha ASC, hora ASC
+""", nativeQuery = true)
+    List<Object[]> findCaresByHeadquarterId(@Param("headquarterId") Long headquarterId);
+
 
 
 }

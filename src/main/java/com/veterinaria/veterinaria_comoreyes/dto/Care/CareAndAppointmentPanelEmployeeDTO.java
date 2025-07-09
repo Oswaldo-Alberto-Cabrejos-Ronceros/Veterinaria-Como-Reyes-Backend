@@ -11,10 +11,12 @@ public class CareAndAppointmentPanelEmployeeDTO {
 
     private Long id;
     private String type; // "CITA" o "ATENCIÓN"
+    private Long animalId;
     private String animalName;
     private String serviceName;
     private String clientName;
     private String date; // yyyy-MM-dd
     private String hour; // HH:mm
     private String status;
+    private String commentAppointment; // Comentarios de la cita
 }

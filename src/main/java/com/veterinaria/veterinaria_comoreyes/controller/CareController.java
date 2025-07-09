@@ -92,7 +92,7 @@ public class CareController {
 
     /************** PANEL EMPLOYEE ********/
     @GetMapping("/panel-employee/{employeeId}")
-    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsAndCaresForEmployee(@PathVariable Long employeeId) {
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresForEmployee(@PathVariable Long employeeId) {
         List<CareAndAppointmentPanelEmployeeDTO> data = careService.getCaresForEmployee(employeeId);
         return ResponseEntity.ok(data);
     }
@@ -101,6 +101,13 @@ public class CareController {
     @GetMapping("/panel-receptionist/stats-today")
     public ResponseEntity<CareStatsTodayDTO> getCareStatsToday() {
         return ResponseEntity.ok(careService.getCareStatsToday());
+    }
+    @GetMapping("/panel-receptionist/{headquarterId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getCaresByHeadquarterId(
+            @PathVariable Long headquarterId) {
+
+        List<CareAndAppointmentPanelEmployeeDTO> data = careService.getCaresByHeadquarterId(headquarterId);
+        return ResponseEntity.ok(data);
     }
 
 }

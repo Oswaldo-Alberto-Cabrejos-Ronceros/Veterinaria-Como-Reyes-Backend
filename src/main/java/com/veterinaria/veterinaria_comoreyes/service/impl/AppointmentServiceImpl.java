@@ -398,12 +398,14 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
                 row[0] != null ? ((Number) row[0]).longValue() : null, // id
                 row[1] != null ? row[1].toString() : null,             // type
-                row[2] != null ? row[2].toString() : null,             // animalName
-                row[3] != null ? row[3].toString() : null,             // serviceName
-                row[4] != null ? row[4].toString() : null,             // clientName
-                row[5] != null ? row[5].toString() : null,             // date
-                row[6] != null ? row[6].toString() : null,             // hour
-                row[7] != null ? row[7].toString() : null              // status
+                row[2] != null ? ((Number) row[2]).longValue() : null, // animalId
+                row[3] != null ? row[3].toString() : null,             // animalName
+                row[4] != null ? row[4].toString() : null,             // serviceName
+                row[5] != null ? row[5].toString() : null,             // clientName
+                row[6] != null ? row[6].toString() : null,             // date
+                row[7] != null ? row[7].toString() : null,             // hour
+                row[8] != null ? row[8].toString() : null,              // status
+                row[9] != null ? row[9].toString() : null              // statusAppointment
         )).collect(Collectors.toList());
     }
 
@@ -528,6 +530,25 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 ((Number) row[2]).intValue()  // pendingAppointments
         );
     }
+
+    @Override
+    public List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId) {
+        List<Object[]> rows = appointmentRepository.findAppointmentsByHeadquarterId(headquarterId);
+
+        return rows.stream().map(row -> new CareAndAppointmentPanelEmployeeDTO(
+                ((Number) row[0]).longValue(),   // id
+                (String) row[1],                 // type ("CITA")
+                ((Number) row[2]).longValue(),   // animalId
+                (String) row[3],                 // animalName
+                (String) row[4],                 // serviceName
+                (String) row[5],                 // clientName
+                (String) row[6],                 // date (YYYY-MM-DD)
+                (String) row[7],                 // hour (HH:mm)
+                (String) row[8],                 // status
+                (String) row[9]                  // commentAppointment
+        )).collect(Collectors.toList());
+    }
+
 
 
 

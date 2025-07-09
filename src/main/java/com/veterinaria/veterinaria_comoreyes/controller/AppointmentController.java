@@ -199,5 +199,12 @@ public class AppointmentController {
     public ResponseEntity<AppointmentStatsForReceptionistDTO> getStatsByDate() {
         return ResponseEntity.ok(appointmentService.getStatsByDate());
     }
+    @GetMapping("/panel-receptionist/{headquarterId}")
+    public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsByHeadquarterId(
+            @PathVariable Long headquarterId) {
+
+        List<CareAndAppointmentPanelEmployeeDTO> data = appointmentService.getAppointmentsByHeadquarterId(headquarterId);
+        return ResponseEntity.ok(data);
+    }
 
 }
