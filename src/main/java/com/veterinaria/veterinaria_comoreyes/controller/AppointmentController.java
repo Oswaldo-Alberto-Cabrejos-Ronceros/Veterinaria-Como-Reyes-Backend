@@ -195,10 +195,12 @@ public class AppointmentController {
     }
 
     /************** Panel Receptionist ********/
-    @GetMapping("/panel-receptionist/stats")
-    public ResponseEntity<AppointmentStatsForReceptionistDTO> getStatsByDate() {
-        return ResponseEntity.ok(appointmentService.getStatsByDate());
+    @GetMapping("/panel-receptionist/{headquarterId}/stats")
+    public ResponseEntity<AppointmentStatsForReceptionistDTO> getStatsAppointmentsByReceptionist(
+            @PathVariable Long headquarterId) {
+        return ResponseEntity.ok(appointmentService.getStatsByDate(headquarterId));
     }
+
     @GetMapping("/panel-receptionist/{headquarterId}")
     public ResponseEntity<List<CareAndAppointmentPanelEmployeeDTO>> getAppointmentsByHeadquarterId(
             @PathVariable Long headquarterId) {

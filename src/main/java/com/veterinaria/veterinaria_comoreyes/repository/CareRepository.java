@@ -95,16 +95,22 @@ public interface CareRepository extends JpaRepository<Care, Long> {
     List<Object[]> findCaresByEmployeeId(@Param("employeeId") Long employeeId);
 
     @Query(value = """
-        SELECT 
-            COUNT(*) AS totalCares,
-            COUNT(CASE 
-                WHEN TRUNC(c.care_date_time) = TO_DATE(:todayDate, 'YYYY/MM/DD') 
-                THEN 1 
-            END) AS todayCares
-        FROM care c
-        WHERE c.status_care = 'COMPLETADO'
+    SELECT 
+        COUNT(*) AS totalCares,
+        COUNT(CASE 
+            WHEN TRUNC(c.care_date_time) = TO_DATE(:todayDate, 'YYYY/MM/DD') 
+            THEN 1 
+        END) AS todayCares
+    FROM care c
+    JOIN headquarter_vet_service hvs ON c.headquarter_vetservice_id = hvs.id
+    WHERE c.status_care = 'COMPLETADO'
+      AND hvs.id_headquarter = :headquarterId
     """, nativeQuery = true)
-    List<Object[]> getCareStatsToday(@Param("todayDate") String todayDate);
+    List<Object[]> getCareStatsToday(
+            @Param("todayDate") String todayDate,
+            @Param("headquarterId") Long headquarterId
+    );
+
 
     @Query(value = """
     SELECT

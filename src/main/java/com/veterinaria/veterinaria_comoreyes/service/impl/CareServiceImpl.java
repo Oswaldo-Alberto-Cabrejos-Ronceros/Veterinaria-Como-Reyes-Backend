@@ -254,9 +254,9 @@ public class CareServiceImpl implements ICareService {
         }).collect(Collectors.toList());
     }
     @Override
-    public CareStatsTodayDTO getCareStatsToday() {
+    public CareStatsTodayDTO getCareStatsToday(Long headquarterId) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-        List<Object[]> rows = careRepository.getCareStatsToday(today);
+        List<Object[]> rows = careRepository.getCareStatsToday(today, headquarterId);
 
         if (rows.isEmpty()) {
             return new CareStatsTodayDTO(0L, 0L);
@@ -268,6 +268,7 @@ public class CareServiceImpl implements ICareService {
                 ((Number) row[1]).longValue()  // todayCares
         );
     }
+
 
     @Override
     public List<CareAndAppointmentPanelEmployeeDTO> getCaresByHeadquarterId(Long headquarterId) {
