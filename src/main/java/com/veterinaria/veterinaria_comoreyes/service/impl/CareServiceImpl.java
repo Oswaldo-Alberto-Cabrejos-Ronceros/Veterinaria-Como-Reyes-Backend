@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.RecentPatientsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.*;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -238,13 +240,16 @@ public class CareServiceImpl implements ICareService {
                     ((Number) row[0]).longValue(), // id
                     (String) row[1], // type
                     row[2] != null ? ((Number) row[2]).longValue() : null, // animalId
-                    (String) row[2], // animalName
-                    (String) row[3], // serviceName
-                    (String) row[4], // clientName
-                    (String) row[5], // date
-                    (String) row[6], // hour
-                    (String) row[7], // status
-                    (String) row[8] // comentAppointment -> null
+                    (String) row[3], // animalName
+                    (String) row[4], // serviceName
+                    (String) row[5], // clientName
+                    (String) row[6], // date
+                    (String) row[7], // hour
+                    (String) row[8], // status
+                    (String) row[9], // comentAppointment -> null
+                    ((Number) row[10]).longValue(),       // employeeId
+                    (String) row[11],                     // employeeName
+                    (String) row[12]                      // breedName
             );
         }).collect(Collectors.toList());
     }
@@ -278,8 +283,27 @@ public class CareServiceImpl implements ICareService {
                 (String) row[6],                      // date
                 (String) row[7],                      // hour
                 (String) row[8],                      // status
-                (String) row[9]                       // commentAppointment (vacío)
+                (String) row[9],                       // commentAppointment (vacío)
+                ((Number) row[10]).longValue(),       // employeeId
+                (String) row[11],                     // employeeName
+                (String) row[12]                      // breedName
         )).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<RecentPatientsDTO> getRecentPatients(Long employeeId) {
+        List<Object[]> rows = careRepository.findRecentPatientsByEmployee(employeeId);
+
+        return rows.stream().map(row -> new RecentPatientsDTO(
+                ((Number) row[0]).longValue(),   // animalId
+                (String) row[1],                 // animalName
+                (String) row[2],                 // breedName
+                (String) row[3],                 // clientFullName
+                (String) row[4],                 // lastVisitDate
+                new BigDecimal(row[5].toString()), // animalWeight
+                (String) row[6],                 // animalSex
+                (String) row[7]                  // animalBirthDate
+        )).toList();
     }
 
 

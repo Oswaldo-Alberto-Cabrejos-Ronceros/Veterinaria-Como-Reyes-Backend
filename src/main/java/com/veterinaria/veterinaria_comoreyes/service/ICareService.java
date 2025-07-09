@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.service;
 
 import java.util.List;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Animal.RecentPatientsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.*;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 import jakarta.transaction.Transactional;
@@ -39,6 +40,8 @@ public interface ICareService {
     CareStatsTodayDTO getCareStatsToday();
 
     List<CareAndAppointmentPanelEmployeeDTO> getCaresByHeadquarterId(Long headquarterId);
+
+    List<RecentPatientsDTO> getRecentPatients(Long employeeId);
 
     // void deleteCare(Long id);
 } 

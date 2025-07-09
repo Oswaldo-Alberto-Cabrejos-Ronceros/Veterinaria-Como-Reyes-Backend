@@ -405,7 +405,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 row[6] != null ? row[6].toString() : null,             // date
                 row[7] != null ? row[7].toString() : null,             // hour
                 row[8] != null ? row[8].toString() : null,              // status
-                row[9] != null ? row[9].toString() : null              // statusAppointment
+                row[9] != null ? row[9].toString() : null,              // statusAppointment
+                row[10] != null ? ((Number) row[10]).longValue() : null,
+                row[11] != null ? row[11].toString() : null,
+                row[12] != null ? row[12].toString() : null
         )).collect(Collectors.toList());
     }
 
@@ -545,7 +548,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 (String) row[6],                 // date (YYYY-MM-DD)
                 (String) row[7],                 // hour (HH:mm)
                 (String) row[8],                 // status
-                (String) row[9]                  // commentAppointment
+                (String) row[9],                  // commentAppointment
+                row[10] != null ? ((Number) row[10]).longValue() : null,
+                row[11] != null ? row[11].toString() : null,
+                row[12] != null ? row[12].toString() : null
         )).collect(Collectors.toList());
     }
 

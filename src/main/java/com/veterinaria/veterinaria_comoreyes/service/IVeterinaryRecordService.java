@@ -1,7 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.service;
 
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.InfoVeterinaryRecordForTableDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.RecentMedicalRecordDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusVeterinaryRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +23,8 @@ public interface IVeterinaryRecordService {
 
 
     Page<InfoVeterinaryRecordForTableDTO> getAllInfoVeterinaryRecordsByAnimal(Long animalId, Pageable pageable);
+
+    List<RecentMedicalRecordDTO> getRecentRecordsByEmployee(Long employeeId);
+
+    VeterinaryRecordStatsDTO getVeterinaryRecordStatsByEmployee(Long employeeId);
 }
