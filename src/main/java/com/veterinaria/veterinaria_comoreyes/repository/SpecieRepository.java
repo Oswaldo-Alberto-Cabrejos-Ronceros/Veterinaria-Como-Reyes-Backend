@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SpecieRepository extends JpaRepository<Specie, Long> {
@@ -38,5 +39,35 @@ public interface SpecieRepository extends JpaRepository<Specie, Long> {
     @Modifying
     @Query(value = "UPDATE breed SET status = 0 WHERE id_specie = :specieId", nativeQuery = true)
     void disableBreedsBySpecieId(@Param("specieId") Long specieId);
+
+    @Query(value = """
+    SELECT sp.name AS species_name, COUNT(*) AS total_completed
+    FROM appointment a
+    JOIN animal an ON a.animal_id = an.animal_id
+    JOIN breed br ON an.breed_id = br.breed_id
+    JOIN specie sp ON br.id_specie = sp.specie_id
+    WHERE a.status_appointments = 'COMPLETADA'
+    GROUP BY sp.name
+    ORDER BY total_completed DESC
+    FETCH FIRST 4 ROWS ONLY
+    """, nativeQuery = true)
+    List<Object[]> findTopSpeciesWithMostCompletedAppointments();
+
+    @Query(value = """
+    SELECT sp.name AS species_name, COUNT(*) AS total_completed
+    FROM appointment a
+    JOIN animal an ON a.animal_id = an.animal_id
+    JOIN breed br ON an.breed_id = br.breed_id
+    JOIN specie sp ON br.id_specie = sp.specie_id
+    JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
+    WHERE a.status_appointments = 'COMPLETADA'
+      AND hvs.id_headquarter = :headquarterId
+    GROUP BY sp.name
+    ORDER BY total_completed DESC
+    FETCH FIRST 4 ROWS ONLY
+    """, nativeQuery = true)
+    List<Object[]> findTopSpeciesWithMostCompletedAppointmentsByHeadquarter(@Param("headquarterId") Long headquarterId);
+
+
 
 }

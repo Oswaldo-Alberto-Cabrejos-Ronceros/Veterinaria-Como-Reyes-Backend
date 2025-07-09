@@ -264,17 +264,23 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         TO_CHAR(a.schedule_date_time, 'YYYY-MM-DD') AS fecha,
         TO_CHAR(a.schedule_date_time, 'HH24:MI') AS hora,
         a.status_appointments AS status,
-        a.comentario
+        a.comentario,
+        a.employee_id AS employee_id,
+        e.name || ' ' || e.last_name AS employee_full_name,
+        br.name AS breed_name
     FROM appointment a
     JOIN animal an ON an.animal_id = a.animal_id
+    JOIN breed br ON br.breed_id = an.breed_id
     JOIN client cl ON cl.client_id = an.client_id
     JOIN headquarter_vet_service hvs ON hvs.id = a.headquarter_vetservice_id
     JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    JOIN employee e ON e.employee_id = a.employee_id
     WHERE TRIM(a.status_appointments) IN ('PROGRAMADA', 'CONFIRMADA')
       AND a.employee_id = :employeeId
     ORDER BY fecha ASC, hora ASC
-""", nativeQuery = true)
+    """, nativeQuery = true)
     List<Object[]> findAppointmentsByEmployeeId(@Param("employeeId") Long employeeId);
+
 
 
     @Query(nativeQuery = true, value = """
@@ -363,14 +369,20 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Object[]> findPaymentInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
 
     @Query(value = """
-        SELECT 
-            COUNT(*) AS totalAppointments,
-            COUNT(CASE WHEN a.status_appointments = 'CONFIRMADA' THEN 1 END) AS confirmedAppointments,
-            COUNT(CASE WHEN a.status_appointments = 'PROGRAMADA' THEN 1 END) AS pendingAppointments
-        FROM appointment a
-        WHERE TRUNC(a.schedule_date_time) = TO_DATE(:dateStr, 'yyyy-MM-dd')
-        """, nativeQuery = true)
-    List<Object[]> getAppointmentStatsByDate(@Param("dateStr") String dateStr);
+    SELECT 
+        COUNT(*) AS totalAppointments,
+        COUNT(CASE WHEN a.status_appointments = 'CONFIRMADA' THEN 1 END) AS confirmedAppointments,
+        COUNT(CASE WHEN a.status_appointments = 'PROGRAMADA' THEN 1 END) AS pendingAppointments
+    FROM appointment a
+    JOIN headquarter_vet_service hvs ON a.headquarter_vetservice_id = hvs.id
+    WHERE TRUNC(a.schedule_date_time) = TO_DATE(:dateStr, 'yyyy-MM-dd')
+      AND hvs.id_headquarter = :headquarterId
+    """, nativeQuery = true)
+    List<Object[]> getAppointmentStatsByDateAndHeadquarter(
+            @Param("dateStr") String dateStr,
+            @Param("headquarterId") Long headquarterId
+    );
+
 
     @Query(value = """
     SELECT

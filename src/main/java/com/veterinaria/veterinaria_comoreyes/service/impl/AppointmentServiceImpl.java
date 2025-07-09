@@ -519,9 +519,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     @Override
-    public AppointmentStatsForReceptionistDTO getStatsByDate(){
-        String dateStr = LocalDate.now().toString(); // Obtener la fecha actual en formato yyyy-MM-dd
-        List<Object[]> rows = appointmentRepository.getAppointmentStatsByDate(dateStr);
+    public AppointmentStatsForReceptionistDTO getStatsByDate(Long headquarterId) {
+        String dateStr = LocalDate.now().toString(); // yyyy-MM-dd
+        List<Object[]> rows = appointmentRepository.getAppointmentStatsByDateAndHeadquarter(dateStr, headquarterId);
+
         if (rows.isEmpty()) {
             return new AppointmentStatsForReceptionistDTO(0, 0, 0);
         }
@@ -533,6 +534,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 ((Number) row[2]).intValue()  // pendingAppointments
         );
     }
+
 
     @Override
     public List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId) {
