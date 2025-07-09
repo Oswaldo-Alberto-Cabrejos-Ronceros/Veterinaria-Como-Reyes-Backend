@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.SpecieMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,6 +95,30 @@ public class SpecieServiceImpl implements ISpecieService {
     public Page<SpecieListDTO> searchSpecies(String name, Boolean status, Pageable pageable) {
         filterStatus.activeFilterStatus(true); // Aplica filtro lógico global si corresponde
         return specieRepository.searchSpeciesWithFilters(name, status, pageable);
+    }
+
+    @Override
+    public TopSpeciesByAppointmentsDTO getTopSpeciesGeneral() {
+        List<Object[]> rows = specieRepository.findTopSpeciesWithMostCompletedAppointments();
+        return buildTopSpeciesDTO(rows);
+    }
+
+    @Override
+    public TopSpeciesByAppointmentsDTO getTopSpeciesByHeadquarter(Long headquarterId) {
+        List<Object[]> rows = specieRepository.findTopSpeciesWithMostCompletedAppointmentsByHeadquarter(headquarterId);
+        return buildTopSpeciesDTO(rows);
+    }
+
+    private TopSpeciesByAppointmentsDTO buildTopSpeciesDTO(List<Object[]> rows) {
+        List<String> speciesNames = new ArrayList<>();
+        List<Long> appointmentCounts = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            speciesNames.add((String) row[0]);
+            appointmentCounts.add(((Number) row[1]).longValue());
+        }
+
+        return new TopSpeciesByAppointmentsDTO(speciesNames, appointmentCounts);
     }
 }
 
