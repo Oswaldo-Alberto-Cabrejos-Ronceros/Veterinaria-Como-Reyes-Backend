@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -371,6 +372,21 @@ public class ClientServiceImpl implements IClientService {
                 currentMonthClients,
                 previousMonthClients,
                 differenceWithSign
+        );
+    }
+    @Override
+    public ClientStatsTodayDTO getClientStatsToday() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        List<Object[]> result = clientRepository.getClientStatsByDate(today);
+
+        if (result.isEmpty()) {
+            return new ClientStatsTodayDTO(0, 0);
+        }
+
+        Object[] row = result.get(0);
+        return new ClientStatsTodayDTO(
+                ((Number) row[0]).intValue(),
+                ((Number) row[1]).intValue()
         );
     }
 

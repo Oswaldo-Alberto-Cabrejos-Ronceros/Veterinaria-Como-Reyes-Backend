@@ -360,5 +360,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 """, nativeQuery = true)
     List<Object[]> findPaymentInfoByAppointmentId(@Param("appointmentId") Long appointmentId);
 
-
+    @Query(value = """
+        SELECT 
+            COUNT(*) AS totalAppointments,
+            COUNT(CASE WHEN a.status_appointments = 'CONFIRMADA' THEN 1 END) AS confirmedAppointments,
+            COUNT(CASE WHEN a.status_appointments = 'PROGRAMADA' THEN 1 END) AS pendingAppointments
+        FROM appointment a
+        WHERE TRUNC(a.schedule_date_time) = TO_DATE(:dateStr, 'yyyy-MM-dd')
+        """, nativeQuery = true)
+    List<Object[]> getAppointmentStatsByDate(@Param("dateStr") String dateStr);
 }

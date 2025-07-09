@@ -1,8 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentListDTO;
-import com.veterinaria.veterinaria_comoreyes.dto.Payment.PaymentStatsForPanelAdminDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.*;
 import com.veterinaria.veterinaria_comoreyes.entity.*;
 import com.veterinaria.veterinaria_comoreyes.mapper.PaymentMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.*;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -232,6 +231,29 @@ public class PaymentServiceImpl implements IPaymentService {
         }
 
         return new PaymentStatsForPanelAdminDTO(currentTotal, previousTotal, percentageDifference);
+    }
+
+    @Override
+    public IncomeStatsTodayDTO getTodayIncomeStats() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        BigDecimal income = paymentRepository.getTodayIncome(today);
+        return new IncomeStatsTodayDTO(income);
+    }
+    @Override
+    public List<RecentPaymentsDTO> getRecentCompletedPayments(Long headquarterId) {
+        List<Object[]> rows = paymentRepository.findRecentCompletedPaymentsByHeadquarter(headquarterId);
+
+        return rows.stream().map(row -> new RecentPaymentsDTO(
+                ((Number) row[0]).longValue(),
+                (String) row[1],
+                (String) row[2],
+                (String) row[3],
+                (String) row[4],
+                new BigDecimal(((Number) row[5]).doubleValue()),
+                (String) row[6],
+                (String) row[7],
+                (String) row[8]
+        )).collect(Collectors.toList());
     }
 
 

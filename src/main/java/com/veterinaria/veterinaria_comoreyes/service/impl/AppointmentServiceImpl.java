@@ -513,6 +513,21 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return Optional.of(dto);
     }
 
+    @Override
+    public AppointmentStatsForReceptionistDTO getStatsByDate(){
+        String dateStr = LocalDate.now().toString(); // Obtener la fecha actual en formato yyyy-MM-dd
+        List<Object[]> rows = appointmentRepository.getAppointmentStatsByDate(dateStr);
+        if (rows.isEmpty()) {
+            return new AppointmentStatsForReceptionistDTO(0, 0, 0);
+        }
+
+        Object[] row = rows.get(0);
+        return new AppointmentStatsForReceptionistDTO(
+                ((Number) row[0]).intValue(), // totalAppointments
+                ((Number) row[1]).intValue(), // confirmedAppointments
+                ((Number) row[2]).intValue()  // pendingAppointments
+        );
+    }
 
 
 

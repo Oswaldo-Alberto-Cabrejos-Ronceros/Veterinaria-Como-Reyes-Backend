@@ -36,5 +36,7 @@ public interface ICareService {
 
     List<CareAndAppointmentPanelEmployeeDTO> getCaresForEmployee(Long employeeId);
 
+    CareStatsTodayDTO getCareStatsToday();
+
     // void deleteCare(Long id);
 } 

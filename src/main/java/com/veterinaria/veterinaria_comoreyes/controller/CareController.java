@@ -97,4 +97,10 @@ public class CareController {
         return ResponseEntity.ok(data);
     }
 
+    /************** Panel Receptionist ********/
+    @GetMapping("/panel-receptionist/stats-today")
+    public ResponseEntity<CareStatsTodayDTO> getCareStatsToday() {
+        return ResponseEntity.ok(careService.getCareStatsToday());
+    }
+
 }
