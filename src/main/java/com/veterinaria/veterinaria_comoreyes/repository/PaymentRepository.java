@@ -199,4 +199,56 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 """, nativeQuery = true)
     List<Object[]> findRecentCompletedPaymentsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
+    @Query(value = """
+    WITH week_days AS (
+        SELECT TO_DATE(:startDate, 'YYYY-MM-DD') + LEVEL - 1 AS day_date
+        FROM dual
+        CONNECT BY LEVEL <= 7
+    )
+    SELECT 
+        INITCAP(TO_CHAR(wd.day_date, 'Day', 'NLS_DATE_LANGUAGE=SPANISH')) AS day_name,
+        NVL(SUM(p.amount), 0) AS total
+    FROM week_days wd
+    LEFT JOIN payment p 
+        ON TRUNC(p.payment_date_time) = wd.day_date 
+        AND p.status = 'COMPLETADA'
+    GROUP BY wd.day_date
+    ORDER BY wd.day_date ASC
+    """, nativeQuery = true)
+    List<Object[]> getWeeklyIncomeGeneral(@Param("startDate") String startDate);
+
+
+    @Query(value = """
+
+            WITH week_days AS (
+            SELECT TO_DATE(:startDate, 'YYYY/MM/DD') + LEVEL - 1 AS day_date
+        FROM dual
+            CONNECT BY LEVEL <= 7
+    )
+    SELECT\s
+        INITCAP(
+            TO_CHAR(wd.day_date, 'Day', 'NLS_DATE_LANGUAGE=SPANISH')) AS day_name,
+        NVL
+            (SUM(CASE\s
+            WHEN hvs.id_headquarter = :headquarterId THEN p.amount
+            ELSE 0
+        END), 0) AS total
+            FROM week_days wd
+            LEFT JOIN payment p\s
+        ON TRUNC(p.payment_date_time) = wd.day_date AND p.status = 'COMPLETADA'
+            LEFT JOIN care c ON c.care_id = p.care_id
+            LEFT JOIN appointment a ON a.appointment_id = p.appointment_id AND p.care_id IS NULL
+            LEFT JOIN headquarter_vet_service hvs\s
+        ON hvs.id = COALESCE(c.headquarter_vetservice_id, a.headquarter_vetservice_id)
+            GROUP BY wd.day_date
+            ORDER BY wd.day_date ASC
+    
+    """, nativeQuery = true)
+    List<Object[]> getWeeklyIncomeByHeadquarter(
+            @Param("startDate") String startDate,
+            @Param("headquarterId") Long headquarterId
+    );
+
+
+
 }

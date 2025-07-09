@@ -38,4 +38,8 @@ public interface IPaymentService {
     IncomeStatsTodayDTO getTodayIncomeStats();
 
     List<RecentPaymentsDTO> getRecentCompletedPayments(Long headquarterId);
+
+    WeeklyIncomeDTO getWeeklyIncomeGeneral();
+
+    WeeklyIncomeDTO getWeeklyIncomeByHeadquarter(Long headquarterId);
 }
