@@ -81,4 +81,26 @@ public interface VeterinaryRecordRepository extends JpaRepository<VeterinaryReco
     List<Object[]> getVeterinaryRecordStatsByEmployee(@Param("employeeId") Long employeeId);
 
 
+    @Query(value = """
+    SELECT 
+        vr.id,
+        TO_CHAR(vr.date_created, 'DD/MM/YYYY') AS formatted_date,
+        h.name AS headquarter_name,
+        e.name || ' ' || e.last_name AS employee_full_name,
+        vr.diagnosis,
+        vr.treatment,
+        vr.observations,
+        vr.result_url,
+        vr.status_veterinary_record
+    FROM veterinary_record vr
+    JOIN care c ON c.care_id = vr.id_care
+    JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
+    JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
+    JOIN employee e ON e.employee_id = vr.id_employee
+    WHERE c.animal_id = :animalId
+    ORDER BY vr.date_created DESC
+""", nativeQuery = true)
+    List<Object[]> findRecordsByAnimalId(@Param("animalId") Long animalId);
+
+
 }

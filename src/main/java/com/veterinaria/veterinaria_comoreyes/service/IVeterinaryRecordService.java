@@ -27,4 +27,6 @@ public interface IVeterinaryRecordService {
     List<RecentMedicalRecordDTO> getRecentRecordsByEmployee(Long employeeId);
 
     VeterinaryRecordStatsDTO getVeterinaryRecordStatsByEmployee(Long employeeId);
+
+    List<InfoVeterinaryRecordForTableDTO> getRecordsByAnimalId(Long animalId);
 }
