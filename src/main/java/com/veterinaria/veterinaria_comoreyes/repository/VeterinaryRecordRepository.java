@@ -30,17 +30,18 @@ public interface VeterinaryRecordRepository extends JpaRepository<VeterinaryReco
                 END,
                 v.date_created DESC
         """,
-                    countQuery = """
+            countQuery = """
             SELECT COUNT(*)
             FROM veterinary_record v
             JOIN care c ON v.id_care = c.care_id
             JOIN headquarter_vet_service hvs ON c.headquarter_vetservice_id = hvs.id
             JOIN headquarter h ON hvs.id_headquarter = h.headquarter_id
             LEFT JOIN employee e ON v.id_employee = e.employee_id
-            WHERE c.id_animal = :animalId
+            WHERE c.animal_id = :animalId
         """,
             nativeQuery = true)
     Page<Object[]> findAllInfoVeterinaryRecordsByAnimalId(@Param("animalId") Long animalId, Pageable pageable);
+
 
 
     @Query(value = """
