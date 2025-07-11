@@ -12,4 +12,5 @@ import lombok.Setter;
 public class PaymentMethodListDTO {
     private Long paymentMethodId;
     private String name;
+    private String description;
 }

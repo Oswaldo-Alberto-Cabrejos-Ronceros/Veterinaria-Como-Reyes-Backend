@@ -40,6 +40,13 @@ public class HeadquarterVetServiceController {
         return ResponseEntity.ok(headquarterVetServiceService.callHeadquarterVetServiceByHeadquarter(headquarterId));
     }
 
+    // Obtener todas las relaciones (activas e inactivas) por sede
+    @GetMapping("/headquarter/{headquarterId}/all")
+    public ResponseEntity<List<HeadquarterVetServiceDTO>> getAllByHeadquarter(@PathVariable Long headquarterId) {
+        return ResponseEntity.ok(
+                headquarterVetServiceService.getAllHeadquarterVetServiceByHeadquarter(headquarterId));
+    }
+
     // Crear relación sede-servicio
     @PostMapping
     public ResponseEntity<HeadquarterVetServiceDTO> create(@RequestBody HeadquarterVetServiceDTO dto) {
@@ -48,7 +55,8 @@ public class HeadquarterVetServiceController {
 
     // Actualizar relación
     @PutMapping("/{id}")
-    public ResponseEntity<HeadquarterVetServiceDTO> update(@PathVariable Long id, @RequestBody HeadquarterVetServiceDTO dto) {
+    public ResponseEntity<HeadquarterVetServiceDTO> update(@PathVariable Long id,
+            @RequestBody HeadquarterVetServiceDTO dto) {
         return ResponseEntity.ok(headquarterVetServiceService.updateHeadquarterVetService(id, dto));
     }
 
@@ -61,22 +69,23 @@ public class HeadquarterVetServiceController {
 
     @GetMapping("/veterinarians")
     public ResponseEntity<List<EmployeeBasicInfoDTO>> listVeterinariansByHvs(
-            @RequestParam Long headquarterVetServiceId
-    ) {
+            @RequestParam Long headquarterVetServiceId) {
         List<EmployeeBasicInfoDTO> vets = headquarterVetServiceService.getVeterinariansByHvs(headquarterVetServiceId);
         if (vets.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(vets);
     }
+
     @PatchMapping("/{id}/activate")
     public ResponseEntity<Void> enable(@PathVariable Long id) {
         headquarterVetServiceService.enableHeadquarterVetService(id);
         return ResponseEntity.noContent().build();
     }
+
     @PatchMapping("/{id}/capacity")
     public ResponseEntity<Void> updateCapacity(@PathVariable Long id,
-                                               @RequestBody Map<String, Integer> body) {
+            @RequestBody Map<String, Integer> body) {
         Integer capacity = body.get("simultaneousCapacity");
         headquarterVetServiceService.updateSimultaneousCapacity(id, capacity);
         return ResponseEntity.noContent().build();

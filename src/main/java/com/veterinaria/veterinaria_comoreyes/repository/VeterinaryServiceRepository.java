@@ -33,6 +33,8 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
                     s.name,
                     s.specie.name,
                     s.category.name,
+                    s.price,
+                    s.duration,
                     CASE WHEN s.status = true THEN 'Activo' ELSE 'Inactivo' END
                 )
                 FROM VeterinaryService s
@@ -40,6 +42,7 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
                       (:specie IS NULL OR s.specie.name LIKE %:specie%) AND
                       (:category IS NULL OR s.category.name LIKE %:category%) AND
                       (:status IS NULL OR s.status = :status)
+                ORDER BY s.serviceId DESC
             """)
     Page<ServiceListDTO> searchServicesWithFilters(
             @Param("name") String name,
@@ -49,49 +52,49 @@ public interface VeterinaryServiceRepository extends JpaRepository<VeterinarySer
             Pageable pageable);
 
     @Query(value = """
-        SELECT 
-            vs.service_id AS service_id,
-            vs.name AS service_name,
-            c.name AS category_name,
-            vs.dir_image AS image_url,
-            COUNT(*) AS total_cares
-        FROM 
-            care ca
-        JOIN 
-            headquarter_vet_service hvs ON ca.headquarter_vetservice_id = hvs.id
-        JOIN 
-            veterinary_service vs ON hvs.id_service = vs.service_id
-        JOIN 
-            category c ON vs.id_category = c.category_id
-        GROUP BY 
-            vs.dir_image, vs.name, c.name, vs.service_id 
-        ORDER BY 
-            total_cares DESC
-    """, nativeQuery = true)
+                SELECT
+                    vs.service_id AS service_id,
+                    vs.name AS service_name,
+                    c.name AS category_name,
+                    vs.dir_image AS image_url,
+                    COUNT(*) AS total_cares
+                FROM
+                    care ca
+                JOIN
+                    headquarter_vet_service hvs ON ca.headquarter_vetservice_id = hvs.id
+                JOIN
+                    veterinary_service vs ON hvs.id_service = vs.service_id
+                JOIN
+                    category c ON vs.id_category = c.category_id
+                GROUP BY
+                    vs.dir_image, vs.name, c.name, vs.service_id
+                ORDER BY
+                    total_cares DESC
+            """, nativeQuery = true)
     List<Object[]> getTopServicesPanelAdmin();
 
     @Query(value = """
-        SELECT 
-            vs.service_id AS service_id,
-            vs.name AS service_name,
-            c.name AS category_name,
-            vs.dir_image AS image_url,
-            COUNT(*) AS total_cares
-        FROM 
-            care ca
-        JOIN 
-            headquarter_vet_service hvs ON ca.headquarter_vetservice_id = hvs.id
-        JOIN 
-            veterinary_service vs ON hvs.id_service = vs.service_id
-        JOIN 
-            category c ON vs.id_category = c.category_id
-        WHERE 
-            hvs.id_headquarter = :headquarterId
-        GROUP BY 
-             vs.dir_image, vs.service_id, vs.name, c.name
-        ORDER BY 
-            total_cares DESC
-    """, nativeQuery = true)
+                SELECT
+                    vs.service_id AS service_id,
+                    vs.name AS service_name,
+                    c.name AS category_name,
+                    vs.dir_image AS image_url,
+                    COUNT(*) AS total_cares
+                FROM
+                    care ca
+                JOIN
+                    headquarter_vet_service hvs ON ca.headquarter_vetservice_id = hvs.id
+                JOIN
+                    veterinary_service vs ON hvs.id_service = vs.service_id
+                JOIN
+                    category c ON vs.id_category = c.category_id
+                WHERE
+                    hvs.id_headquarter = :headquarterId
+                GROUP BY
+                     vs.dir_image, vs.service_id, vs.name, c.name
+                ORDER BY
+                    total_cares DESC
+            """, nativeQuery = true)
     List<Object[]> getTopServicesPanelManager(@Param("headquarterId") Long headquarterId);
 
 }

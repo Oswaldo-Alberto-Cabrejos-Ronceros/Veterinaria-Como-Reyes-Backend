@@ -31,13 +31,15 @@ public interface BreedRepository extends JpaRepository<Breed, Long> {
                     CASE WHEN b.status = true THEN 'Activo' ELSE 'Inactivo' END
                 )
                 FROM Breed b
-                WHERE (:name IS NULL OR b.name LIKE %:name%) AND
-                      (:specieName IS NULL OR b.specie.name LIKE %:specieName%) AND
-                      (:status IS NULL OR b.status = :status)
+                WHERE (:name IS NULL OR LOWER(b.name) LIKE LOWER(CONCAT(:name, '%')))
+                  AND (:specieName IS NULL OR LOWER(b.specie.name) LIKE LOWER(CONCAT(:specieName, '%')))
+                  AND (:status IS NULL OR b.status = :status)
+                ORDER BY b.breedId DESC
             """)
     Page<BreedListDTO> searchBreedsWithFilters(
             @Param("name") String name,
             @Param("specieName") String specieName,
             @Param("status") Boolean status,
             Pageable pageable);
+
 }

@@ -13,21 +13,26 @@ import org.springframework.data.repository.query.Param;
 
 public interface HeadquarterVetServiceRepository extends JpaRepository<HeadquarterVetService, Long> {
     Optional<HeadquarterVetService> findByIdAndStatusIsTrue(Long id);
+
     boolean existsByHeadquarterAndVeterinaryService(Headquarter headquarter, VeterinaryService veterinaryService);
+
     List<HeadquarterVetService> findByVeterinaryService(VeterinaryService veterinaryService);
+
     List<HeadquarterVetService> findByHeadquarter(Headquarter headquarter);
 
     boolean existsByIdAndStatusIsTrue(Long id);
 
+    //Todos los estados
+    List<HeadquarterVetService> findByHeadquarter_HeadquarterId(Long headquarterId);
 
     @Query("SELECT hs.veterinaryService.name FROM HeadquarterVetService hs WHERE hs.id = :id")
     Optional<String> findServiceNameById(@Param("id") Long id);
 
     @Query("SELECT hs.veterinaryService.price FROM HeadquarterVetService hs WHERE hs.id = :id")
-    Optional<Double>  findServicePriceById(Long id);
+    Optional<Double> findServicePriceById(Long id);
 
     @Query("SELECT hs.veterinaryService.specie.specieId FROM HeadquarterVetService hs WHERE hs.id = :id")
-    Optional<String>  findSpecieNameById(Long id);
+    Optional<String> findSpecieNameById(Long id);
 
     @Query(value = "SELECT e.employee_id AS id, e.name || ' ' || e.last_name AS fullName " +
             "FROM employee e " +
@@ -38,6 +43,7 @@ public interface HeadquarterVetServiceRepository extends JpaRepository<Headquart
             "WHERE hs.id = :headquarterVetServiceId " +
             "AND e.status = 1 " +
             "AND r.name = 'Veterinario'", nativeQuery = true)
-    List<Object[]> findVeterinariansByHeadquarterVetServiceId(@Param("headquarterVetServiceId") Long headquarterVetServiceId);
+    List<Object[]> findVeterinariansByHeadquarterVetServiceId(
+            @Param("headquarterVetServiceId") Long headquarterVetServiceId);
 
 }

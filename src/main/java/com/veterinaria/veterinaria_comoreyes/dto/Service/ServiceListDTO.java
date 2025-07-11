@@ -14,5 +14,7 @@ public class ServiceListDTO {
     private String name;
     private String specie;
     private String category;
+    private Double price;
+    private Integer duration;
     private String status;
 }

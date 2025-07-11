@@ -23,11 +23,13 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
                 SELECT new com.veterinaria.veterinaria_comoreyes.dto.Category.CategoryListDTO(
                     c.categoryId,
                     c.name,
+                    c.description,
                     CASE WHEN c.status = true THEN 'Activo' ELSE 'Inactivo' END
                 )
                 FROM Category c
-                WHERE (:name IS NULL OR c.name LIKE %:name%) AND
-                      (:status IS NULL OR c.status = :status)
+                WHERE (:name IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT(:name, '%')))
+                  AND (:status IS NULL OR c.status = :status)
+                ORDER BY c.categoryId DESC
             """)
     Page<CategoryListDTO> searchCategoriesWithFilters(
             @Param("name") String name,
