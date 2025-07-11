@@ -36,4 +36,9 @@ public interface IHeadquarterVetServiceService {
 
     @Transactional
     void enableHeadquarterVetService(Long id);
+
+
+    //Get all status 
+    List<HeadquarterVetServiceDTO> getAllHeadquarterVetServiceByHeadquarter(Long headquarterId);
+
 }

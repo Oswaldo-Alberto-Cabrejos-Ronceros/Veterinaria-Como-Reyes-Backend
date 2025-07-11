@@ -24,14 +24,17 @@ public interface PaymentMethodRepository extends JpaRepository<PaymentMethod, Lo
     @Query("""
                 SELECT new com.veterinaria.veterinaria_comoreyes.dto.Payment_Method.PaymentMethodListDTO(
                     p.paymentMethodId,
-                    p.name
+                    p.name,
+                    p.description
                 )
                 FROM PaymentMethod p
-                WHERE (:name IS NULL OR p.name LIKE %:name%) AND
-                      (:status IS NULL OR p.status = :status)
+                WHERE (:name IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT(:name, '%')))
+                  AND (:status IS NULL OR p.status = :status)
+                ORDER BY p.paymentMethodId DESC
             """)
     Page<PaymentMethodListDTO> searchPaymentMethodsWithFilters(
             @Param("name") String name,
             @Param("status") Boolean status,
             Pageable pageable);
+
 }

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}">Reporte Detallado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .period-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+
+        th,
+        td {
+            border: 1px solid #999;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            text-transform: uppercase;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2 th:text="${title}">Reporte de Ingresos por Servicio</h2>
+        <div th:text="'Período: ' + ${period}">Periodo</div>
+    </div>
+
+    <div th:each="entry : ${groupedData.entrySet()}">
+        <div class="period-title" th:text="'Semana: ' + ${entry.key}">Semana: 07/07/2025 - 13/07/2025</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Servicio</th>
+                    <th>Precio Unitario</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${entry.value}">
+                    <td th:text="${row.serviceName}">Baño</td>
+                    <td th:text="${row.unitPrice}">50.00</td>
+                    <td th:text="${row.count}">4</td>
+                    <td th:text="${row.formattedTotal}">S/200.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer">
+        Generado el <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">fecha</span>
+    </div>
+</body>
+
+</html>

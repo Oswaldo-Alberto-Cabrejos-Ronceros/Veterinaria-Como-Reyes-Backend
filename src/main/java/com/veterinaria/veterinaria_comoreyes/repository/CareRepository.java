@@ -56,6 +56,7 @@ public interface CareRepository extends JpaRepository<Care, Long> {
       AND (:idHeadquarter IS NULL OR hvs.id_headquarter = :idHeadquarter)
       AND (:idService IS NULL OR hvs.id_service = :idService)
       AND (:estado IS NULL OR c.status_care = :estado)
+      ORDER BY c.care_id DESC
     """,
             nativeQuery = true)
     Page<Object[]> searchCaresNative(

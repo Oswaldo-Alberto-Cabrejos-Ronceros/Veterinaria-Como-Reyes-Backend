@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title th:text="${title}">Reporte de Ingresos</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 16px;
+            margin: 0;
+            padding: 30px; /* Reduced padding from 40px */
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.5; /* Slightly reduced line height for compactness */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 35px 50px; /* Reduced vertical padding from 40px */
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px; /* Reduced margin-bottom from 50px */
+            border-bottom: 2px solid #d0d0d0;
+            padding-bottom: 18px; /* Reduced padding-bottom from 25px */
+        }
+
+        .logo {
+            height: 70px; /* Slightly reduced logo height */
+            margin-bottom: 15px; /* Slightly reduced margin */
+        }
+
+        h2 {
+            margin: 8px 0; /* Reduced vertical margin */
+            color: #2c3e50;
+            font-size: 30px; /* Slightly reduced font size */
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 17px; /* Slightly reduced font size */
+            color: #666;
+            margin-top: 10px; /* Reduced margin-top */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px; /* Reduced margin-top from 40px */
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #c0c0c0;
+        }
+
+        th,
+        td {
+            border: 1px solid #d0d0d0;
+            padding: 12px 20px; /* Reduced vertical padding from 15px */
+            text-align: center;
+            font-size: 15px; /* Slightly reduced font size */
+        }
+
+        th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tbody tr:hover {
+            background-color: #eef7ff;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #d1ecf1;
+            color: #0c5460;
+            font-size: 17px; /* Slightly reduced font size */
+            border-top: 2px solid #a7d9ed;
+        }
+
+        .footer {
+            margin-top: 35px; /* Reduced margin-top from 50px */
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            padding-top: 18px; /* Reduced padding-top from 25px */
+            border-top: 1px solid #d0d0d0;
+        }
+
+        .chart {
+            text-align: center;
+            margin-top: 40px; /* Reduced margin-top from 60px */
+            padding-top: 25px; /* Reduced padding-top from 35px */
+            border-top: 2px solid #d0d0d0;
+        }
+
+        .chart h3 {
+            font-size: 22px; /* Slightly reduced font size */
+            color: #2c3e50;
+            margin-bottom: 20px; /* Reduced margin-bottom from 30px */
+        }
+
+        .chart img {
+            max-width: 65%;
+            height: auto;
+            border: 2px solid #c0c0c0;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img th:src="@{/images/logo.png}" class="logo" alt="Logo Veterinaria" th:if="${#bools.isTrue(showLogo)}" />
+
+            <h2 th:text="${title}">Reporte de Ingresos</h2>
+            <div class="subtitle" th:text="'Período: ' + ${period}">Período: Mensual</div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>PERÍODO</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${data}">
+                    <td th:text="${item.period}">2025-07</td>
+                    <td th:text="${item.getFormattedTotal()}">S/1,500.00</td>
+                </tr>
+                <tr class="total-row">
+                    <td>Total General</td>
+                    <td th:text="${total}">S/0.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="chart">
+            <h3>Distribución de Ingresos por Período</h3>
+            <img th:src="'data:image/png;base64,' + ${chartImage}" alt="Gráfico de Ingresos por Torta" />
+        </div>
+
+        <div class="footer">
+            Generado el <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">09/07/2025 09:48</span>
+            <div th:if="${pageNumber != null}" th:text="'Página ' + ${pageNumber}"></div>
+        </div>
+    </div>
+</body>
+
+</html>

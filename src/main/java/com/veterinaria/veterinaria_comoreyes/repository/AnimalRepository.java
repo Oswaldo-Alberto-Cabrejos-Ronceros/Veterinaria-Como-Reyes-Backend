@@ -61,12 +61,13 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
                     CASE WHEN a.status = true THEN 'Activo' ELSE 'Inactivo' END
                 )
                 FROM Animal a
-                WHERE (:name IS NULL OR a.name LIKE %:name%) AND
-                      (:owner IS NULL OR a.client.name LIKE %:owner%) AND
-                      (:specie IS NULL OR a.breed.specie.name LIKE %:specie%) AND
-                      (:breed IS NULL OR a.breed.name LIKE %:breed%) AND
-                      (:gender IS NULL OR a.gender = :gender) AND
-                      (:status IS NULL OR a.status = :status)
+                WHERE (:name IS NULL OR LOWER(a.name) LIKE LOWER(CONCAT(:name, '%')))
+                  AND (:owner IS NULL OR LOWER(a.client.name) LIKE LOWER(CONCAT(:owner, '%')))
+                  AND (:specie IS NULL OR LOWER(a.breed.specie.name) LIKE LOWER(CONCAT(:specie, '%')))
+                  AND (:breed IS NULL OR LOWER(a.breed.name) LIKE LOWER(CONCAT(:breed, '%')))
+                  AND (:gender IS NULL OR a.gender = :gender)
+                  AND (:status IS NULL OR a.status = :status)
+                ORDER BY a.animalId DESC
             """)
     Page<AnimalListDTO> searchAnimalsWithFullDetails(
             @Param("name") String name,
