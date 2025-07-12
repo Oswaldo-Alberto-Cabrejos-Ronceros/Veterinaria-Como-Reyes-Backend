@@ -309,6 +309,8 @@ public class AppointmentServiceImpl implements IAppointmentService {
             dto.setCategoryServiceName((String) row[7]); // nombre de la categoría del servicio
             dto.setStatus((String) row[8]); // estado
             dto.setDuration(row[9] != null ? ((Number) row[9]).intValue() : null); // duración en minutos
+            dto.setNameHeadquarter((String) row[10]);
+            dto.setAddressHeadquarter((String) row[11]);
             dtos.add(dto);
         }
         return dtos;

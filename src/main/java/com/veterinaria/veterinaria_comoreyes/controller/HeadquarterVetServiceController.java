@@ -1,11 +1,15 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterServiceInfoPanelDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IHeadquarterVetServiceService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,5 +94,17 @@ public class HeadquarterVetServiceController {
         headquarterVetServiceService.updateSimultaneousCapacity(id, capacity);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<HeadquarterServiceInfoPanelDTO>> filterServices(
+            @RequestParam(required = false) String serviceName,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long speciesId,
+            @RequestParam(required = false) Long headquarterId,
+            @PageableDefault(size = 10) Pageable pageable) {
+
+        return ResponseEntity.ok(headquarterVetServiceService.getFilteredServices(serviceName, categoryId, speciesId,headquarterId, pageable));
+    }
+
 
 }

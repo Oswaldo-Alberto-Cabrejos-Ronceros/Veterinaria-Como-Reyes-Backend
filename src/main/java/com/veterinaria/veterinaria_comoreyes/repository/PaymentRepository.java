@@ -249,6 +249,22 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             @Param("headquarterId") Long headquarterId
     );
 
+    @Query(value = """
+    SELECT 
+        p.payment_id AS paymentId,
+        p.amount AS amount,
+        vs.name AS serviceName,
+        pm.payment_method_id AS paymentMethodId,
+        pm.name AS paymentMethod,
+        p.status AS paymentStatus
+    FROM payment p
+    JOIN care c ON c.care_id = p.care_id
+    JOIN headquarter_vet_service hvs ON hvs.id = c.headquarter_vetservice_id
+    JOIN veterinary_service vs ON vs.service_id = hvs.id_service
+    JOIN payment_method pm ON pm.payment_method_id = p.payment_method_id
+    WHERE p.care_id = :careId
+""", nativeQuery = true)
+    List<Object[]> findPaymentInfoByCareId(@Param("careId") Long careId);
 
 
 }

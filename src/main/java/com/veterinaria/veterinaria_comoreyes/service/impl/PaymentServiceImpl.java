@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -300,5 +301,27 @@ public class PaymentServiceImpl implements IPaymentService {
 
         return new WeeklyIncomeDTO(days, totals);
     }
+
+    @Override
+    public PaymentInfoForAppointmentDTO getPaymentInfoByCareId(Long careId) {
+        List<Object[]> result = paymentRepository.findPaymentInfoByCareId(careId);
+
+        if (result.isEmpty()) {
+            throw new RuntimeException("No se encontró pago con care_id: " + careId);
+        }
+
+        Object[] row = result.get(0);
+        PaymentInfoForAppointmentDTO dto = new PaymentInfoForAppointmentDTO();
+
+        dto.setPaymentId(row[0] != null ? Long.valueOf(row[0].toString()) : null);
+        dto.setAmount(row[1] != null ? new BigDecimal(row[1].toString()) : null);
+        dto.setServiceName(row[2] != null ? row[2].toString() : null);
+        dto.setPaymentMethodId(row[3] != null ? Long.valueOf(row[3].toString()) : null);
+        dto.setPaymentMethod(row[4] != null ? row[4].toString() : null);
+        dto.setPaymentStatus(row[5] != null ? row[5].toString() : null);
+
+        return dto;
+    }
+
 
 }
