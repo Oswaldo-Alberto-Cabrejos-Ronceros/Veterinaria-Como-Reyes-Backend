@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterServiceInfoPanelDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterVetServiceDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface IHeadquarterVetServiceService {
@@ -41,4 +44,5 @@ public interface IHeadquarterVetServiceService {
     //Get all status 
     List<HeadquarterVetServiceDTO> getAllHeadquarterVetServiceByHeadquarter(Long headquarterId);
 
+    Page<HeadquarterServiceInfoPanelDTO> getFilteredServices(String name, Long categoryId, Long speciesId, Long headquarterId, Pageable pageable);
 }

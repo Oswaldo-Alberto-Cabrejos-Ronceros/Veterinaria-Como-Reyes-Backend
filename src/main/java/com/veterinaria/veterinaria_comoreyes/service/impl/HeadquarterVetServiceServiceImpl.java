@@ -5,7 +5,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Employee.EmployeeBasicInfoDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Headquarter_Service.HeadquarterServiceInfoPanelDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -200,5 +204,30 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
                                 .map(headquarterVetServiceMapper::mapToHeadquarterVetServiceDTO)
                                 .collect(Collectors.toList());
         }
+
+        @Override
+        public Page<HeadquarterServiceInfoPanelDTO> getFilteredServices(String name, Long categoryId, Long speciesId,Long headquarterId, Pageable pageable) {
+                List<Object[]> rows = headquarterVetServiceRepository.findFilteredServices(name, categoryId, speciesId, headquarterId);
+
+                List<HeadquarterServiceInfoPanelDTO> dtos = rows.stream()
+                        .map(row -> new HeadquarterServiceInfoPanelDTO(
+                                ((Number) row[0]).longValue(),
+                                (String) row[1],
+                                ((Number) row[2]).longValue(),
+                                (String) row[3],
+                                (String) row[4],
+                                row[5].toString(),
+                                row[6].toString(),
+                                (String) row[7],
+                                (String) row[8]
+                        )).collect(Collectors.toList());
+
+                int start = (int) pageable.getOffset();
+                int end = Math.min((start + pageable.getPageSize()), dtos.size());
+                List<HeadquarterServiceInfoPanelDTO> paginated = dtos.subList(start, end);
+
+                return new PageImpl<>(paginated, pageable, dtos.size());
+        }
+
 
 }

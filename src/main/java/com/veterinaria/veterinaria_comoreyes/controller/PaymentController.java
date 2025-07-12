@@ -110,4 +110,10 @@ public class PaymentController {
         return ResponseEntity.ok(data);
     }
 
+    @GetMapping("/care/{careId}")
+    public ResponseEntity<PaymentInfoForAppointmentDTO> getPaymentInfoByCareId(@PathVariable Long careId) {
+        PaymentInfoForAppointmentDTO dto = paymentService.getPaymentInfoByCareId(careId);
+        return ResponseEntity.ok(dto);
+    }
+
 }

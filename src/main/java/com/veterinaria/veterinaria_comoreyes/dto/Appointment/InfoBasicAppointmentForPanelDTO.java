@@ -36,4 +36,8 @@ public class InfoBasicAppointmentForPanelDTO {
 
     Integer duration; // Duration in minutes
 
+    private String nameHeadquarter;
+
+    private String addressHeadquarter;
+
 }

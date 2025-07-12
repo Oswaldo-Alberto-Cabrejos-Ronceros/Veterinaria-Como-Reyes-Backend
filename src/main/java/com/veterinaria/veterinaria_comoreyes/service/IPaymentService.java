@@ -42,4 +42,6 @@ public interface IPaymentService {
     WeeklyIncomeDTO getWeeklyIncomeGeneral();
 
     WeeklyIncomeDTO getWeeklyIncomeByHeadquarter(Long headquarterId);
+
+    PaymentInfoForAppointmentDTO getPaymentInfoByCareId(Long careId);
 }

@@ -3,6 +3,8 @@ package com.veterinaria.veterinaria_comoreyes.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veterinaria.veterinaria_comoreyes.entity.Headquarter;
@@ -45,5 +47,36 @@ public interface HeadquarterVetServiceRepository extends JpaRepository<Headquart
             "AND r.name = 'Veterinario'", nativeQuery = true)
     List<Object[]> findVeterinariansByHeadquarterVetServiceId(
             @Param("headquarterVetServiceId") Long headquarterVetServiceId);
+
+    @Query(value = """
+    SELECT 
+        h.headquarter_id AS headquarterId,
+        h.name AS headquarterName,
+        s.service_id AS serviceId,
+        s.name AS serviceName,
+        s.description AS serviceDescription,
+        s.price AS servicePrice,
+        s.duration AS serviceDuration,
+        c.name AS categoryName,
+        sp.name AS speciesName
+    FROM headquarter_vet_service hvs
+    JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
+    JOIN veterinary_service s ON s.service_id = hvs.id_service
+    JOIN category c ON c.category_id = s.id_category
+    JOIN specie sp ON sp.specie_id = s.id_specie
+    WHERE (:serviceName IS NULL OR LOWER(s.name) LIKE LOWER('%' || :serviceName || '%'))
+      AND (:categoryId IS NULL OR c.category_id = :categoryId)
+      AND (:speciesId IS NULL OR sp.specie_id = :speciesId)
+      AND (:headquarterId IS NULL OR h.headquarter_id = :headquarterId)
+      AND hvs.status = 1
+    """, nativeQuery = true)
+    List<Object[]> findFilteredServices(
+            @Param("serviceName") String serviceName,
+            @Param("categoryId") Long categoryId,
+            @Param("speciesId") Long speciesId,
+            @Param("headquarterId") Long headquarterId
+    );
+
+
 
 }
