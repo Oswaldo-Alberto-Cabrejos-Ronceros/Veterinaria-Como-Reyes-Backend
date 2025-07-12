@@ -126,8 +126,10 @@ public class FinancialReportService {
         return switch (period) {
             case DAILY -> now.withHour(23).withMinute(59).withSecond(59);
             case WEEKLY -> now.with(DayOfWeek.SUNDAY).withHour(23).withMinute(59).withSecond(59);
-            case MONTHLY -> now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
-            case YEARLY -> now.withDayOfYear(now.toLocalDate().lengthOfYear()).withHour(23).withMinute(59).withSecond(59);
+            case MONTHLY ->
+                now.withDayOfMonth(now.toLocalDate().lengthOfMonth()).withHour(23).withMinute(59).withSecond(59);
+            case YEARLY ->
+                now.withDayOfYear(now.toLocalDate().lengthOfYear()).withHour(23).withMinute(59).withSecond(59);
         };
     }
 
@@ -137,7 +139,8 @@ public class FinancialReportService {
             dataset.setValue(dto.getPeriod(), dto.getTotal());
         }
 
-        JFreeChart chart = ChartFactory.createPieChart("Distribución de Ingresos por Período", dataset, true, true, false);
+        JFreeChart chart = ChartFactory.createPieChart("Distribución de Ingresos por Período", dataset, true, true,
+                false);
         BufferedImage chartImage = chart.createBufferedImage(600, 400);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(chartImage, "png", baos);
@@ -274,4 +277,34 @@ public class FinancialReportService {
             return period; // fallback en caso de error
         }
     }
+
+    public List<IncomeByHeadquarterDTO> getIncomeReportByHeadquarter() {
+        List<IncomeByHeadquarterDTO> report = financialReportRepository.getIncomeReportByHeadquarter();
+
+        for (IncomeByHeadquarterDTO dto : report) {
+            List<MostUsedPaymentMethodDTO> methods = financialReportRepository
+                    .getMostUsedPaymentMethodByHeadquarter(dto.getHeadquarterName());
+
+            if (!methods.isEmpty()) {
+                dto.setMostUsedPaymentMethod(methods.get(0).getMethodName());
+            } else {
+                dto.setMostUsedPaymentMethod("Desconocido");
+            }
+        }
+
+        return report;
+    }
+
+    public byte[] generateIncomeByHeadquarterPdf(List<IncomeByHeadquarterDTO> data) {
+        try {
+            Map<String, Object> model = new HashMap<>();
+            model.put("data", data);
+            model.put("title", "Reporte de Ingresos por Sede");
+
+            return pdfGenerator.generatePdf("reports/financial/income-by-headquarter", model);
+        } catch (IOException e) {
+            throw new ReportGenerationException("Error al generar el PDF de ingresos por sede", e);
+        }
+    }
+
 }

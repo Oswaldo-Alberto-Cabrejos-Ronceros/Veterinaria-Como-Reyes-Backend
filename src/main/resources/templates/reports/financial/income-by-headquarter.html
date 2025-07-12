@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Reporte de Ingresos por Sede</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { color: #2c3e50; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .total { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1 th:text="${title}">Reporte de Ingresos por Sede</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Sede</th>
+                <th>Ingresos Totales</th>
+                <th>Total Pagos</th>
+                <th>Ingreso Promedio</th>
+                <th>Método de Pago Más Usado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${data}">
+                <td th:text="${item.headquarterName}">Nombre Sede</td>
+                <td th:text="${#numbers.formatDecimal(item.totalIncome, 1, 2)}">0.00</td>
+                <td th:text="${item.totalPayments}">0</td>
+                <td th:text="${#numbers.formatDecimal(item.averageIncome, 1, 2)}">0.00</td>
+                <td th:text="${item.mostUsedPaymentMethod}">Método</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
