@@ -12,6 +12,7 @@ import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerD
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -414,5 +415,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                     ORDER BY fecha ASC, hora ASC
             """, nativeQuery = true)
     List<Object[]> findAppointmentsByHeadquarterId(@Param("headquarterId") Long headquarterId);
+
+    @Modifying
+    @Query(value = """
+    UPDATE appointment
+    SET status_appointments = 'CANCELADA'
+    WHERE status_appointments IN ('PROGRAMADA', 'CONFIRMADA')
+      AND schedule_date_time < SYSDATE
+""", nativeQuery = true)
+    int cancelExpiredAppointments();
 
 }

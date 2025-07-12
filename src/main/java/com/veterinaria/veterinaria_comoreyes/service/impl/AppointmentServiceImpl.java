@@ -15,6 +15,7 @@ import com.veterinaria.veterinaria_comoreyes.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -557,6 +558,16 @@ public class AppointmentServiceImpl implements IAppointmentService {
                 row[11] != null ? row[11].toString() : null,
                 row[12] != null ? row[12].toString() : null
         )).collect(Collectors.toList());
+    }
+
+
+    @Scheduled(cron = "0 */15 * * * *") // Ejecuta cada día a la medianoche
+    @Transactional
+    public void cancelPastAppointments() {
+        int updatedRows = appointmentRepository.cancelExpiredAppointments();
+        if (updatedRows > 0) {
+            System.out.println("Citas vencidas canceladas automáticamente: " + updatedRows);
+        }
     }
 
 
