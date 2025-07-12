@@ -2,12 +2,14 @@ package com.veterinaria.veterinaria_comoreyes.external.reports.financial.control
 
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.veterinaria.veterinaria_comoreyes.exception.ReportGenerationException;
+import com.veterinaria.veterinaria_comoreyes.external.reports.financial.dto.IncomeByHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.dto.IncomeByPeriodDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.enums.ReportPeriod;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.service.FinancialReportService;
@@ -133,30 +135,50 @@ public class FinancialReportController {
         }
     }
 
-
     @GetMapping("/income/by-period-service/{period}")
-public ResponseEntity<byte[]> getIncomeByPeriodAndServicePdf(
-        @PathVariable ReportPeriod period) {
+    public ResponseEntity<byte[]> getIncomeByPeriodAndServicePdf(
+            @PathVariable ReportPeriod period) {
 
-    try {
-        var data = financialReportService.getIncomeByPeriodAndService(period);
+        try {
+            var data = financialReportService.getIncomeByPeriodAndService(period);
 
-        if (data == null || data.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            if (data == null || data.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            byte[] pdf = financialReportService.generateIncomeByPeriodAndServicePdf(data, period);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header("Content-Disposition",
+                            "inline; filename=ingresos_por_periodo_servicio_" + period.name().toLowerCase() + ".pdf")
+                    .body(pdf);
+
+        } catch (Exception e) {
+            log.error("Error al generar PDF ingresos por servicio y periodo", e);
+            return ResponseEntity.internalServerError().build();
         }
-
-        byte[] pdf = financialReportService.generateIncomeByPeriodAndServicePdf(data, period);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_PDF)
-                .header("Content-Disposition",
-                        "inline; filename=ingresos_por_periodo_servicio_" + period.name().toLowerCase() + ".pdf")
-                .body(pdf);
-
-    } catch (Exception e) {
-        log.error("Error al generar PDF ingresos por servicio y periodo", e);
-        return ResponseEntity.internalServerError().build();
     }
-}
+
+    @GetMapping("/income/by-headquarter/pdf")
+    public ResponseEntity<byte[]> getIncomeReportByHeadquarterPdf() {
+        try {
+            List<IncomeByHeadquarterDTO> report = financialReportService.getIncomeReportByHeadquarter();
+
+            if (report == null || report.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+
+            byte[] pdf = financialReportService.generateIncomeByHeadquarterPdf(report);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header("Content-Disposition", "inline; filename=ingresos_por_sede.pdf")
+                    .body(pdf);
+        } catch (Exception e) {
+            log.error("Error al generar PDF de ingresos por sede", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
 }
