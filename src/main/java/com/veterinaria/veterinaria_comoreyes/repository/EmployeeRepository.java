@@ -22,6 +22,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
   boolean existsByDni(String dni);
 
+  Optional<Employee> findByUser_UserIdAndStatusTrue(Long userId);
+
   Optional<Employee> findByDni(String dni);
 
   Optional<Employee> findByEmployeeIdAndStatusTrue(Long id);

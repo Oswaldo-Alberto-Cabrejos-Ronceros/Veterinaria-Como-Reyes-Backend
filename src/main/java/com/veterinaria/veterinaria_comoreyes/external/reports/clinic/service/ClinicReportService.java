@@ -10,10 +10,17 @@ import com.veterinaria.veterinaria_comoreyes.external.reports.utils.PdfGenerator
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtils;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -207,6 +214,63 @@ public class ClinicReportService {
             return ExcelUtils.workbookToBytes(workbook);
         } catch (Exception e) {
             throw new ReportGenerationException("Error al generar Excel de citas por veterinario y periodo", e);
+        }
+    }
+
+    // En ClinicReportService.java
+    public List<CaresByVetAndHeadquarterDTO> getCaresByVetAndHeadquarter() {
+        return clinicReportRepository.findCaresByVetAndHeadquarter();
+    }
+
+    public byte[] generateCaresByVetAndHeadquarterPdf(
+            List<CaresByVetAndHeadquarterDTO> data,
+            String author,
+            String fechaGeneracion,
+            String empresa) {
+        try {
+            Map<String, Object> model = new HashMap<>();
+            model.put("data", data);
+            model.put("title", "Atenciones Completadas por Sede y Veterinario");
+            model.put("author", author);
+            model.put("date", fechaGeneracion);
+            model.put("company", empresa);
+
+            // Agrupar por sede
+            Set<String> headquarters = data.stream()
+                    .map(CaresByVetAndHeadquarterDTO::getHeadquarterName)
+                    .collect(Collectors.toSet());
+            model.put("headquarters", headquarters);
+
+            String chartBase64 = generateCaresChartBase64(data);
+            model.put("chartImage", chartBase64);
+
+            return pdfGenerator.generatePdf("reports/clinic/cares-by-vet-headquarter", model);
+        } catch (IOException e) {
+            throw new ReportGenerationException("Error al generar PDF de atenciones", e);
+        }
+    }
+
+    private String generateCaresChartBase64(List<CaresByVetAndHeadquarterDTO> data) {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (CaresByVetAndHeadquarterDTO dto : data) {
+            dataset.addValue(dto.getCompletedCares(), dto.getHeadquarterName(), dto.getVetName());
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Atenciones por Veterinario y Sede",
+                "Veterinario",
+                "Atenciones",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false);
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            ChartUtils.writeChartAsPNG(out, chart, 800, 500);
+            byte[] imageBytes = out.toByteArray();
+            return Base64.getEncoder().encodeToString(imageBytes);
+        } catch (IOException e) {
+            throw new ReportGenerationException("Error generando gráfico de atenciones", e);
         }
     }
 

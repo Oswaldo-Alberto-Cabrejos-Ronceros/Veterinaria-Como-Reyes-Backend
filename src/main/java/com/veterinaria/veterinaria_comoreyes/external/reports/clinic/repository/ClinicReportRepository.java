@@ -11,6 +11,7 @@ import com.veterinaria.veterinaria_comoreyes.external.reports.clinic.dto.Animals
 import com.veterinaria.veterinaria_comoreyes.external.reports.clinic.dto.AppointmentsByTimeDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.clinic.dto.AppointmentsByVetAndPeriodDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.clinic.dto.AppointmentsByVetDTO;
+import com.veterinaria.veterinaria_comoreyes.external.reports.clinic.dto.CaresByVetAndHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.clinic.dto.PopularServicesDTO;
 
 public interface ClinicReportRepository extends JpaRepository<Appointment, Long> {
@@ -112,4 +113,27 @@ public interface ClinicReportRepository extends JpaRepository<Appointment, Long>
             """, nativeQuery = true)
     List<AppointmentsByVetAndPeriodDTO> findAppointmentsByVetAndPeriod(@Param("pattern") String pattern);
 
+    // En ClinicReportRepository.java
+    @Query(value = """
+            SELECT
+                h.NAME AS headquarterName,
+                e.NAME || ' ' || e.LAST_NAME AS vetName,
+                CAST(COUNT(*) AS INTEGER) AS completedCares
+            FROM
+                CARE c
+            JOIN
+                EMPLOYEE e ON c.EMPLOYEE_ID = e.EMPLOYEE_ID
+            JOIN
+                HEADQUARTER h ON e.ID_HEADQUARTER = h.HEADQUARTER_ID
+            WHERE
+                c.STATUS_CARE = 'COMPLETADO'
+            GROUP BY
+                h.NAME,
+                e.NAME,
+                e.LAST_NAME
+            ORDER BY
+                h.NAME,
+                vetName
+            """, nativeQuery = true)
+    List<CaresByVetAndHeadquarterDTO> findCaresByVetAndHeadquarter();
 }

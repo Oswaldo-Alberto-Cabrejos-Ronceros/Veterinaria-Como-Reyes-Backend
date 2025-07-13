@@ -6,83 +6,205 @@
     <title th:text="${title}">Reporte Detallado</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #333;
-            padding: 30px;
+            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #444;
+            line-height: 1.7;
+            background-color: #fcfcfc;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
+        /* Encabezado */
+        .encabezado {
+            position: relative;
+            background-color: #ffffff;
+            padding: 25px 50px;
+            border-bottom: 4px solid #3498db;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            text-align: left;
+            padding-right: 180px;
+            /* Espacio para el logo a la derecha */
         }
 
-        .period-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 15px;
+        .encabezado h1 {
+            font-size: 34px;
+            color: #2c3e50;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .encabezado img {
+            position: absolute;
+            top: 20px;
+            right: 50px;
+            height: 70px;
+            max-width: 100px;
+            object-fit: contain;
+        }
+
+        /* Info del Reporte (Nueva clase para reemplazar .subtitulo y .info) */
+        .info-reporte {
+            background-color: #ecf0f1;
+            padding: 15px 50px;
+            font-size: 13px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            /* Permite que los elementos se envuelvan en pantallas más pequeñas */
+            border-bottom: 1px solid #dcdcdc;
+        }
+
+        .info-reporte div {
+            margin-right: 20px;
             margin-bottom: 5px;
+            /* Pequeño margen para la adaptación */
         }
 
+        .info-reporte span {
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Contenido Principal */
+        .contenido {
+            padding: 0 50px;
+        }
+
+        /* Títulos de Sección (Semana) */
+        .section-title {
+            margin-top: 45px;
+            margin-bottom: 20px;
+            color: #34495e;
+            font-size: 24px;
+            font-weight: 600;
+            border-left: 5px solid #3498db;
+            padding: 8px 15px;
+            background-color: #eff3f6;
+        }
+
+        /* Tablas */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 25px;
+            margin-top: 15px;
+            margin-bottom: 35px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            background-color: #ffffff;
         }
 
         th,
         td {
-            border: 1px solid #999;
-            padding: 8px;
-            text-align: center;
+            border: 1px solid #e9ecef;
+            padding: 14px 18px;
+            text-align: left;
+            /* Alineado a la izquierda para texto, centrado para números si quieres */
         }
 
         th {
-            background-color: #f2f2f2;
-            text-transform: uppercase;
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: capitalize;
         }
 
+        tr:nth-child(even) {
+            background-color: #f4f6f8;
+        }
+
+        /* Estilo para los totales, si los hubiera en estas tablas */
+        .total {
+            font-weight: bold;
+            background-color: #dbe9f4 !important;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+
+        /* Línea divisoria entre semanas (análogo al sede-separator) */
+        .week-separator {
+            border: none;
+            border-top: 2px dotted #dcdcdc;
+            margin: 45px 0;
+        }
+
+        /* Pie de Página */
         .footer {
             text-align: center;
+            margin-top: 55px;
+            padding: 22px;
+            color: #888;
             font-size: 12px;
-            color: #777;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+            background-color: #f0f2f5;
+        }
+
+        .footer div {
+            margin-bottom: 4px;
+        }
+
+        /* Info de Página (puede que necesites JavaScript para esto en el navegador) */
+        .page-info {
+            text-align: right;
+            font-size: 10px;
+            color: #aaa;
+            padding: 0 50px 15px 0;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <h2 th:text="${title}">Reporte de Ingresos por Servicio</h2>
-        <div th:text="'Período: ' + ${period}">Periodo</div>
+    <div class="encabezado">
+        <h1 th:text="${title}">Reporte de Ingresos por Servicio</h1>
+        <img src="data:image/jpeg;base64,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"
+            alt="Logo de la empresa" />
     </div>
 
-    <div th:each="entry : ${groupedData.entrySet()}">
-        <div class="period-title" th:text="'Semana: ' + ${entry.key}">Semana: 07/07/2025 - 13/07/2025</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Servicio</th>
-                    <th>Precio Unitario</th>
-                    <th>Cantidad</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="row : ${entry.value}">
-                    <td th:text="${row.serviceName}">Baño</td>
-                    <td th:text="${row.unitPrice}">50.00</td>
-                    <td th:text="${row.count}">4</td>
-                    <td th:text="${row.formattedTotal}">S/200.00</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="info-reporte">
+        <div><strong>Empresa:</strong> <span th:text="${empresa}">Veterinaria Como Reyes</span></div>
+        <div><strong>Período:</strong> <span th:text="${period}">Mensual</span></div>
+        <div><strong>Generado por:</strong> <span th:text="${autor}">Nombre del Empleado</span></div>
+        <div><strong>Fecha de generación:</strong> <span th:text="${fechaGeneracion}">13 de julio, 2025</span></div>
+    </div>
+
+    <div class="contenido">
+        <div th:each="entry : ${groupedData.entrySet()}">
+            <h2 class="section-title" th:text="'Semana: ' + ${entry.key}">Semana: 07/07/2025 - 13/07/2025</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Servicio</th>
+                        <th>Precio Unitario</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${entry.value}">
+                        <td th:text="${row.serviceName}">Baño</td>
+                        <td th:text="${#numbers.formatDecimal(row.unitPrice, 1, 2)}">50.00</td>
+                        <td th:text="${row.count}">4</td>
+                        <td th:text="${row.formattedTotal}">S/200.00</td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr class="week-separator" />
+        </div>
+    </div>
+
+    <div class="chart-container" style="text-align: center; margin-top: 40px;">
+        <h2 class="section-title">📊 Gráfico de Ingresos por Servicio</h2>
+        <p style="font-size: 13px; color: #555;">Este gráfico muestra los ingresos generados por cada servicio según el
+            período seleccionado.</p>
+        <img th:src="'data:image/png;base64,' + ${chartImage}" alt="Gráfico de ingresos" />
     </div>
 
     <div class="footer">
-        Generado el <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">fecha</span>
+        <div><span th:text="${empresa}">Veterinaria Como Reyes</span> © Todos los derechos reservados.</div>
+        <div>Reporte generado el <span th:text="${fechaGeneracion}">13 de Julio, 2025</span></div>
     </div>
+
 </body>
 
 </html>

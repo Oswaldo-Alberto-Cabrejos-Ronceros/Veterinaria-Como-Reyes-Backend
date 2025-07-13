@@ -1,6 +1,9 @@
 package com.veterinaria.veterinaria_comoreyes.external.reports.financial.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -8,11 +11,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.exception.ReportGenerationException;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.dto.IncomeByHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.dto.IncomeByPeriodDTO;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.enums.ReportPeriod;
 import com.veterinaria.veterinaria_comoreyes.external.reports.financial.service.FinancialReportService;
+import com.veterinaria.veterinaria_comoreyes.external.reports.utils.SecurityUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class FinancialReportController {
 
     private final FinancialReportService financialReportService;
+    private final SecurityUtil securityUtil;
+    // NO
 
     @GetMapping("/income/{period}")
     public ResponseEntity<?> getIncomeReport(
@@ -56,6 +63,7 @@ public class FinancialReportController {
                     .body(("Error interno del servidor: " + e.getMessage()).getBytes());
         }
     }
+    // NO
 
     private ResponseEntity<byte[]> buildPdfResponse(byte[] pdf, ReportPeriod period) {
         return ResponseEntity.ok()
@@ -64,6 +72,7 @@ public class FinancialReportController {
                         "inline; filename=ingresos_" + period.name().toLowerCase() + ".pdf")
                 .body(pdf);
     }
+    // NO
 
     private ResponseEntity<byte[]> buildExcelResponse(byte[] excel, ReportPeriod period) {
         return ResponseEntity.ok()
@@ -74,6 +83,8 @@ public class FinancialReportController {
                 .body(excel);
     }
 
+
+    // NO
     @GetMapping("/income/by-service")
     public ResponseEntity<byte[]> getIncomeByServicePdf() {
         try {
@@ -94,6 +105,7 @@ public class FinancialReportController {
         }
     }
 
+    // NO
     @GetMapping("/income/by-specie")
     public ResponseEntity<byte[]> getIncomeBySpeciePdf() {
         try {
@@ -114,6 +126,7 @@ public class FinancialReportController {
         }
     }
 
+    // NO
     @GetMapping("/payment-method")
     public ResponseEntity<byte[]> getPaymentMethodExcel() {
         try {
@@ -135,10 +148,10 @@ public class FinancialReportController {
         }
     }
 
-    @GetMapping("/income/by-period-service/{period}")
-    public ResponseEntity<byte[]> getIncomeByPeriodAndServicePdf(
-            @PathVariable ReportPeriod period) {
 
+    // ESTE SE USARÁ GET http://localhost:8080/api/reports/financial/income/by-period-service/DAILY -> MONTHLY, YEARLY
+    @GetMapping("/income/by-period-service/{period}")
+    public ResponseEntity<byte[]> getIncomeByPeriodAndServicePdf(@PathVariable ReportPeriod period) {
         try {
             var data = financialReportService.getIncomeByPeriodAndService(period);
 
@@ -146,7 +159,19 @@ public class FinancialReportController {
                 return ResponseEntity.noContent().build();
             }
 
-            byte[] pdf = financialReportService.generateIncomeByPeriodAndServicePdf(data, period);
+            // 👤 Empleado autenticado (autor)
+            Employee empleado = securityUtil.getAuthenticatedEmployee();
+            String autor = empleado.getName() + " " + empleado.getLastName() + " - " +
+                    (empleado.getRoles().isEmpty() ? "Empleado" : empleado.getRoles().get(0).getName());
+
+            // 🗓️ Fecha de generación (ej. 13 de julio, 2025)
+            String fechaGeneracion = LocalDate.now()
+                    .format(DateTimeFormatter.ofPattern("d 'de' MMMM, yyyy", new Locale("es", "PE")));
+
+            String empresa = "Veterinaria Como Reyes";
+
+            byte[] pdf = financialReportService.generateIncomeByPeriodAndServicePdf(
+                    data, period, autor, fechaGeneracion, empresa);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
@@ -160,23 +185,59 @@ public class FinancialReportController {
         }
     }
 
-    @GetMapping("/income/by-headquarter/pdf")
-    public ResponseEntity<byte[]> getIncomeReportByHeadquarterPdf() {
+    // @GetMapping("/income/by-headquarter/pdf")
+    // public ResponseEntity<byte[]> getIncomeReportByHeadquarterPdf() {
+    // try {
+    // List<IncomeByHeadquarterDTO> report =
+    // financialReportService.getIncomeReportByHeadquarter();
+
+    // if (report == null || report.isEmpty()) {
+    // return ResponseEntity.noContent().build();
+    // }
+
+    // byte[] pdf = financialReportService.generateIncomeByHeadquarterPdf(report);
+
+    // return ResponseEntity.ok()
+    // .contentType(MediaType.APPLICATION_PDF)
+    // .header("Content-Disposition", "inline; filename=ingresos_por_sede.pdf")
+    // .body(pdf);
+    // } catch (Exception e) {
+    // log.error("Error al generar PDF de ingresos por sede", e);
+    // return ResponseEntity.internalServerError().build();
+    // }
+    // }
+
+    // ESTE SE USARÁ GET http://localhost:8080/api/reports/financial/income/by-headquarter/period/pdf?period=DAILY-MONTHLY-YEARLY
+    @GetMapping("/income/by-headquarter/period/pdf")
+    public ResponseEntity<byte[]> getIncomeByHeadquarterPeriodPdf(
+            @RequestParam(defaultValue = "monthly") ReportPeriod period) {
         try {
-            List<IncomeByHeadquarterDTO> report = financialReportService.getIncomeReportByHeadquarter();
+            List<IncomeByHeadquarterDTO> report = financialReportService.getIncomeReportByHeadquarter(period);
 
             if (report == null || report.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
 
-            byte[] pdf = financialReportService.generateIncomeByHeadquarterPdf(report);
+            // Empleado autenticado
+            Employee empleado = securityUtil.getAuthenticatedEmployee();
+            String autor = empleado.getName() + " " + empleado.getLastName() + " - " +
+                    (empleado.getRoles().isEmpty() ? "Empleado" : empleado.getRoles().get(0).getName());
+
+            String fechaGeneracion = LocalDate.now()
+                    .format(DateTimeFormatter.ofPattern("d 'de' MMMM, yyyy", new Locale("es", "PE")));
+
+            String empresa = "Veterinaria Como Reyes";
+
+            byte[] pdf = financialReportService.generateIncomeByHeadquarterPdf(
+                    report, period, autor, fechaGeneracion, empresa);
 
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
-                    .header("Content-Disposition", "inline; filename=ingresos_por_sede.pdf")
+                    .header("Content-Disposition",
+                            "inline; filename=ingresos_por_sede_" + period.name().toLowerCase() + ".pdf")
                     .body(pdf);
         } catch (Exception e) {
-            log.error("Error al generar PDF de ingresos por sede", e);
+            log.error("Error al generar PDF de ingresos por sede y periodo", e);
             return ResponseEntity.internalServerError().build();
         }
     }
