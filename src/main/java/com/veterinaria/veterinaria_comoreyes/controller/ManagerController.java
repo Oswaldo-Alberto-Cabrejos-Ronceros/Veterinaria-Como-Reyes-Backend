@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
@@ -28,4 +29,15 @@ public class ManagerController {
     public ResponseEntity<WeeklyIncomeDTO> getWeeklyIncomeByHeadquarter(@PathVariable Long headquarterId) {
         return ResponseEntity.ok(paymentService.getWeeklyIncomeByHeadquarter(headquarterId));
     }
+
+    // GRAFICOS PASTER
+    @GetMapping("/payment-method/{period}/headquarter/{headquarterId}") //PERIOD: "WEEK", "MONTH", "YEAR"
+    public ResponseEntity<TopPaymentMethodsDTO> getTopPaymentMethodsByHeadquarter(
+            @PathVariable String period,
+            @PathVariable Long headquarterId
+    ) {
+        TopPaymentMethodsDTO dto = paymentService.getTopPaymentMethodsByHeadquarter(period, headquarterId);
+        return ResponseEntity.ok(dto);
+    }
+
 }

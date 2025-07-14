@@ -267,4 +267,114 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Object[]> findPaymentInfoByCareId(@Param("careId") Long careId);
 
 
+    @Query(value = """
+        WITH pagos_filtrados AS (
+            SELECT 
+                COALESCE(pm.NAME, 'Sin método') as metodo_pago,
+                COUNT(*) as total
+            FROM PAYMENT p
+            LEFT JOIN PAYMENT_METHOD pm ON p.PAYMENT_METHOD_ID = pm.PAYMENT_METHOD_ID
+            WHERE p.STATUS = 'COMPLETADA'
+              AND p.PAYMENT_DATE_TIME IS NOT NULL
+              AND (
+                  (:period = 'WEEK' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'IW') 
+                   AND p.PAYMENT_DATE_TIME < TRUNC(SYSDATE, 'IW') + 7) OR
+                  (:period = 'MONTH' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM') 
+                   AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) OR
+                  (:period = 'YEAR' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'YYYY') 
+                   AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+              )
+            GROUP BY COALESCE(pm.NAME, 'Sin método')
+        ),
+        ranking AS (
+            SELECT metodo_pago, total,
+                   ROW_NUMBER() OVER (ORDER BY total DESC) as rn
+            FROM pagos_filtrados
+        ),
+        top_4 AS (
+            SELECT metodo_pago, total FROM ranking WHERE rn <= 4
+        ),
+        otros AS (
+            SELECT 'Otros' AS metodo_pago, SUM(total) AS total
+            FROM ranking WHERE rn > 4
+        ),
+        resultado AS (
+            SELECT metodo_pago, total FROM top_4
+            UNION ALL
+            SELECT metodo_pago, total FROM otros WHERE total > 0
+        ),
+        completar AS (
+            SELECT pm.NAME as metodo_pago, 0 as total
+            FROM PAYMENT_METHOD pm
+            WHERE pm.NAME NOT IN (SELECT metodo_pago FROM resultado)
+              AND ROWNUM <= (4 - (SELECT COUNT(*) FROM resultado))
+        )
+        SELECT metodo_pago, total
+        FROM (
+            SELECT metodo_pago, total, 1 as prioridad FROM resultado
+            UNION ALL
+            SELECT metodo_pago, total, 2 as prioridad FROM completar
+        )
+        ORDER BY prioridad, total DESC
+        """, nativeQuery = true)
+    List<Object[]> findTopPaymentMethodsByPeriod(@Param("period") String period);
+
+    @Query(value = """
+        WITH pagos_filtrados AS (
+            SELECT 
+                COALESCE(pm.NAME, 'Sin método') as metodo_pago,
+                COUNT(*) as total
+            FROM PAYMENT p
+            LEFT JOIN PAYMENT_METHOD pm ON p.PAYMENT_METHOD_ID = pm.PAYMENT_METHOD_ID
+            LEFT JOIN APPOINTMENT a ON p.APPOINTMENT_ID = a.APPOINTMENT_ID
+            LEFT JOIN CARE c ON p.CARE_ID = c.CARE_ID
+            LEFT JOIN HEADQUARTER_VET_SERVICE hvs ON COALESCE(a.HEADQUARTER_VETSERVICE_ID, c.HEADQUARTER_VETSERVICE_ID) = hvs.ID
+            LEFT JOIN HEADQUARTER hq ON hvs.ID_HEADQUARTER = hq.HEADQUARTER_ID
+            WHERE p.STATUS = 'COMPLETADA'
+              AND p.PAYMENT_DATE_TIME IS NOT NULL
+              AND hq.HEADQUARTER_ID = :headquarterId
+              AND (
+                  (:period = 'WEEK' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'IW') 
+                   AND p.PAYMENT_DATE_TIME < TRUNC(SYSDATE, 'IW') + 7) OR
+                  (:period = 'MONTH' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM') 
+                   AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) OR
+                  (:period = 'YEAR' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'YYYY') 
+                   AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+              )
+            GROUP BY COALESCE(pm.NAME, 'Sin método')
+        ),
+        ranking AS (
+            SELECT metodo_pago, total,
+                   ROW_NUMBER() OVER (ORDER BY total DESC) as rn
+            FROM pagos_filtrados
+        ),
+        top_4 AS (
+            SELECT metodo_pago, total FROM ranking WHERE rn <= 4
+        ),
+        otros AS (
+            SELECT 'Otros' AS metodo_pago, SUM(total) AS total
+            FROM ranking WHERE rn > 4
+        ),
+        resultado AS (
+            SELECT metodo_pago, total FROM top_4
+            UNION ALL
+            SELECT metodo_pago, total FROM otros WHERE total > 0
+        ),
+        completar AS (
+            SELECT pm.NAME as metodo_pago, 0 as total
+            FROM PAYMENT_METHOD pm
+            WHERE pm.NAME NOT IN (SELECT metodo_pago FROM resultado)
+              AND ROWNUM <= (4 - (SELECT COUNT(*) FROM resultado))
+        )
+        SELECT metodo_pago, total
+        FROM (
+            SELECT metodo_pago, total, 1 as prioridad FROM resultado
+            UNION ALL
+            SELECT metodo_pago, total, 2 as prioridad FROM completar
+        )
+        ORDER BY prioridad, total DESC
+        """, nativeQuery = true)
+    List<Object[]> findTopPaymentMethodsByPeriodAndHeadquarter(@Param("period") String period, @Param("headquarterId") Long headquarterId);
+
+
 }
