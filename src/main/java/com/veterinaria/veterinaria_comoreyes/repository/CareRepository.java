@@ -168,4 +168,48 @@ public interface CareRepository extends JpaRepository<Care, Long> {
     """, nativeQuery = true)
     List<Object[]> findRecentPatientsByEmployee(@Param("employeeId") Long employeeId);
 
+    @Query(value = """
+    SELECT COUNT(DISTINCT c.animal_id)
+    FROM care c
+    WHERE c.employee_id = :employeeId
+      AND c.status_care = 'COMPLETADO'
+      AND c.care_date_time >= ADD_MONTHS(TRUNC(SYSDATE), -1)
+""", nativeQuery = true)
+    Long countDistinctAnimalsLastMonth(@Param("employeeId") Long employeeId);
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM care c
+    WHERE c.employee_id = :employeeId
+      AND c.status_care = 'COMPLETADO'
+      AND c.care_date_time >= ADD_MONTHS(TRUNC(SYSDATE), -1)
+""", nativeQuery = true)
+    Long countCompletedCaresLastMonth(@Param("employeeId") Long employeeId);
+
+    @Query(
+            value = """
+            SELECT
+            TO_CHAR(s.fecha, 'DD/MM') AS fecha,
+            COALESCE(r.total, 0) AS total_cares
+        FROM (
+            SELECT TRUNC(TO_DATE(:fechaBase, 'DD/MM/YYYY')) - (LEVEL - 1) * 7 AS fecha
+            FROM dual
+            CONNECT BY LEVEL <= 5
+        ) s
+        LEFT JOIN (
+            SELECT
+                TRUNC(c.care_date_time) AS fecha,
+                COUNT(*) AS total
+            FROM CARE c
+            WHERE c.status_care = 'COMPLETADO'
+              AND c.employee_id = :employeeId
+            GROUP BY TRUNC(c.care_date_time)
+        ) r
+        ON s.fecha = r.fecha
+        ORDER BY s.fecha ASC
+        
+        """,
+            nativeQuery = true
+    )
+    List<Object[]> getWeeklyCareStats(@Param("fechaBase") String fechaBase, @Param("employeeId") Long employeeId);
 }

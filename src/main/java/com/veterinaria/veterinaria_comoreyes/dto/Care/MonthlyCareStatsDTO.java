@@ -11,5 +11,4 @@ public class MonthlyCareStatsDTO {
     private String month; // Ej: "Julio 2025"
     private Long totalPatients;
     private Long totalCares;
-    private Double totalHours; // Duración total de atenciones
 }

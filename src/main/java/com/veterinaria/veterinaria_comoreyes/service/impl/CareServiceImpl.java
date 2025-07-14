@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -306,6 +307,48 @@ public class CareServiceImpl implements ICareService {
                 (String) row[7]                  // animalBirthDate
         )).toList();
     }
+
+    @Override
+    public Long getDistinctPatientsLastMonth(Long employeeId) {
+        return careRepository.countDistinctAnimalsLastMonth(employeeId);
+    }
+
+    @Override
+    public MonthlyCareStatsDTO getMonthlyCareStats(Long employeeId) {
+        MonthlyCareStatsDTO dto = new MonthlyCareStatsDTO();
+        dto.setMonth(LocalDate.now().minusMonths(1).format(DateTimeFormatter.ofPattern("MMMM-yyyy")));
+        dto.setTotalCares(careRepository.countCompletedCaresLastMonth(employeeId));
+        dto.setTotalPatients(careRepository.countDistinctAnimalsLastMonth(employeeId));
+
+        return dto;
+    }
+
+    @Override
+    public Long getCompletedCaresLastMonth(Long employeeId) {
+        return careRepository.countCompletedCaresLastMonth(employeeId);
+    }
+
+    @Override
+    public WeeklyCareStatsDTO getWeeklyStats(Long employeeId) {
+
+        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        List<Object[]> results = careRepository.getWeeklyCareStats(date, employeeId);
+
+        List<String> weekLabels = new ArrayList<>();
+        List<Long> totalCares = new ArrayList<>();
+
+        for (Object[] row : results) {
+            String fecha = (String) row[0];
+            Long total = ((Number) row[1]).longValue();
+
+            weekLabels.add(fecha);
+            totalCares.add(total);
+        }
+
+        return new WeeklyCareStatsDTO(weekLabels, totalCares);
+    }
+
+
 
 
     // @Override

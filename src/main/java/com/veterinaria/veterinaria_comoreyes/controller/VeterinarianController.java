@@ -1,6 +1,8 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.RecentPatientsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.MonthlyCareStatsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.WeeklyCareStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.InfoVeterinaryRecordForTableDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.RecentMedicalRecordDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.VeterinaryRecordStatsDTO;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/panel/veterinarians")
+@RequestMapping("/api/panel-veterinarians")
 public class VeterinarianController {
 
     private final IVeterinaryRecordService veterinaryRecordService;
@@ -53,5 +55,18 @@ public class VeterinarianController {
         List<InfoVeterinaryRecordForTableDTO> records = veterinaryRecordService.getRecordsByAnimalId(animalId);
         return ResponseEntity.ok(records);
     }
+
+    /* PREFORMANCE VETERINARIAN MENSUAL*/
+    @GetMapping("/care/performance-statistic/{employeeId}")
+    public ResponseEntity<MonthlyCareStatsDTO> getPerformanceStatistic(@PathVariable Long employeeId) {
+        MonthlyCareStatsDTO stats = careService.getMonthlyCareStats(employeeId);
+        return ResponseEntity.ok(stats);
+    }
+    @GetMapping("/care/performance-statistic/graphic/{employeeId}")
+    public ResponseEntity<WeeklyCareStatsDTO> getPerformanceGraphic(@PathVariable Long employeeId) {
+        WeeklyCareStatsDTO stats = careService.getWeeklyStats(employeeId);
+        return ResponseEntity.ok(stats);
+    }
+
 
 }

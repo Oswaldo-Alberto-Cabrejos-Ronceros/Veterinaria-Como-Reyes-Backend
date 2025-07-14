@@ -58,7 +58,8 @@ public interface HeadquarterVetServiceRepository extends JpaRepository<Headquart
         s.price AS servicePrice,
         s.duration AS serviceDuration,
         c.name AS categoryName,
-        sp.name AS speciesName
+        sp.name AS speciesName,
+        s.dir_image AS serviceImageUrl
     FROM headquarter_vet_service hvs
     JOIN headquarter h ON h.headquarter_id = hvs.id_headquarter
     JOIN veterinary_service s ON s.service_id = hvs.id_service

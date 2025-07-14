@@ -219,7 +219,8 @@ public class HeadquarterVetServiceServiceImpl implements IHeadquarterVetServiceS
                                 row[5].toString(),
                                 row[6].toString(),
                                 (String) row[7],
-                                (String) row[8]
+                                (String) row[8],
+                                (String) row[9]
                         )).collect(Collectors.toList());
 
                 int start = (int) pageable.getOffset();
