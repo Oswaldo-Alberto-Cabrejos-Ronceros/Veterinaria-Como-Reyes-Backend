@@ -17,4 +17,5 @@ public class HeadquarterServiceInfoPanelDTO {
     private String serviceDuration;
     private String categoryName;
     private String speciesName;
+    private String serviceImageUrl;
 }
