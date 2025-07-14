@@ -43,5 +43,13 @@ public interface ICareService {
 
     List<RecentPatientsDTO> getRecentPatients(Long employeeId);
 
+    Long getDistinctPatientsLastMonth(Long employeeId);
+
+    MonthlyCareStatsDTO getMonthlyCareStats(Long employeeId);
+
+    Long getCompletedCaresLastMonth(Long employeeId);
+
+    WeeklyCareStatsDTO getWeeklyStats(Long employeeId);
+
     // void deleteCare(Long id);
 } 

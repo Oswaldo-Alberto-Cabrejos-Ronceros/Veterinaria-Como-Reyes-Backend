@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class WeeklyCareStatsDTO {
-    private List<String> weekLabels; // Ej: ["30/07 al 05/08", "23/07 al 29/07", ...]
-    private List<Long> totalCares;   // Total de atenciones por semana
+    private List<String> weekLabels; // Ej: ["30/07, 05/08", "23/07, 29/07", ...]
+    private List<Long> totalCares;   // Total de en esos dias
 }
