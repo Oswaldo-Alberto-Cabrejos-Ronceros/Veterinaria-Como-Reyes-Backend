@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
@@ -30,6 +31,17 @@ public class AdminController {
     public ResponseEntity<WeeklyIncomeDTO> getWeeklyIncomeGeneral() {
         return ResponseEntity.ok(paymentService.getWeeklyIncomeGeneral());
     }
+
+    /*GRAFICO PASTEL */
+    @GetMapping("/payment-method/{period}") //PERIOD: "WEEK", "MONTH", "YEAR"
+    public ResponseEntity<TopPaymentMethodsDTO> getTopPaymentMethods(String period) {
+        return ResponseEntity.ok(paymentService.getTopPaymentMethods(period));
+    }
+
+    /*GRAFICO BARRAS */
+
+
+
 
 
 }

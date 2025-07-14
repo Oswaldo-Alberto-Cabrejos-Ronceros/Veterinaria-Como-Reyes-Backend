@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -323,5 +322,40 @@ public class PaymentServiceImpl implements IPaymentService {
         return dto;
     }
 
+    @Override
+    public TopPaymentMethodsDTO getTopPaymentMethods(String period) {
+        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriod(period.toUpperCase());
+
+        List<String> methodLabels = new ArrayList<>();
+        List<Long> totalPayments = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String method = (String) row[0];
+            Long total = ((Number) row[1]).longValue();
+
+            methodLabels.add(method);
+            totalPayments.add(total);
+        }
+
+        return new TopPaymentMethodsDTO(methodLabels, totalPayments);
+    }
+
+    @Override
+    public TopPaymentMethodsDTO getTopPaymentMethodsByHeadquarter(String period, Long headquarterId) {
+        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriodAndHeadquarter(period.toUpperCase(), headquarterId);
+
+        List<String> methodLabels = new ArrayList<>();
+        List<Long> totalPayments = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String method = (String) row[0];
+            Long total = ((Number) row[1]).longValue();
+
+            methodLabels.add(method);
+            totalPayments.add(total);
+        }
+
+        return new TopPaymentMethodsDTO(methodLabels, totalPayments);
+    }
 
 }

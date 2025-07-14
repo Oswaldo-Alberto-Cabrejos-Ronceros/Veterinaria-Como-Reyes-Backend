@@ -44,4 +44,8 @@ public interface IPaymentService {
     WeeklyIncomeDTO getWeeklyIncomeByHeadquarter(Long headquarterId);
 
     PaymentInfoForAppointmentDTO getPaymentInfoByCareId(Long careId);
+
+    TopPaymentMethodsDTO getTopPaymentMethods(String period);
+
+    TopPaymentMethodsDTO getTopPaymentMethodsByHeadquarter(String period, Long headquarterId);
 }
