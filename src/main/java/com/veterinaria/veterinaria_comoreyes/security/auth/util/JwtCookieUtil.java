@@ -17,7 +17,7 @@ public class JwtCookieUtil extends CookieUtil {
      */
     public void setJwtCookie(HttpServletResponse response, String token, int maxAge) {
         // En producción cambiar secure a true cuando se use HTTPS
-        setCookie(response, JWT_COOKIE_NAME, token, maxAge, true, false, "NONE");
+        setCookie(response, JWT_COOKIE_NAME, token, maxAge, true, false, "Lax");
     }
 
     /**

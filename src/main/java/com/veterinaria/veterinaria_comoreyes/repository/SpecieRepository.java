@@ -29,7 +29,7 @@ public interface SpecieRepository extends JpaRepository<Specie, Long> {
           )
           FROM Specie s
           WHERE (:name IS NULL OR LOWER(s.name) LIKE LOWER(CONCAT(:name, '%')))
-            AND (:status IS NULL OR s.status = :status)
+            AND (:status IS NULL OR s.status = CAST(:status AS boolean))
           ORDER BY s.specieId DESC
       """)
   Page<SpecieListDTO> searchSpeciesWithFilters(

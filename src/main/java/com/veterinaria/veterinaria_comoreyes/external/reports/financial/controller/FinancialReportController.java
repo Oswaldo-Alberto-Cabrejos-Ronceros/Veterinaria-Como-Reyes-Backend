@@ -31,7 +31,6 @@ public class FinancialReportController {
     private final FinancialReportService financialReportService;
     private final SecurityUtil securityUtil;
     // NO
-
     @GetMapping("/income/{period}")
     public ResponseEntity<?> getIncomeReport(
             @PathVariable ReportPeriod period,
