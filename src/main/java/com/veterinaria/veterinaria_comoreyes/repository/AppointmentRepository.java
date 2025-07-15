@@ -425,4 +425,98 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 """, nativeQuery = true)
     int cancelExpiredAppointments();
 
+
+
+    @Query(value = """
+            SELECT\s
+                (SELECT COALESCE(SUM(p.AMOUNT), 0)
+                 FROM PAYMENT p
+                 WHERE p.STATUS = 'COMPLETADA'
+                   AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+                   AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+                ),
+            
+                (SELECT COUNT(*)
+                 FROM CARE c
+                 WHERE c.STATUS_CARE = 'COMPLETADA'
+                   AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+                   AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+                ),
+            
+                (SELECT COUNT(*)
+                 FROM APPOINTMENT a
+                 WHERE a.STATUS_APPOINTMENTS = 'COMPLETADA'
+                   AND a.SCHEDULE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+                   AND a.SCHEDULE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+                ),
+            
+                (SELECT\s
+                     CASE\s
+                         WHEN COUNT(*) = 0 THEN 0\s
+                         ELSE ROUND(
+                             (SUM(CASE WHEN a.STATUS_APPOINTMENTS = 'COMPLETADA' THEN 1 ELSE 0 END) * 100.0)
+                             / COUNT(*), 2)
+                     END
+                 FROM APPOINTMENT a
+                 WHERE a.SCHEDULE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+                   AND a.SCHEDULE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+                )
+            FROM DUAL
+             
+            """, nativeQuery = true)
+    List<Object[]> getGeneralMonthlyStats();
+
+    @Query(value = """
+        SELECT 
+            -- Ingresos del mes actual
+            (SELECT COALESCE(SUM(p.AMOUNT), 0)
+             FROM PAYMENT p
+             LEFT JOIN APPOINTMENT a ON p.APPOINTMENT_ID = a.APPOINTMENT_ID
+             LEFT JOIN CARE c ON p.CARE_ID = c.CARE_ID
+             LEFT JOIN HEADQUARTER_VET_SERVICE hv1 ON a.HEADQUARTER_VETSERVICE_ID = hv1.ID
+             LEFT JOIN HEADQUARTER_VET_SERVICE hv2 ON c.HEADQUARTER_VETSERVICE_ID = hv2.ID
+             WHERE p.STATUS = 'COMPLETADA'
+               AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+               AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+               AND COALESCE(hv1.ID_HEADQUARTER, hv2.ID_HEADQUARTER) = :headquarterId
+            ),
+
+            -- Atenciones completadas del mes
+            (SELECT COUNT(*)
+             FROM CARE c
+             LEFT JOIN HEADQUARTER_VET_SERVICE hv ON c.HEADQUARTER_VETSERVICE_ID = hv.ID
+             WHERE c.STATUS_CARE = 'COMPLETADA'
+               AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+               AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+               AND hv.ID_HEADQUARTER = :headquarterId
+            ),
+
+            -- Citas completadas del mes
+            (SELECT COUNT(*)
+             FROM APPOINTMENT a
+             LEFT JOIN HEADQUARTER_VET_SERVICE hv ON a.HEADQUARTER_VETSERVICE_ID = hv.ID
+             WHERE a.STATUS_APPOINTMENTS = 'COMPLETADA'
+               AND a.SCHEDULE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+               AND a.SCHEDULE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+               AND hv.ID_HEADQUARTER = :headquarterId
+            ),
+
+            -- Tasa de éxito de citas
+            (SELECT 
+                 CASE 
+                     WHEN COUNT(*) = 0 THEN 0 
+                     ELSE ROUND(
+                         (SUM(CASE WHEN a.STATUS_APPOINTMENTS = 'COMPLETADA' THEN 1 ELSE 0 END) * 100.0)
+                         / COUNT(*), 2)
+                 END
+             FROM APPOINTMENT a
+             LEFT JOIN HEADQUARTER_VET_SERVICE hv ON a.HEADQUARTER_VETSERVICE_ID = hv.ID
+             WHERE a.SCHEDULE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+               AND a.SCHEDULE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+               AND hv.ID_HEADQUARTER = :headquarterId
+            )
+        FROM DUAL
+        """, nativeQuery = true)
+    List<Object[]> getMonthlyStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
+
 }

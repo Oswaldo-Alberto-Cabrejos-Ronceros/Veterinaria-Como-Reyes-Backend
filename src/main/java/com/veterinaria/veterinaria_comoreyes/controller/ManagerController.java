@@ -1,10 +1,12 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.MonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesCareDTO;
+import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +18,12 @@ public class ManagerController {
 
     private final ISpecieService specieService;
     private final IPaymentService paymentService;
+    private final IAppointmentService appointmentService;
 
-    public ManagerController(ISpecieService specieService, IPaymentService paymentService) {
+    public ManagerController(ISpecieService specieService, IPaymentService paymentService, IAppointmentService appointmentService) {
         this.specieService = specieService;
         this.paymentService = paymentService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/appointments/top-species/{headquarterId}")
@@ -54,6 +58,13 @@ public class ManagerController {
     @GetMapping("/annual/headquarter/{headquarterId}")
     public ResponseEntity<AnnualRevenueDTO> getAnnualEvolutionByHeadquarter(@PathVariable Long headquarterId) {
         return ResponseEntity.ok(paymentService.getAnnualFinancialEvolutionByHeadquarter(headquarterId));
+    }
+
+    //estadisticas
+    @GetMapping("/monthly/by-headquarter/{headquarterId}")
+    public ResponseEntity<MonthlyStatsDTO> getMonthlyStatsByHeadquarter(@PathVariable Long headquarterId) {
+        MonthlyStatsDTO stats = appointmentService.getMonthlyStatsByHeadquarter(headquarterId);
+        return ResponseEntity.ok(stats);
     }
 
 }

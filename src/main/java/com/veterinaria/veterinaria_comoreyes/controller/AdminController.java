@@ -1,11 +1,13 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.MonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomePerHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesCareDTO;
+import com.veterinaria.veterinaria_comoreyes.service.IAppointmentService;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +22,12 @@ public class AdminController {
 
     private final ISpecieService specieService;
     private final IPaymentService paymentService;
+    private final IAppointmentService appointmentService;
 
-    public AdminController(ISpecieService specieService, IPaymentService paymentService) {
+    public AdminController(ISpecieService specieService, IPaymentService paymentService, IAppointmentService appointmentService) {
         this.specieService = specieService;
         this.paymentService = paymentService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/appointments/top-species")
@@ -59,6 +63,12 @@ public class AdminController {
     public ResponseEntity<AnnualRevenueDTO> getAnnualEvolution() {
         return ResponseEntity.ok(paymentService.getAnnualFinancialEvolution());
     }
+    /*ESTADISTICAS MENSUAL */
+    @GetMapping("/monthly-stats/general")
+    public ResponseEntity<MonthlyStatsDTO> getGeneralMonthlyStats() {
+        return ResponseEntity.ok(appointmentService.getGeneralMonthlyStats());
+    }
+
 
 
 
