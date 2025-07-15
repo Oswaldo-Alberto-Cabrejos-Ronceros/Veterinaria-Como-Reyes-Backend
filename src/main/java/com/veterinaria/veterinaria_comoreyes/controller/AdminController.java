@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomePerHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
@@ -53,6 +54,12 @@ public class AdminController {
         IncomePerHeadquarterDTO dto = paymentService.getIncomePerHeadquarterByPeriod(period);
         return ResponseEntity.ok(dto);
     }
+    /*GRAFICO xxx */
+    @GetMapping("/annual")
+    public ResponseEntity<AnnualRevenueDTO> getAnnualEvolution() {
+        return ResponseEntity.ok(paymentService.getAnnualFinancialEvolution());
+    }
+
 
 
 

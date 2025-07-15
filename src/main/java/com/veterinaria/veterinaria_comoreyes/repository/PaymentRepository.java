@@ -404,4 +404,62 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
         ORDER BY h.NAME
         """, nativeQuery = true)
     List<Object[]> findTotalIncomePerHeadquarterByPeriod(@Param("period") String period);
+
+    @Query(value = """
+
+            WITH meses AS (
+        SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1), 'MON', 'NLS_DATE_LANGUAGE=SPANISH') AS mes,
+               TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1), 'MM-YYYY') AS clave
+        FROM dual
+        CONNECT BY LEVEL <= 12
+    ),
+    ingresos AS (
+        SELECT\s
+            TO_CHAR(p.PAYMENT_DATE_TIME, 'MM-YYYY') AS clave,
+            SUM(p.AMOUNT) AS total
+        FROM PAYMENT p
+        WHERE p.STATUS = 'COMPLETADA'
+          AND p.PAYMENT_DATE_TIME IS NOT NULL
+        GROUP BY TO_CHAR(p.PAYMENT_DATE_TIME, 'MM-YYYY')
+    )
+    SELECT\s
+        m.mes,
+        COALESCE(i.total, 0) AS total
+    FROM meses m
+    LEFT JOIN ingresos i ON m.clave = i.clave
+    ORDER BY TO_DATE('01-' || m.clave, 'DD-MM-YYYY')
+    """, nativeQuery = true)
+    List<Object[]> getAnnualFinancialEvolution();
+
+    @Query(value = """
+
+            WITH meses AS (
+       SELECT TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1), 'MON', 'NLS_DATE_LANGUAGE=SPANISH') AS mes,
+              TO_CHAR(ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -LEVEL + 1), 'MM-YYYY') AS clave
+       FROM dual
+       CONNECT BY LEVEL <= 12
+   ),
+   ingresos AS (
+       SELECT\s
+           TO_CHAR(p.PAYMENT_DATE_TIME, 'MM-YYYY') AS clave,
+           SUM(p.AMOUNT) AS total
+       FROM PAYMENT p
+       LEFT JOIN APPOINTMENT a ON p.APPOINTMENT_ID = a.APPOINTMENT_ID
+       LEFT JOIN CARE c ON p.CARE_ID = c.CARE_ID
+       LEFT JOIN HEADQUARTER_VET_SERVICE hv1 ON a.HEADQUARTER_VETSERVICE_ID = hv1.ID
+       LEFT JOIN HEADQUARTER_VET_SERVICE hv2 ON c.HEADQUARTER_VETSERVICE_ID = hv2.ID
+       WHERE p.STATUS = 'COMPLETADA'
+         AND p.PAYMENT_DATE_TIME IS NOT NULL
+         AND COALESCE(hv1.ID_HEADQUARTER, hv2.ID_HEADQUARTER) = :headquarterId
+       GROUP BY TO_CHAR(p.PAYMENT_DATE_TIME, 'MM-YYYY')
+   )
+   SELECT\s
+       m.mes,
+       COALESCE(i.total, 0) AS total
+   FROM meses m
+   LEFT JOIN ingresos i ON m.clave = i.clave
+   ORDER BY TO_DATE('01-' || m.clave, 'DD-MM-YYYY')
+    """, nativeQuery = true)
+    List<Object[]> getAnnualFinancialEvolutionByHeadquarter(@Param("headquarterId") Long headquarterId);
+
 }

@@ -376,4 +376,34 @@ public class PaymentServiceImpl implements IPaymentService {
         return new IncomePerHeadquarterDTO(headquarterLabels, totalIncomes);
     }
 
+    @Override
+    public AnnualRevenueDTO getAnnualFinancialEvolution() {
+        List<Object[]> result = paymentRepository.getAnnualFinancialEvolution();
+
+        List<String> monthLabels = new ArrayList<>();
+        List<Double> totalIncomes = new ArrayList<>();
+
+        for (Object[] row : result) {
+            monthLabels.add(((String) row[0]).substring(0, 3).toUpperCase()); // Mes en abreviado
+            totalIncomes.add(((Number) row[1]).doubleValue());
+        }
+
+        return new AnnualRevenueDTO(monthLabels, totalIncomes);
+    }
+
+    @Override
+    public AnnualRevenueDTO getAnnualFinancialEvolutionByHeadquarter(Long headquarterId) {
+        List<Object[]> result = paymentRepository.getAnnualFinancialEvolutionByHeadquarter(headquarterId);
+
+        List<String> monthLabels = new ArrayList<>();
+        List<Double> totalIncomes = new ArrayList<>();
+
+        for (Object[] row : result) {
+            monthLabels.add(((String) row[0]).substring(0, 3).toUpperCase()); // Mes en abreviado
+            totalIncomes.add(((Number) row[1]).doubleValue());
+        }
+
+        return new AnnualRevenueDTO(monthLabels, totalIncomes);
+    }
+
 }

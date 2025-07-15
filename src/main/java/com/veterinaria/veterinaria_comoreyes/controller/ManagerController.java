@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
@@ -49,5 +50,10 @@ public class ManagerController {
         return ResponseEntity.ok(specieService.getTopSpeciesByPeriodAndHeadquarter(period, headquarterId));
     }
 
+    // GRAFICO ANNUAL
+    @GetMapping("/annual/headquarter/{headquarterId}")
+    public ResponseEntity<AnnualRevenueDTO> getAnnualEvolutionByHeadquarter(@PathVariable Long headquarterId) {
+        return ResponseEntity.ok(paymentService.getAnnualFinancialEvolutionByHeadquarter(headquarterId));
+    }
 
 }
