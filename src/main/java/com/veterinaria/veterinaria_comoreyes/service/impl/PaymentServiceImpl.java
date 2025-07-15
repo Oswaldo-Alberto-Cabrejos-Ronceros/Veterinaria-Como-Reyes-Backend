@@ -324,7 +324,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public TopPaymentMethodsDTO getTopPaymentMethods(String period) {
-        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriod(period.toUpperCase());
+        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriod(period);
 
         List<String> methodLabels = new ArrayList<>();
         List<Long> totalPayments = new ArrayList<>();
@@ -342,7 +342,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public TopPaymentMethodsDTO getTopPaymentMethodsByHeadquarter(String period, Long headquarterId) {
-        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriodAndHeadquarter(period.toUpperCase(), headquarterId);
+        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriodAndHeadquarter(period, headquarterId);
 
         List<String> methodLabels = new ArrayList<>();
         List<Long> totalPayments = new ArrayList<>();

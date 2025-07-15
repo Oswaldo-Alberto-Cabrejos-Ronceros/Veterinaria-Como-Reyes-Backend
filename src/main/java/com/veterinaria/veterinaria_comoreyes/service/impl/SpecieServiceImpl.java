@@ -4,6 +4,7 @@ package com.veterinaria.veterinaria_comoreyes.service.impl;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesCareDTO;
 import com.veterinaria.veterinaria_comoreyes.entity.Specie;
 import com.veterinaria.veterinaria_comoreyes.mapper.SpecieMapper;
 import com.veterinaria.veterinaria_comoreyes.repository.SpecieRepository;
@@ -120,5 +121,44 @@ public class SpecieServiceImpl implements ISpecieService {
 
         return new TopSpeciesByAppointmentsDTO(speciesNames, appointmentCounts);
     }
+
+    @Override
+    public TopSpeciesCareDTO getTopSpeciesByPeriod(String period) {
+        List<Object[]> result = specieRepository.findTopSpeciesByPeriod(period.toUpperCase());
+
+        List<String> speciesLabels = new ArrayList<>();
+        List<Long> totalCounts = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String species = (String) row[0];
+            Long total = ((Number) row[1]).longValue();
+
+            speciesLabels.add(species);
+            totalCounts.add(total);
+        }
+
+        return new TopSpeciesCareDTO(speciesLabels, totalCounts);
+    }
+    @Override
+    public TopSpeciesCareDTO getTopSpeciesByPeriodAndHeadquarter(String period, Long headquarterId) {
+        List<Object[]> result = specieRepository.findTopSpeciesByPeriodAndHeadquarter(period.toUpperCase(), headquarterId);
+
+        List<String> speciesLabels = new ArrayList<>();
+        List<Long> totalCounts = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String species = (String) row[0];
+            Long total = ((Number) row[1]).longValue();
+
+            speciesLabels.add(species);
+            totalCounts.add(total);
+        }
+
+        return new TopSpeciesCareDTO(speciesLabels, totalCounts);
+    }
+
+
+
+
 }
 

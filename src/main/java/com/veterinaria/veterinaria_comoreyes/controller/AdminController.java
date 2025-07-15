@@ -3,10 +3,12 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesCareDTO;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -38,7 +40,11 @@ public class AdminController {
         return ResponseEntity.ok(paymentService.getTopPaymentMethods(period));
     }
 
-    /*GRAFICO BARRAS */
+    /*GRAFICO xx */
+    @GetMapping("/top-specie/{period}")
+    public ResponseEntity<TopSpeciesCareDTO> getTopSpeciesByPeriod(@PathVariable String period) {
+        return ResponseEntity.ok(specieService.getTopSpeciesByPeriod(period));
+    }
 
 
 
