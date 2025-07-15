@@ -358,4 +358,22 @@ public class PaymentServiceImpl implements IPaymentService {
         return new TopPaymentMethodsDTO(methodLabels, totalPayments);
     }
 
+    @Override
+    public IncomePerHeadquarterDTO getIncomePerHeadquarterByPeriod(String period) {
+        List<Object[]> result = paymentRepository.findTotalIncomePerHeadquarterByPeriod(period.toUpperCase());
+
+        List<String> headquarterLabels = new ArrayList<>();
+        List<Double> totalIncomes = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String label = (String) row[0];
+            Double total = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+
+            headquarterLabels.add(label);
+            totalIncomes.add(total);
+        }
+
+        return new IncomePerHeadquarterDTO(headquarterLabels, totalIncomes);
+    }
+
 }

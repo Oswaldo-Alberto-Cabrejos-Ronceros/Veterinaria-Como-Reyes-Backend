@@ -377,4 +377,31 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Object[]> findTopPaymentMethodsByPeriodAndHeadquarter(@Param("period") String period, @Param("headquarterId") Long headquarterId);
 
 
+    @Query(value = """
+        SELECT 
+            h.NAME AS headquarter,
+            COALESCE(SUM(fp.amount), 0) AS total_income
+        FROM HEADQUARTER h
+        LEFT JOIN (
+            SELECT 
+                COALESCE(hv1.ID_HEADQUARTER, hv2.ID_HEADQUARTER) AS headquarter_id,
+                p.AMOUNT AS amount,
+                p.PAYMENT_DATE_TIME AS payment_date
+            FROM PAYMENT p
+            LEFT JOIN APPOINTMENT a ON p.APPOINTMENT_ID = a.APPOINTMENT_ID
+            LEFT JOIN CARE c ON p.CARE_ID = c.CARE_ID
+            LEFT JOIN HEADQUARTER_VET_SERVICE hv1 ON a.HEADQUARTER_VETSERVICE_ID = hv1.ID
+            LEFT JOIN HEADQUARTER_VET_SERVICE hv2 ON c.HEADQUARTER_VETSERVICE_ID = hv2.ID
+            WHERE p.STATUS = 'COMPLETADA'
+              AND p.PAYMENT_DATE_TIME IS NOT NULL
+              AND (
+                (:period = 'WEEK' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'IW') AND p.PAYMENT_DATE_TIME < TRUNC(SYSDATE, 'IW') + 7) OR
+                (:period = 'MONTH' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM') AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) OR
+                (:period = 'YEAR' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'YYYY') AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+              )
+        ) fp ON h.HEADQUARTER_ID = fp.headquarter_id
+        GROUP BY h.NAME
+        ORDER BY h.NAME
+        """, nativeQuery = true)
+    List<Object[]> findTotalIncomePerHeadquarterByPeriod(@Param("period") String period);
 }

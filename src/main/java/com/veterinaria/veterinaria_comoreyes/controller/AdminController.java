@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomePerHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
@@ -45,6 +46,14 @@ public class AdminController {
     public ResponseEntity<TopSpeciesCareDTO> getTopSpeciesByPeriod(@PathVariable String period) {
         return ResponseEntity.ok(specieService.getTopSpeciesByPeriod(period));
     }
+
+    /*GRAFICO BARRAS */
+    @GetMapping("/income-by-headquarter/{period}")
+    public ResponseEntity<IncomePerHeadquarterDTO> getIncomePerHeadquarter(@PathVariable String period) {
+        IncomePerHeadquarterDTO dto = paymentService.getIncomePerHeadquarterByPeriod(period);
+        return ResponseEntity.ok(dto);
+    }
+
 
 
 
