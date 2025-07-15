@@ -48,4 +48,10 @@ public interface IPaymentService {
     TopPaymentMethodsDTO getTopPaymentMethods(String period);
 
     TopPaymentMethodsDTO getTopPaymentMethodsByHeadquarter(String period, Long headquarterId);
+
+    IncomePerHeadquarterDTO getIncomePerHeadquarterByPeriod(String period);
+
+    AnnualRevenueDTO getAnnualFinancialEvolution();
+
+    AnnualRevenueDTO getAnnualFinancialEvolutionByHeadquarter(Long headquarterId);
 }

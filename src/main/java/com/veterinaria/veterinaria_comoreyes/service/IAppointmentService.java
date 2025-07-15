@@ -62,4 +62,12 @@ public interface IAppointmentService {
     AppointmentStatsForReceptionistDTO getStatsByDate(Long headquarterId);
 
     List<CareAndAppointmentPanelEmployeeDTO> getAppointmentsByHeadquarterId(Long headquarterId);
+
+    MonthlyStatsDTO getGeneralMonthlyStats();
+
+    MonthlyStatsDTO getMonthlyStatsByHeadquarter(Long headquarterId);
+
+    DailyAppointmentStatsDTO getDailyAppointmentStatsLast7Days();
+
+    DailyAppointmentStatsDTO getDailyAppointmentStatsLast7DaysByHeadquarter(Long headquarterId);
 }

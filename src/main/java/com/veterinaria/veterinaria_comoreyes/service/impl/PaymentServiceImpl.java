@@ -324,7 +324,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public TopPaymentMethodsDTO getTopPaymentMethods(String period) {
-        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriod(period.toUpperCase());
+        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriod(period);
 
         List<String> methodLabels = new ArrayList<>();
         List<Long> totalPayments = new ArrayList<>();
@@ -342,7 +342,7 @@ public class PaymentServiceImpl implements IPaymentService {
 
     @Override
     public TopPaymentMethodsDTO getTopPaymentMethodsByHeadquarter(String period, Long headquarterId) {
-        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriodAndHeadquarter(period.toUpperCase(), headquarterId);
+        List<Object[]> result = paymentRepository.findTopPaymentMethodsByPeriodAndHeadquarter(period, headquarterId);
 
         List<String> methodLabels = new ArrayList<>();
         List<Long> totalPayments = new ArrayList<>();
@@ -356,6 +356,54 @@ public class PaymentServiceImpl implements IPaymentService {
         }
 
         return new TopPaymentMethodsDTO(methodLabels, totalPayments);
+    }
+
+    @Override
+    public IncomePerHeadquarterDTO getIncomePerHeadquarterByPeriod(String period) {
+        List<Object[]> result = paymentRepository.findTotalIncomePerHeadquarterByPeriod(period.toUpperCase());
+
+        List<String> headquarterLabels = new ArrayList<>();
+        List<Double> totalIncomes = new ArrayList<>();
+
+        for (Object[] row : result) {
+            String label = (String) row[0];
+            Double total = row[1] != null ? ((Number) row[1]).doubleValue() : 0.0;
+
+            headquarterLabels.add(label);
+            totalIncomes.add(total);
+        }
+
+        return new IncomePerHeadquarterDTO(headquarterLabels, totalIncomes);
+    }
+
+    @Override
+    public AnnualRevenueDTO getAnnualFinancialEvolution() {
+        List<Object[]> result = paymentRepository.getAnnualFinancialEvolution();
+
+        List<String> monthLabels = new ArrayList<>();
+        List<Double> totalIncomes = new ArrayList<>();
+
+        for (Object[] row : result) {
+            monthLabels.add(((String) row[0]).substring(0, 3).toUpperCase()); // Mes en abreviado
+            totalIncomes.add(((Number) row[1]).doubleValue());
+        }
+
+        return new AnnualRevenueDTO(monthLabels, totalIncomes);
+    }
+
+    @Override
+    public AnnualRevenueDTO getAnnualFinancialEvolutionByHeadquarter(Long headquarterId) {
+        List<Object[]> result = paymentRepository.getAnnualFinancialEvolutionByHeadquarter(headquarterId);
+
+        List<String> monthLabels = new ArrayList<>();
+        List<Double> totalIncomes = new ArrayList<>();
+
+        for (Object[] row : result) {
+            monthLabels.add(((String) row[0]).substring(0, 3).toUpperCase()); // Mes en abreviado
+            totalIncomes.add(((Number) row[1]).doubleValue());
+        }
+
+        return new AnnualRevenueDTO(monthLabels, totalIncomes);
     }
 
 }

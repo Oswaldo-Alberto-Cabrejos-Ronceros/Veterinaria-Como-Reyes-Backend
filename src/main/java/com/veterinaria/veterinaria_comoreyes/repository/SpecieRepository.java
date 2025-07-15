@@ -69,4 +69,118 @@ public interface SpecieRepository extends JpaRepository<Specie, Long> {
       """, nativeQuery = true)
   List<Object[]> findTopSpeciesWithMostCompletedAppointmentsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
+
+
+
+
+  @Query(value = """
+    WITH especies_filtradas AS (
+        SELECT\s
+            s.NAME AS especie,
+            COUNT(*) AS total
+        FROM PAYMENT p
+        LEFT JOIN APPOINTMENT a ON p.APPOINTMENT_ID = a.APPOINTMENT_ID
+        LEFT JOIN CARE c ON p.CARE_ID = c.CARE_ID
+        LEFT JOIN ANIMAL an ON an.ANIMAL_ID = COALESCE(a.ANIMAL_ID, c.ANIMAL_ID)
+        LEFT JOIN BREED b ON an.BREED_ID = b.BREED_ID
+        LEFT JOIN SPECIE s ON b.ID_SPECIE = s.SPECIE_ID
+        WHERE p.STATUS = 'COMPLETADA'
+          AND p.PAYMENT_DATE_TIME IS NOT NULL
+          AND (
+            (:period = 'WEEK' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'IW') AND p.PAYMENT_DATE_TIME < TRUNC(SYSDATE, 'IW') + 7) OR
+            (:period = 'MONTH' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM') AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) OR
+            (:period = 'YEAR' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'YYYY') AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+          )
+        GROUP BY s.NAME
+    ),
+    ranking AS (
+        SELECT especie, total, ROW_NUMBER() OVER (ORDER BY total DESC) AS rn
+        FROM especies_filtradas
+    ),
+    top_4 AS (
+        SELECT especie, total FROM ranking WHERE rn <= 4
+    ),
+    otros_raw AS (
+        SELECT SUM(total) AS total FROM ranking WHERE rn > 4
+    ),
+    otros AS (
+        SELECT 'Otros' AS especie, COALESCE((SELECT total FROM otros_raw), 0) AS total FROM DUAL
+    ),
+    top_con_otros AS (
+        SELECT * FROM top_4
+        UNION ALL
+        SELECT * FROM otros
+    ),
+    conteo_top AS (
+        SELECT COUNT(*) AS cantidad FROM top_4
+    ),
+    completar AS (
+        SELECT s.NAME AS especie, 0 AS total
+        FROM SPECIE s, conteo_top
+        WHERE s.NAME NOT IN (SELECT especie FROM top_con_otros)
+          AND ROWNUM <= (4 - conteo_top.cantidad)
+    )
+    SELECT especie, total
+    FROM (
+        SELECT especie, total, 1 AS prioridad FROM top_con_otros
+        UNION ALL
+        SELECT especie, total, 2 AS prioridad FROM completar
+    )
+    ORDER BY prioridad, total DESC
+""", nativeQuery = true)
+  List<Object[]> findTopSpeciesByPeriod(@Param("period") String period);
+
+  @Query(value = """
+        WITH especies_filtradas AS (
+            SELECT\s
+                COALESCE(s.NAME, 'Sin especie') AS especie,
+                COUNT(*) AS total
+            FROM PAYMENT p
+            LEFT JOIN APPOINTMENT a ON p.APPOINTMENT_ID = a.APPOINTMENT_ID
+            LEFT JOIN CARE c ON p.CARE_ID = c.CARE_ID
+            LEFT JOIN ANIMAL an ON an.ANIMAL_ID = COALESCE(a.ANIMAL_ID, c.ANIMAL_ID)
+            LEFT JOIN BREED b ON an.BREED_ID = b.BREED_ID
+            LEFT JOIN SPECIE s ON b.ID_SPECIE = s.SPECIE_ID
+            LEFT JOIN HEADQUARTER_VET_SERVICE hv ON hv.ID = COALESCE(a.HEADQUARTER_VETSERVICE_ID, c.HEADQUARTER_VETSERVICE_ID)
+            WHERE p.STATUS = 'COMPLETADA'
+              AND p.PAYMENT_DATE_TIME IS NOT NULL
+              AND hv.ID_HEADQUARTER = :headquarterId
+              AND (
+                (:period = 'WEEK' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'IW') AND p.PAYMENT_DATE_TIME < TRUNC(SYSDATE, 'IW') + 7) OR
+                (:period = 'MONTH' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM') AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)) OR
+                (:period = 'YEAR' AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'YYYY') AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+              )
+            GROUP BY s.NAME
+        ),
+        ranking AS (
+            SELECT especie, total, ROW_NUMBER() OVER (ORDER BY total DESC) AS rn FROM especies_filtradas
+        ),
+        top_4 AS (
+            SELECT especie, total FROM ranking WHERE rn <= 4
+        ),
+        otros AS (
+            SELECT 'Otros' AS especie, COALESCE(SUM(total), 0) AS total FROM ranking WHERE rn > 4
+        ),
+        resultado AS (
+            SELECT especie, total FROM top_4
+            UNION ALL
+            SELECT especie, total FROM otros
+        ),
+        completar AS (
+            SELECT s.NAME AS especie, 0 AS total
+            FROM SPECIE s
+            WHERE s.NAME NOT IN (SELECT especie FROM resultado)
+              AND ROWNUM <= (4 - (SELECT COUNT(*) FROM resultado WHERE especie != 'Otros'))
+        )
+        SELECT especie, total
+        FROM (
+            SELECT especie, total, 1 AS prioridad FROM resultado
+            UNION ALL
+            SELECT especie, total, 2 AS prioridad FROM completar
+        )
+        ORDER BY prioridad, total DESC
+        
+""", nativeQuery = true)
+  List<Object[]> findTopSpeciesByPeriodAndHeadquarter(@Param("period") String period, @Param("headquarterId") Long headquarterId);
+
 }
