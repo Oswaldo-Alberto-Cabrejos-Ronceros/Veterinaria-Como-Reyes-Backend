@@ -348,6 +348,33 @@ public class CareServiceImpl implements ICareService {
         return new WeeklyCareStatsDTO(weekLabels, totalCares);
     }
 
+    @Override
+    public OperationalMonthlyStatsDTO getGeneralOperationalMonthlyStats() {
+        Object[] result = careRepository.getGeneralOperationalMonthlyStats().get(0);
+
+        Long totalPatients = ((Number) result[0]).longValue();
+        Long totalClients = ((Number) result[1]).longValue();
+        Long activeVets = ((Number) result[2]).longValue();
+        BigDecimal avgIncome = (BigDecimal) result[3];
+
+        Double avgIncomeFinal = avgIncome.doubleValue();
+
+        return new OperationalMonthlyStatsDTO(totalPatients, totalClients, activeVets, avgIncomeFinal);
+    }
+    @Override
+    public OperationalMonthlyStatsDTO getOperationalMonthlyStatsByHeadquarter(Long headquarterId) {
+        Object[] result = careRepository.getOperationalMonthlyStatsByHeadquarter(headquarterId).get(0);
+
+        Long totalPatients = ((Number) result[0]).longValue();
+        Long totalClients = ((Number) result[1]).longValue();
+        Long activeVets = ((Number) result[2]).longValue();
+        BigDecimal avgIncome = (BigDecimal) result[3];
+
+        Double avgIncomeFinal = avgIncome.doubleValue();
+
+        return new OperationalMonthlyStatsDTO(totalPatients, totalClients, activeVets, avgIncomeFinal);
+    }
+
 
 
 

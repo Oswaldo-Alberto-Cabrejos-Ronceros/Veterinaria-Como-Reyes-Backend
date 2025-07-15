@@ -51,5 +51,9 @@ public interface ICareService {
 
     WeeklyCareStatsDTO getWeeklyStats(Long employeeId);
 
+    OperationalMonthlyStatsDTO getGeneralOperationalMonthlyStats();
+
+    OperationalMonthlyStatsDTO getOperationalMonthlyStatsByHeadquarter(Long headquarterId);
+
     // void deleteCare(Long id);
 } 
