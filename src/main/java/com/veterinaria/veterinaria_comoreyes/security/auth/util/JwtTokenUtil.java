@@ -14,8 +14,6 @@ import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
-
-
 @Component
 public class JwtTokenUtil {
 
@@ -32,7 +30,6 @@ public class JwtTokenUtil {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-
     public int getJwtExpirationMs() {
         return jwtExpirationMs;
     }
@@ -43,8 +40,6 @@ public class JwtTokenUtil {
                 .claim("entityId", entityId)
                 .claim("roleName", roleName)
                 .claim("perms", permissions)
-                .claim("type", "access")
-                .audience().add("your-audience").and()
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(key, Jwts.SIG.HS512)
@@ -54,10 +49,9 @@ public class JwtTokenUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(key)
-                    .require("aud", "your-audience") // ← Validación directa
-                    .build()
-                    .parseSignedClaims(token);
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
@@ -107,6 +101,7 @@ public class JwtTokenUtil {
             return e.getClaims().getExpiration();
         }
     }
+
     public String refreshToken(String token) {
         Claims claims = extractAllClaims(token);
         Date now = new Date();
@@ -115,7 +110,6 @@ public class JwtTokenUtil {
         return Jwts.builder()
                 .claims(claims)
                 .subject(claims.getSubject())
-                .claim("type", "access")
                 .issuedAt(now)
                 .expiration(newExpiration)
                 .signWith(key, Jwts.SIG.HS512)
