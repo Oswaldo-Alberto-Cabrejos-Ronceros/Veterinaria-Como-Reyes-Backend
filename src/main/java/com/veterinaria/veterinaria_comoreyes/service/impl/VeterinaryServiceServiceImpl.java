@@ -135,7 +135,9 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
     @Transactional(readOnly = true)
     public Page<ServiceListDTO> searchServices(String name, String specie, String category, Boolean status,
             Pageable pageable) {
-        filterStatus.activeFilterStatus(true); // Aplica el filtro global de estado si se requiere
+        if (status == null) {
+            filterStatus.activeFilterStatus(true);
+        }
         return veterinaryServiceRepository.searchServicesWithFilters(name, specie, category, status, pageable);
     }
 
@@ -148,8 +150,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
                         (String) row[1],
                         (String) row[2],
                         (String) row[3], // Assuming this is the image URL
-                        ((Number) row[4]).longValue()
-                ))
+                        ((Number) row[4]).longValue()))
                 .toList();
     }
 
@@ -162,8 +163,7 @@ public class VeterinaryServiceServiceImpl implements IVeterinaryServiceService {
                         (String) row[1],
                         (String) row[2],
                         (String) row[3], // Assuming this is the image URL
-                        ((Number) row[4]).longValue()
-                ))
+                        ((Number) row[4]).longValue()))
                 .toList();
     }
 

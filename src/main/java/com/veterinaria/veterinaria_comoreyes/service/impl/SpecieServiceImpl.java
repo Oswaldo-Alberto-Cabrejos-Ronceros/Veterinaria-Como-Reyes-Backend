@@ -1,6 +1,5 @@
 package com.veterinaria.veterinaria_comoreyes.service.impl;
 
-
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.SpecieListDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Specie.TopSpeciesByAppointmentsDTO;
@@ -93,7 +92,9 @@ public class SpecieServiceImpl implements ISpecieService {
     @Override
     @Transactional(readOnly = true)
     public Page<SpecieListDTO> searchSpecies(String name, Boolean status, Pageable pageable) {
-        filterStatus.activeFilterStatus(true); // Aplica filtro lógico global si corresponde
+        if (status == null) {
+            filterStatus.activeFilterStatus(true);
+        }
         return specieRepository.searchSpeciesWithFilters(name, status, pageable);
     }
 
@@ -121,4 +122,3 @@ public class SpecieServiceImpl implements ISpecieService {
         return new TopSpeciesByAppointmentsDTO(speciesNames, appointmentCounts);
     }
 }
-

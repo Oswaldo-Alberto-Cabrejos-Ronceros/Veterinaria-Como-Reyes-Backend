@@ -201,8 +201,9 @@ public class AnimalServiceImpl implements IAnimalService {
     @Transactional(readOnly = true)
     public Page<AnimalListDTO> searchAnimals(String name, String owner, String specie, String breed,
             String gender, Boolean status, Pageable pageable) {
-        filterStatus.activeFilterStatus(true); // Aplica el filtro lógico si es necesario
-
+        if (status == null) {
+            filterStatus.activeFilterStatus(true);
+        }
         return animalRepository.searchAnimalsWithFullDetails(
                 name, owner, specie, breed, gender, status, pageable);
     }
