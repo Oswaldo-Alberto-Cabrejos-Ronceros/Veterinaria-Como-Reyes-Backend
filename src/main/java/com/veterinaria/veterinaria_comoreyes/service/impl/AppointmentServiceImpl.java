@@ -605,4 +605,47 @@ public class AppointmentServiceImpl implements IAppointmentService {
         );
     }
 
+    @Override
+    public DailyAppointmentStatsDTO getDailyAppointmentStatsLast7Days() {
+        List<Object[]> results = appointmentRepository.getDailyAppointmentStatsLast7Days();
+
+        List<String> dayLabels = new ArrayList<>();
+        List<Long> completedCounts = new ArrayList<>();
+        List<Long> cancelledCounts = new ArrayList<>();
+
+        for (Object[] row : results) {
+            String dayLabel = ((String) row[0]).toUpperCase();
+            Long completed = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+            Long cancelled = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+
+            dayLabels.add(dayLabel);
+            completedCounts.add(completed);
+            cancelledCounts.add(cancelled);
+        }
+
+        return new DailyAppointmentStatsDTO(dayLabels, completedCounts, cancelledCounts);
+    }
+
+    @Override
+    public DailyAppointmentStatsDTO getDailyAppointmentStatsLast7DaysByHeadquarter(Long headquarterId) {
+        List<Object[]> results = appointmentRepository.getDailyAppointmentStatsLast7DaysByHeadquarter(headquarterId);
+
+        List<String> dayLabels = new ArrayList<>();
+        List<Long> completedCounts = new ArrayList<>();
+        List<Long> cancelledCounts = new ArrayList<>();
+
+        for (Object[] row : results) {
+            String dayLabel = ((String) row[0]).toUpperCase();
+            Long completed = row[1] != null ? ((Number) row[1]).longValue() : 0L;
+            Long cancelled = row[2] != null ? ((Number) row[2]).longValue() : 0L;
+
+            dayLabels.add(dayLabel);
+            completedCounts.add(completed);
+            cancelledCounts.add(cancelled);
+        }
+
+        return new DailyAppointmentStatsDTO(dayLabels, completedCounts, cancelledCounts);
+    }
+
+
 }

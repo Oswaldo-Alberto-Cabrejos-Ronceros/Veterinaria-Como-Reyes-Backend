@@ -519,4 +519,40 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         """, nativeQuery = true)
     List<Object[]> getMonthlyStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
+    @Query(value = """
+    SELECT 
+        TO_CHAR(dia, 'DY', 'NLS_DATE_LANGUAGE=SPANISH'),
+        COUNT(CASE WHEN a.STATUS_APPOINTMENTS = 'COMPLETADA' THEN 1 END),
+        COUNT(CASE WHEN a.STATUS_APPOINTMENTS = 'CANCELADA' THEN 1 END)
+    FROM (
+        SELECT TRUNC(SYSDATE) - LEVEL + 1 AS dia
+        FROM dual CONNECT BY LEVEL <= 7
+    ) dias
+    LEFT JOIN APPOINTMENT a 
+        ON TRUNC(a.SCHEDULE_DATE_TIME) = dia
+    GROUP BY dia
+    ORDER BY dia
+""", nativeQuery = true)
+    List<Object[]> getDailyAppointmentStatsLast7Days();
+
+    @Query(value = """
+    SELECT\s
+        TO_CHAR(d.dia, 'DY', 'NLS_DATE_LANGUAGE=SPANISH') AS dia_nombre,
+        COUNT(CASE WHEN a.STATUS_APPOINTMENTS = 'COMPLETADA' AND hvs.ID_HEADQUARTER = :headquarterId THEN 1 END) AS completadas,
+        COUNT(CASE WHEN a.STATUS_APPOINTMENTS = 'CANCELADA' AND hvs.ID_HEADQUARTER = :headquarterId THEN 1 END) AS canceladas
+    FROM (
+        SELECT TRUNC(SYSDATE) - LEVEL + 1 AS dia
+        FROM dual CONNECT BY LEVEL <= 7
+    ) d
+    LEFT JOIN APPOINTMENT a\s
+        ON TRUNC(a.SCHEDULE_DATE_TIME) = d.dia
+    LEFT JOIN HEADQUARTER_VET_SERVICE hvs\s
+        ON a.HEADQUARTER_VETSERVICE_ID = hvs.ID
+    GROUP BY d.dia
+    ORDER BY d.dia
+""", nativeQuery = true)
+    List<Object[]> getDailyAppointmentStatsLast7DaysByHeadquarter(@Param("headquarterId") Long headquarterId);
+
+
+
 }

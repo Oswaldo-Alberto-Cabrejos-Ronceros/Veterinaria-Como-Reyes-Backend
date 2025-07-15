@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.DailyAppointmentStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.MonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.OperationalMonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
@@ -75,5 +76,12 @@ public class ManagerController {
     public ResponseEntity<OperationalMonthlyStatsDTO> getOperationalStatsByHeadquarter(@PathVariable Long headquarterId) {
         return ResponseEntity.ok(careService.getOperationalMonthlyStatsByHeadquarter(headquarterId));
     }
+    //graficos de barras de citas diarias por sede
+    @GetMapping("/appointments/daily-stats/headquarter/{headquarterId}")
+    public ResponseEntity<DailyAppointmentStatsDTO> getDailyAppointmentStatsByHeadquarter(
+            @PathVariable Long headquarterId) {
+        return ResponseEntity.ok(appointmentService.getDailyAppointmentStatsLast7DaysByHeadquarter(headquarterId));
+    }
+
 
 }

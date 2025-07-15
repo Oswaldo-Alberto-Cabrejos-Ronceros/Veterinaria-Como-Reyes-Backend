@@ -66,4 +66,8 @@ public interface IAppointmentService {
     MonthlyStatsDTO getGeneralMonthlyStats();
 
     MonthlyStatsDTO getMonthlyStatsByHeadquarter(Long headquarterId);
+
+    DailyAppointmentStatsDTO getDailyAppointmentStatsLast7Days();
+
+    DailyAppointmentStatsDTO getDailyAppointmentStatsLast7DaysByHeadquarter(Long headquarterId);
 }

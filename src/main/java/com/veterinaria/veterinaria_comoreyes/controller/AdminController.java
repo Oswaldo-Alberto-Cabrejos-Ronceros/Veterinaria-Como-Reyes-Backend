@@ -1,5 +1,6 @@
 package com.veterinaria.veterinaria_comoreyes.controller;
 
+import com.veterinaria.veterinaria_comoreyes.dto.Appointment.DailyAppointmentStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.MonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.OperationalMonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
@@ -79,6 +80,13 @@ public class AdminController {
     public ResponseEntity<OperationalMonthlyStatsDTO> getGeneralOperationalMonthlyStats() {
         return ResponseEntity.ok(careService.getGeneralOperationalMonthlyStats());
     }
+
+    //grafico de citas completadas y canceladas por dia de la semana
+    @GetMapping("/appointments/daily-stats")
+    public ResponseEntity<DailyAppointmentStatsDTO> getDailyAppointmentStatsLast7Days() {
+        return ResponseEntity.ok(appointmentService.getDailyAppointmentStatsLast7Days());
+    }
+
 
 
 
