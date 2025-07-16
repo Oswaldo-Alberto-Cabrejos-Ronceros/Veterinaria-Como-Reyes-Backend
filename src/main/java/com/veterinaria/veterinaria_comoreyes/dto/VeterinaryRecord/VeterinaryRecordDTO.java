@@ -34,5 +34,5 @@ public class VeterinaryRecordDTO {
 
     private String resultUrl;
 
-    private StatusVeterinaryRecord statusVeterinaryRecord = StatusVeterinaryRecord.EN_CURSO;
+    private StatusVeterinaryRecord statusVeterinaryRecord = StatusVeterinaryRecord.OBSERVACION;
 }
