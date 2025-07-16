@@ -2,6 +2,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 
 import com.veterinaria.veterinaria_comoreyes.dto.Animal.RecentPatientsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.MonthlyCareStatsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.StatsVeterinarianPanel;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.WeeklyCareStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.InfoVeterinaryRecordForTableDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.VeterinaryRecord.RecentMedicalRecordDTO;
@@ -67,6 +68,12 @@ public class VeterinarianController {
         WeeklyCareStatsDTO stats = careService.getWeeklyStats(employeeId);
         return ResponseEntity.ok(stats);
     }
+
+    @GetMapping("/panel-stats/today/{veterinarianId}")
+    public ResponseEntity<StatsVeterinarianPanel> getVeterinarianPanelStatsToday(@PathVariable Long veterinarianId) {
+        return ResponseEntity.ok(careService.getVeterinarianPanelStatsToday(veterinarianId));
+    }
+
 
 
 }

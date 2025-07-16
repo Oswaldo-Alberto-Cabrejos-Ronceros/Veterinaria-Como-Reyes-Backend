@@ -308,5 +308,20 @@ public interface CareRepository extends JpaRepository<Care, Long> {
 """, nativeQuery = true)
     List<Object[]> getOperationalMonthlyStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
 
+    @Query(value = """
+    SELECT
+        COUNT(DISTINCT c.CARE_ID) AS total_cares,
+        COUNT(DISTINCT c.ANIMAL_ID) AS total_patients,
+        COUNT(DISTINCT vr.ID) AS total_records
+    FROM EMPLOYEE e
+    LEFT JOIN CARE c ON e.EMPLOYEE_ID = c.EMPLOYEE_ID
+        AND c.STATUS_CARE = 'COMPLETADA'
+        AND TRUNC(c.CARE_DATE_TIME) = TRUNC(SYSDATE)
+    LEFT JOIN VETERINARY_RECORD vr ON c.CARE_ID = vr.ID_CARE
+        AND TRUNC(vr.DATE_CREATED) = TRUNC(SYSDATE)
+    WHERE e.EMPLOYEE_ID = :veterinarianId
+""", nativeQuery = true)
+    List<Object[]> getStatsForVeterinarianPanelToday(@Param("veterinarianId") Long veterinarianId);
+
 
 }

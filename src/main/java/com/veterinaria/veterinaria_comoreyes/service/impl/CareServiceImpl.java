@@ -375,6 +375,18 @@ public class CareServiceImpl implements ICareService {
         return new OperationalMonthlyStatsDTO(totalPatients, totalClients, activeVets, avgIncomeFinal);
     }
 
+    @Override
+    public StatsVeterinarianPanel getVeterinarianPanelStatsToday(Long veterinarianId) {
+        Object[] result = careRepository.getStatsForVeterinarianPanelToday(veterinarianId).get(0);
+
+        Long totalCares = ((Number) result[0]).longValue();
+        Long totalPatients = ((Number) result[1]).longValue();
+        Long totalRecords = ((Number) result[2]).longValue();
+
+        return new StatsVeterinarianPanel(totalCares, totalPatients, totalRecords);
+    }
+
+
 
 
 
