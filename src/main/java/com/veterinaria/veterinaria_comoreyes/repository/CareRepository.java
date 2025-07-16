@@ -212,4 +212,101 @@ public interface CareRepository extends JpaRepository<Care, Long> {
             nativeQuery = true
     )
     List<Object[]> getWeeklyCareStats(@Param("fechaBase") String fechaBase, @Param("employeeId") Long employeeId);
+
+
+    @Query(value = """
+    SELECT 
+        -- Total de pacientes únicos atendidos este mes
+        (SELECT COUNT(DISTINCT c.ANIMAL_ID)
+         FROM CARE c
+         WHERE c.STATUS_CARE = 'COMPLETADO'
+           AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+        ),
+
+        -- Total de clientes únicos este mes
+        (SELECT COUNT(DISTINCT cl.CLIENT_ID)
+         FROM CARE c
+         JOIN ANIMAL a ON c.ANIMAL_ID = a.ANIMAL_ID
+         JOIN CLIENT cl ON a.CLIENT_ID = cl.CLIENT_ID
+         WHERE c.STATUS_CARE = 'COMPLETADO'
+           AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+        ),
+
+        -- Veterinarios activos este mes
+        (SELECT COUNT(DISTINCT c.EMPLOYEE_ID)
+         FROM CARE c
+         WHERE c.STATUS_CARE = 'COMPLETADO'
+           AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+        ),
+
+        -- Promedio de ingresos por veterinario
+        (SELECT CASE 
+                    WHEN COUNT(DISTINCT c.EMPLOYEE_ID) = 0 THEN 0
+                    ELSE ROUND(SUM(p.AMOUNT) / COUNT(DISTINCT c.EMPLOYEE_ID), 2)
+                END
+         FROM PAYMENT p
+         JOIN CARE c ON p.CARE_ID = c.CARE_ID
+         WHERE p.STATUS = 'COMPLETADA'
+           AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+        ) 
+    FROM DUAL
+""", nativeQuery = true)
+    List<Object[]> getGeneralOperationalMonthlyStats();
+
+    @Query(value = """
+    SELECT 
+        -- Total de pacientes únicos atendidos este mes
+        (SELECT COUNT(DISTINCT c.ANIMAL_ID)
+         FROM CARE c
+         JOIN HEADQUARTER_VET_SERVICE hv ON c.HEADQUARTER_VETSERVICE_ID = hv.ID
+         WHERE c.STATUS_CARE = 'COMPLETADO'
+           AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+           AND hv.ID_HEADQUARTER = :headquarterId
+        ),
+
+        -- Total de clientes únicos este mes
+        (SELECT COUNT(DISTINCT cl.CLIENT_ID)
+         FROM CARE c
+         JOIN HEADQUARTER_VET_SERVICE hv ON c.HEADQUARTER_VETSERVICE_ID = hv.ID
+         JOIN ANIMAL a ON c.ANIMAL_ID = a.ANIMAL_ID
+         JOIN CLIENT cl ON a.CLIENT_ID = cl.CLIENT_ID
+         WHERE c.STATUS_CARE = 'COMPLETADO'
+           AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+           AND hv.ID_HEADQUARTER = :headquarterId
+        ) ,
+
+        -- Veterinarios activos este mes
+        (SELECT COUNT(DISTINCT c.EMPLOYEE_ID)
+         FROM CARE c
+         JOIN HEADQUARTER_VET_SERVICE hv ON c.HEADQUARTER_VETSERVICE_ID = hv.ID
+         WHERE c.STATUS_CARE = 'COMPLETADO'
+           AND c.CARE_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND c.CARE_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+           AND hv.ID_HEADQUARTER = :headquarterId
+        ),
+
+        -- Promedio de ingresos por veterinario
+        (SELECT CASE 
+                    WHEN COUNT(DISTINCT c.EMPLOYEE_ID) = 0 THEN 0
+                    ELSE ROUND(SUM(p.AMOUNT) / COUNT(DISTINCT c.EMPLOYEE_ID), 2)
+                END
+         FROM PAYMENT p
+         JOIN CARE c ON p.CARE_ID = c.CARE_ID
+         JOIN HEADQUARTER_VET_SERVICE hv ON c.HEADQUARTER_VETSERVICE_ID = hv.ID
+         WHERE p.STATUS = 'COMPLETADA'
+           AND p.PAYMENT_DATE_TIME >= TRUNC(SYSDATE, 'MM')
+           AND p.PAYMENT_DATE_TIME < ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+           AND hv.ID_HEADQUARTER = :headquarterId
+        ) 
+    FROM DUAL
+""", nativeQuery = true)
+    List<Object[]> getOperationalMonthlyStatsByHeadquarter(@Param("headquarterId") Long headquarterId);
+
+
 }
