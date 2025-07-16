@@ -171,6 +171,8 @@ public class CareServiceImpl implements ICareService {
 
         appointmentService.completeAppointment(appointment.getAppointmentId());
 
+        appointmentService.updateEmployeeOfAppointment(dto.getAppointmentId(), dto.getEmployeeId());
+
         return createdCare;
     }
 
@@ -375,6 +377,42 @@ public class CareServiceImpl implements ICareService {
         return new OperationalMonthlyStatsDTO(totalPatients, totalClients, activeVets, avgIncomeFinal);
     }
 
+    @Override
+    public StatsVeterinarianPanel getVeterinarianPanelStatsToday(Long veterinarianId) {
+        Object[] result = careRepository.getStatsForVeterinarianPanelToday(veterinarianId).get(0);
+
+        Long totalCares = ((Number) result[0]).longValue();
+        Long totalPatients = ((Number) result[1]).longValue();
+        Long totalRecords = ((Number) result[2]).longValue();
+
+        return new StatsVeterinarianPanel(totalCares, totalPatients, totalRecords);
+    }
+
+    @Override
+    public VeterinarianPerformanceDTO getTopPerformance(String period) {
+        List<Object[]> rows = careRepository.getTopVeterinarianPerformance(period);
+        return mapToDTO(rows);
+    }
+
+    @Override
+    public VeterinarianPerformanceDTO getTopPerformanceByHeadquarter(String period, Long headquarterId) {
+        List<Object[]> rows = careRepository.getTopVeterinarianPerformanceByHeadquarter(period, headquarterId);
+        return mapToDTO(rows);
+    }
+
+    private VeterinarianPerformanceDTO mapToDTO(List<Object[]> rows) {
+        List<String> names = new ArrayList<>();
+        List<Long> patients = new ArrayList<>();
+        List<Long> appointments = new ArrayList<>();
+
+        for (Object[] row : rows) {
+            names.add((String) row[0]);
+            patients.add(((Number) row[1]).longValue());
+            appointments.add(((Number) row[2]).longValue());
+        }
+
+        return new VeterinarianPerformanceDTO(names, patients, appointments);
+    }
 
 
 

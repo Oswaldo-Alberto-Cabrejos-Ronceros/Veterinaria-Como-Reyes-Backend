@@ -55,5 +55,11 @@ public interface ICareService {
 
     OperationalMonthlyStatsDTO getOperationalMonthlyStatsByHeadquarter(Long headquarterId);
 
+    StatsVeterinarianPanel getVeterinarianPanelStatsToday(Long veterinarianId);
+
+    VeterinarianPerformanceDTO getTopPerformance(String period);
+
+    VeterinarianPerformanceDTO getTopPerformanceByHeadquarter(String period, Long headquarterId);
+
     // void deleteCare(Long id);
 } 

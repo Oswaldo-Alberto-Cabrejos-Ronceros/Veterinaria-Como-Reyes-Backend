@@ -70,4 +70,6 @@ public interface IAppointmentService {
     DailyAppointmentStatsDTO getDailyAppointmentStatsLast7Days();
 
     DailyAppointmentStatsDTO getDailyAppointmentStatsLast7DaysByHeadquarter(Long headquarterId);
+
+    void updateEmployeeOfAppointment(Long appointmentId, Long employeeId);
 }

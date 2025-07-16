@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.DailyAppointmentStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.MonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.OperationalMonthlyStatsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.VeterinarianPerformanceDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.WeeklyIncomeDTO;
@@ -83,5 +84,10 @@ public class ManagerController {
         return ResponseEntity.ok(appointmentService.getDailyAppointmentStatsLast7DaysByHeadquarter(headquarterId));
     }
 
+    //grafico de veterinarios por sede performance
+    @GetMapping("/top-veterinarians/{period}/headquarter/{headquarterId}")
+    public VeterinarianPerformanceDTO getTopByHeadquarter(@PathVariable String period, @PathVariable Long headquarterId) {
+        return careService.getTopPerformanceByHeadquarter(period, headquarterId);
+    }
 
 }

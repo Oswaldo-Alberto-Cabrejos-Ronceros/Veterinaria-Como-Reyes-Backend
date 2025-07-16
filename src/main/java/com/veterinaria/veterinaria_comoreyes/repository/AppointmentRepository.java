@@ -9,6 +9,7 @@ import com.veterinaria.veterinaria_comoreyes.entity.Employee;
 import com.veterinaria.veterinaria_comoreyes.entity.StatusAppointment;
 import com.veterinaria.veterinaria_comoreyes.external.mercadoPago.dto.UserBuyerDTO;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -553,6 +554,11 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 """, nativeQuery = true)
     List<Object[]> getDailyAppointmentStatsLast7DaysByHeadquarter(@Param("headquarterId") Long headquarterId);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE Appointment a SET a.employee.employeeId = :employeeId WHERE a.appointmentId = :appointmentId")
+    int updateAppointmentEmployee(@Param("appointmentId") Long appointmentId,
+                                  @Param("employeeId") Long employeeId);
 
 
 }

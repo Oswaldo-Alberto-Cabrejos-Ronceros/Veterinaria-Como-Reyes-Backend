@@ -3,6 +3,7 @@ package com.veterinaria.veterinaria_comoreyes.controller;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.DailyAppointmentStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Appointment.MonthlyStatsDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Care.OperationalMonthlyStatsDTO;
+import com.veterinaria.veterinaria_comoreyes.dto.Care.VeterinarianPerformanceDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.AnnualRevenueDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.IncomePerHeadquarterDTO;
 import com.veterinaria.veterinaria_comoreyes.dto.Payment.TopPaymentMethodsDTO;
@@ -14,10 +15,7 @@ import com.veterinaria.veterinaria_comoreyes.service.ICareService;
 import com.veterinaria.veterinaria_comoreyes.service.IPaymentService;
 import com.veterinaria.veterinaria_comoreyes.service.ISpecieService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/panel-admin")
@@ -85,6 +83,12 @@ public class AdminController {
     @GetMapping("/appointments/daily-stats")
     public ResponseEntity<DailyAppointmentStatsDTO> getDailyAppointmentStatsLast7Days() {
         return ResponseEntity.ok(appointmentService.getDailyAppointmentStatsLast7Days());
+    }
+
+    //grafico de top veterinarians by performance
+    @GetMapping("/top-veterinarians/{period}")
+    public VeterinarianPerformanceDTO getTopVeterinariansPerformance(@PathVariable String period) {
+        return careService.getTopPerformance(period);
     }
 
 
