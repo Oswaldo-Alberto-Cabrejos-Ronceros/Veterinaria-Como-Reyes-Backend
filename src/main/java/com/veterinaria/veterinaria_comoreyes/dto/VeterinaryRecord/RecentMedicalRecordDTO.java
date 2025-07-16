@@ -19,4 +19,5 @@ public class RecentMedicalRecordDTO {
     private String treatment;
     private String observations;
     private String status;
+    private Long animalId;
 }

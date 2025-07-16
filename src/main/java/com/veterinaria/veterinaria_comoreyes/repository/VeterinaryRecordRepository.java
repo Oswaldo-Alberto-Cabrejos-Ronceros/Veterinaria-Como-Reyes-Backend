@@ -56,7 +56,8 @@ public interface VeterinaryRecordRepository extends JpaRepository<VeterinaryReco
         vr.diagnosis,
         vr.treatment,
         vr.observations,
-        vr.status_veterinary_record
+        vr.status_veterinary_record,
+        an.animal_id 
     FROM veterinary_record vr
     JOIN care c ON c.care_id = vr.id_care
     JOIN animal an ON an.animal_id = c.animal_id

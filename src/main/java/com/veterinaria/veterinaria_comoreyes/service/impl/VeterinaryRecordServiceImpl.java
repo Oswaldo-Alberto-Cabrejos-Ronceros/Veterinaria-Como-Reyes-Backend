@@ -101,7 +101,8 @@ public class VeterinaryRecordServiceImpl implements IVeterinaryRecordService {
                 (String) row[7],                    // diagnosis
                 (String) row[8],                    // treatment
                 (String) row[9],                    // observations
-                (String) row[10]                     // status
+                (String) row[10],                     // status
+                ((Number) row[11]).longValue()      // animalId
         )).collect(Collectors.toList());
     }
 
