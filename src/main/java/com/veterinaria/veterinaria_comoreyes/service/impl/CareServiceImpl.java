@@ -171,6 +171,8 @@ public class CareServiceImpl implements ICareService {
 
         appointmentService.completeAppointment(appointment.getAppointmentId());
 
+        appointmentService.updateEmployeeOfAppointment(dto.getAppointmentId(), dto.getEmployeeId());
+
         return createdCare;
     }
 

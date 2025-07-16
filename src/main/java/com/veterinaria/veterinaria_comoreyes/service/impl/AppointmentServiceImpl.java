@@ -647,5 +647,18 @@ public class AppointmentServiceImpl implements IAppointmentService {
         return new DailyAppointmentStatsDTO(dayLabels, completedCounts, cancelledCounts);
     }
 
+    @Override
+    public void updateEmployeeOfAppointment(Long appointmentId, Long employeeId) {
+        if (!employeeRepository.existsById(employeeId)) {
+            throw new ResourceNotFoundException("Empleado no encontrado");
+        }
+
+        int updated = appointmentRepository.updateAppointmentEmployee(appointmentId, employeeId);
+
+        if (updated == 0) {
+            throw new ResourceNotFoundException("Cita no encontrada");
+        }
+    }
+
 
 }
