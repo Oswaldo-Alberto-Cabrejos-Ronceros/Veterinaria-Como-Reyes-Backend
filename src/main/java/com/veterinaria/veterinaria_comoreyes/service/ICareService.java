@@ -57,5 +57,9 @@ public interface ICareService {
 
     StatsVeterinarianPanel getVeterinarianPanelStatsToday(Long veterinarianId);
 
+    VeterinarianPerformanceDTO getTopPerformance(String period);
+
+    VeterinarianPerformanceDTO getTopPerformanceByHeadquarter(String period, Long headquarterId);
+
     // void deleteCare(Long id);
 } 

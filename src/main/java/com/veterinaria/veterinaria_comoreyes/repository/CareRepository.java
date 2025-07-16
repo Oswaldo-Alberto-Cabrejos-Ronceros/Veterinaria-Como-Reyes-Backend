@@ -324,4 +324,71 @@ public interface CareRepository extends JpaRepository<Care, Long> {
     List<Object[]> getStatsForVeterinarianPanelToday(@Param("veterinarianId") Long veterinarianId);
 
 
+
+    @Query(value = """   
+SELECT * FROM (
+    SELECT 
+        e.NAME,
+        COUNT(DISTINCT c.ANIMAL_ID),
+        COUNT(DISTINCT a.APPOINTMENT_ID)
+    FROM EMPLOYEE e
+    JOIN EMPLOYEE_ROLE er ON e.EMPLOYEE_ID = er.ID_EMPLOYEE
+    JOIN ROLE r ON er.ID_ROLE = r.ROLE_ID
+    LEFT JOIN CARE c 
+        ON c.EMPLOYEE_ID = e.EMPLOYEE_ID 
+        AND c.STATUS_CARE = 'COMPLETADO'
+        AND (
+            (:period = 'WEEK' AND c.CARE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'IW') AND TRUNC(SYSDATE) + 1)
+            OR (:period = 'MONTH' AND c.CARE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'MM') AND ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1))
+            OR (:period = 'YEAR' AND c.CARE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'YYYY') AND ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+        )
+    LEFT JOIN APPOINTMENT a 
+        ON a.EMPLOYEE_ID = e.EMPLOYEE_ID 
+        AND (
+            (:period = 'WEEK' AND a.SCHEDULE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'IW') AND TRUNC(SYSDATE) + 1)
+            OR (:period = 'MONTH' AND a.SCHEDULE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'MM') AND ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1))
+            OR (:period = 'YEAR' AND a.SCHEDULE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'YYYY') AND ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+        )
+    WHERE UPPER(r.NAME) = 'VETERINARIO'
+    GROUP BY e.NAME
+    ORDER BY e.NAME
+)
+WHERE ROWNUM <= 5
+""", nativeQuery = true)
+    List<Object[]> getTopVeterinarianPerformance(@Param("period") String period);
+
+    @Query(value = """
+SELECT * FROM (
+    SELECT 
+        e.NAME AS employee_name,
+        COUNT(DISTINCT c.ANIMAL_ID) AS total_patients,
+        COUNT(DISTINCT a.APPOINTMENT_ID) AS total_appointments
+    FROM EMPLOYEE e
+    JOIN EMPLOYEE_ROLE er ON e.EMPLOYEE_ID = er.ID_EMPLOYEE
+    JOIN ROLE r ON er.ID_ROLE = r.ROLE_ID
+    LEFT JOIN CARE c 
+        ON c.EMPLOYEE_ID = e.EMPLOYEE_ID 
+        AND c.STATUS_CARE = 'COMPLETADO'
+        AND (
+            (:period = 'WEEK' AND c.CARE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'IW') AND TRUNC(SYSDATE) + 1)
+            OR (:period = 'MONTH' AND c.CARE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'MM') AND ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1))
+            OR (:period = 'YEAR' AND c.CARE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'YYYY') AND ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+        )
+    LEFT JOIN APPOINTMENT a 
+        ON a.EMPLOYEE_ID = e.EMPLOYEE_ID 
+        AND (
+            (:period = 'WEEK' AND a.SCHEDULE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'IW') AND TRUNC(SYSDATE) + 1)
+            OR (:period = 'MONTH' AND a.SCHEDULE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'MM') AND ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1))
+            OR (:period = 'YEAR' AND a.SCHEDULE_DATE_TIME BETWEEN TRUNC(SYSDATE, 'YYYY') AND ADD_MONTHS(TRUNC(SYSDATE, 'YYYY'), 12))
+        )
+    WHERE UPPER(r.NAME) = 'VETERINARIO'
+    AND e.ID_HEADQUARTER = :headquarterId
+    GROUP BY e.NAME
+    ORDER BY e.NAME
+)
+WHERE ROWNUM <= 5
+    """, nativeQuery = true)
+    List<Object[]> getTopVeterinarianPerformanceByHeadquarter(@Param("period") String period, @Param("headquarterId") Long headquarterId);
+
+
 }
