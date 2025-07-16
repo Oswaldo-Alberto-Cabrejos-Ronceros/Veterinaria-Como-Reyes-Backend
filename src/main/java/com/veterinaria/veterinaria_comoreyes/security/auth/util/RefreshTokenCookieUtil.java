@@ -13,7 +13,7 @@ public class RefreshTokenCookieUtil extends CookieUtil {
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
 
     public void setRefreshCookie(HttpServletResponse response, String token, int maxAge) {
-        setCookie(response, REFRESH_COOKIE_NAME, token, maxAge, true, false, "Strict");
+        setCookie(response, REFRESH_COOKIE_NAME, token, maxAge, true, false, "Lax");
     }
 
     public void deleteRefreshCookie(HttpServletResponse response) {
